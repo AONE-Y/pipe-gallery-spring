@@ -13,6 +13,6 @@ public class AccountProfile implements Serializable {
 
     private String name;
 
-    private String email;
+    private int role;
 
 }

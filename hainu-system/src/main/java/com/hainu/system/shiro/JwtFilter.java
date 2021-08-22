@@ -31,7 +31,7 @@ public class JwtFilter extends AuthenticatingFilter {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String jwt = request.getHeader("Authorization");
-        if(StringUtils.hasLength(jwt)) {
+        if(!StringUtils.hasLength(jwt)) {
             return null;
         }
 
@@ -43,7 +43,7 @@ public class JwtFilter extends AuthenticatingFilter {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String jwt = request.getHeader("Authorization");
-        if(StringUtils.hasLength(jwt)) {
+        if(!StringUtils.hasLength(jwt)) {
             return true;
         } else {
 
