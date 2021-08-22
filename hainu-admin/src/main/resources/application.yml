@@ -1,0 +1,28 @@
+ip: 192.168.2.219
+spring:
+  mqtt:
+    username: xinxi                           # 账号
+    password: xinxi216                           # 密码
+    host-url: ws://${ip}:8083           # mqtt连接tcp地址
+    client-id: Monitor         # 客户端Id，每个启动的id要不同 随机：${random.value}
+    default-topic: status                       # 默认主题
+    timeout: 70                              # 超时时间
+    keepalive: 20                            # 保持连接数
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://${ip}:3306/pipe_gallery?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: xinxi216
+    driver-class-name: com.mysql.cj.jdbc.Driver
+server:
+  port: 8080
+
+shiro-redis:
+  enabled: true
+  redis-manager:
+    host: ${ip}:6379
+hainu:
+  jwt:
+    secret: f4e2e52034348f86b67cde581c0f9eb5
+    expire: 604800
+    header: Authorization
