@@ -1,4 +1,5 @@
 ip: 192.168.2.219
+##############################hainu-system##################################################
 spring:
   mqtt:
     username: xinxi                           # 账号
@@ -21,8 +22,30 @@ shiro-redis:
   enabled: true
   redis-manager:
     host: ${ip}:6379
-hainu:
-  jwt:
-    secret: f4e2e52034348f86b67cde581c0f9eb5
-    expire: 604800
-    header: Authorization
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*/*.xml
+  #typeAliasesPackage: com.jeebase.*.*.entity
+  global-config:
+    #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+    id-type: 2
+    #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+    field-strategy: 2
+    #驼峰下划线转换
+    db-column-underline: true
+    #刷新mapper 调试神器
+    refresh-mapper: true
+    #数据库大写下划线转换
+    #capital-mode: true
+    #逻辑删除配置
+    logic-delete-value: 1
+    logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志
+
+system:
+  expireTime: "{web: 10800000l, app: 15768000000l}"
+
+########################################hainu-system############################################################

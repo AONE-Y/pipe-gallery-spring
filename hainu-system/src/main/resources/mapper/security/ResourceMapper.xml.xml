@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hainu.system.dao.ResourceMapper">
+
+    <!--映射-->
+    <resultMap id="BaseResultMap" type="com.hainu.system.entity.Resource">
+        <id column="resource_id" property="resourceId" />
+        <result column="resource_name" property="resourceName" />
+        <result column="resource_parent_id" property="resourceParentId" />
+        <result column="resource_type" property="resourceType" />
+        <result column="resource_icon" property="resourceIcon" />
+        <result column="resource_url" property="resourceUrl" />
+        <result column="resource_level" property="resourceLevel" />
+        <result column="resource_show" property="resourceShow" />
+        <result column="resource_desc" property="resourceDesc" />
+        <result column="resource_createtime" property="resourceCreatetime" />
+        <result column="resource_updatetime" property="resourceUpdatetime" />
+        <result column="resource_auth" property="resourceAuth" />
+        <result column="resource_crumb" property="resourceCrumb" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        resource_id,
+        resource_name,
+        resource_parent_id,
+        resource_type,
+        resource_icon,
+        resource_url,
+        resource_level,
+        resource_show,
+        resource_desc,
+        resource_createtime,
+        resource_updatetime,
+        resource_auth
+    </sql>
+
+    <!-- 根据用户名查询用户权限 -->
+    <select id="queryUserResource" resultType="com.hainu.system.dto.Router">
+		SELECT DISTINCT
+		D.resource_id as id,
+		D.resource_name as router,
+		D.resource_parent_id as parent,
+		D.resource_icon as icon,
+		D.resource_url as path,
+		D.resource_show as ifshow,
+		D.resource_level as level,
+		D.resource_auth as auth,
+		D.resource_crumb as crumb
+		FROM sys_user A
+		INNER JOIN sys_user_role B ON A.user_id = B.user_id
+		INNER JOIN sys_role_resource C ON B.role_id = C.role_id
+		INNER JOIN sys_resource D ON C.resource_id = D.resource_id AND D.resource_type = 2
+		WHERE A.user_id = #{userId} AND D.resource_parent_id=#{parentId} AND A.user_del_flag = 1 ORDER BY resource_level DESC
+	</select>
+
+    <!-- 获取用户所有权限集合-->
+    <select id="queryUserPerm" resultType="com.hainu.system.entity.Resource">
+		SELECT DISTINCT
+		D.resource_auth
+		FROM sys_user A
+		INNER JOIN sys_user_role B ON A.user_id = B.user_id
+		INNER JOIN sys_role_resource C ON B.role_id = C.role_id
+		INNER JOIN sys_resource D ON C.resource_id = D.resource_id
+		WHERE A.user_id = #{userId} AND A.user_del_flag = 1
+	</select>
+
+    <!-- 使用存储过程查询树，推荐使用 -->
+    <select id="queryResourceTreeProc" parameterType="com.hainu.system.entity.Resource" resultType="com.hainu.system.entity.Resource" statementType="CALLABLE">
+		CALL queryResourceList(#{resourceParentId,mode=IN})
+	</select>
+
+</mapper>

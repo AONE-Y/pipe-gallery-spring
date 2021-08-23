@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hainu.system.entity.User">
+
+    <!--映射-->
+    <resultMap id="BaseResultMap" type="com.hainu.system.entity.User">
+        <id column="user_id" property="userId" />
+        <result column="user_account" property="userAccount" />
+        <result column="user_name" property="userName" />
+        <result column="user_nick_name" property="userNickName" />
+        <result column="user_password" property="userPassword" />
+        <result column="user_age" property="userAge" />
+        <result column="user_sex" property="userSex" />
+        <result column="user_mobile_phone" property="userMobilePhone" />
+        <result column="user_mail" property="userMail" />
+        <result column="user_desc" property="userDesc" />
+        <result column="user_state" property="userState" />
+        <result column="user_del_flag" property="userDelFlag" />
+        <result column="user_createtime" property="userCreatetime" />
+        <result column="user_updatetime" property="userUpdateTime" />
+        <result column="user_img" property="userImg" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        user_id,
+        user_account,
+        user_name,
+        user_nick_name,
+        user_password,
+        user_age,
+        user_sex,
+        user_mobile_phone,
+        user_mail,
+        user_desc,
+        user_state,
+        user_del_flag,
+        user_createtime,
+        user_updatetime,
+        user_img
+    </sql>
+
+</mapper>
