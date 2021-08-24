@@ -17,6 +17,7 @@ import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import java.util.Set;
  * @author ANONE
  * @date 2021年8月22日 下午4:00:59
  */
+@Component
 public class UserRealm extends AuthorizingRealm {
     
     @Autowired

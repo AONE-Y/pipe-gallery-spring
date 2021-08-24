@@ -1,6 +1,8 @@
 package com.hainu.controller.auth;
 
 import cn.hutool.crypto.SecureUtil;
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hainu.system.common.annotation.CurrentUser;
 import com.hainu.system.common.result.ResponseConstant;
@@ -9,27 +11,33 @@ import com.hainu.system.dto.Router;
 import com.hainu.system.dto.UserInfo;
 import com.hainu.system.entity.Resource;
 import com.hainu.system.entity.Role;
+import com.hainu.system.entity.LoginInfo;
 import com.hainu.system.entity.User;
 import com.hainu.system.service.ResourceService;
 import com.hainu.system.service.RoleService;
+import com.hainu.system.service.LoginInfoService;
 import com.hainu.system.service.UserService;
 import com.hainu.system.util.Constant;
+import com.hainu.system.util.IpUtil;
 import com.hainu.system.util.JwtComponent;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RequestMapping("/auth")
 @RestController
 public class LoginController {
 
+
     @Autowired
     private UserService userService;
+    @Autowired
+    private LoginInfoService logininfoService;
     @Autowired
     private JwtComponent jwtComponent;
     @Autowired
@@ -40,49 +48,72 @@ public class LoginController {
 
     @RequestMapping("/login")
     @CrossOrigin
-    public Result<String> login(@RequestBody User loginUser, HttpServletRequest request){
+    public Result<String> login(@RequestBody User loginUser, HttpServletRequest request) {
+        LoginInfo logininfo = new LoginInfo();
+        Map<String, String[]> loginFlag = new HashMap<>();
+
+
+        String ip = IpUtil.getIpAddr(request);
+        UserAgent ua = UserAgentUtil.parse(request.getHeader("User-Agent"));
         String userAccount = loginUser.getUserAccount();
         String userPassword = loginUser.getUserPassword();
-        if(ObjectUtils.isEmpty(userAccount) || ObjectUtils.isEmpty(userPassword)){
+
+        if (ObjectUtils.isEmpty(userAccount) || ObjectUtils.isEmpty(userPassword)) {
             return new Result<String>().error("参数错误");
         }
         //查询用户是否存在
         QueryWrapper<User> ew = new QueryWrapper<>();
-        ew.eq("user_account",userAccount);
+        ew.eq("user_account", userAccount);
         User user = userService.getOne(ew);
-        String s=SecureUtil.md5(userPassword);
-        String msg=null;
-        if(!ObjectUtils.isEmpty(user)){
+        //若value值未修改，则登入成功
+        loginFlag.put("Flag", new String[]{"0", "登录成功"});
+        if (!ObjectUtils.isEmpty(user)) {
+            logininfo.setUserNickName(user.getUserNickName());
+            if (!user.getUserPassword().equals(SecureUtil.md5(userPassword))) {
+                loginFlag.put("Flag", new String[]{"4", "账号或密码错误"});
+            }
+            if (user.getUserState() == 0) {
+                loginFlag.put("Flag", new String[]{"3", "账号已禁用"});
 
-            if(!user.getUserPassword().equals(SecureUtil.md5(userPassword))){
-                msg="账号或密码错误";
             }
-            else if(user.getUserState() == 0){
-                msg="账号已禁用";
-            }
-            else if(user.getUserDelFlag() == 0){
-                msg="账号已失效";
-            }else{
-                String token = jwtComponent.sign(user.getUserAccount(),user.getUserPassword(), Constant.ExpTimeType.WEB);
-                return new Result<String>().success().put(token);
+            if (user.getUserDelFlag() == 0) {
+                loginFlag.put("Flag", new String[]{"2", "账号已失效"});
             }
 
-        }else{
-            msg="用户不存在";
+        } else {
+            loginFlag.put("Flag", new String[]{"1", "用户不存在"});
         }
-        return new Result<String>().error(msg);
+
+
+        logininfo.setIpaddr(ip);
+        logininfo.setLoginLocation(IpUtil.internalIp(ip) ? "内网" : "外网");
+        logininfo.setBrowser(ua.getBrowser().toString());
+        logininfo.setOs(ua.getOs().toString());
+        logininfo.setUserAccount(userAccount);
+        logininfo.setLoginTime(LocalDateTime.now());
+        logininfo.setStatus(loginFlag.get("Flag")[0]);
+        logininfo.setMsg(loginFlag.get("Flag")[1]);
+        logininfoService.save(logininfo);
+
+        if (loginFlag.get("Flag")[0].equals("0")) {
+            String token = jwtComponent.sign(user.getUserAccount(), user.getUserPassword(), Constant.ExpTimeType.WEB);
+            return new Result<String>().success().put(token);
+        }
+
+        return new Result<String>().error(loginFlag.get("Flag")[1]);
 
 
     }
 
     /**
      * 获取个人信息
+     *
      * @return
      */
     @CrossOrigin
     @RequestMapping("/user/info")
     @RequiresAuthentication
-    public Result<UserInfo> userInfo(HttpServletRequest request,@CurrentUser User currentUser){
+    public Result<UserInfo> userInfo(HttpServletRequest request, @CurrentUser User currentUser) {
         UserInfo userInfo = new UserInfo();
         //放入用户角色
         userInfo.setUserInfo(currentUser);
@@ -92,17 +123,17 @@ public class LoginController {
         List<Router> userPerm = resourceService.queryUserResource(currentUser.getUserId());
         for (Router router : userPerm) {
             Set<String> set = null;
-            Map<String,Object> pageMap = new HashMap<>();
-            pageMap.put("title",router.getRouter());
-            pageMap.put("breadcrumb",new HashSet<String>(Arrays.asList(router.getCrumb().split(","))));
+            Map<String, Object> pageMap = new HashMap<>();
+            pageMap.put("title", router.getRouter());
+            pageMap.put("breadcrumb", new HashSet<String>(Arrays.asList(router.getCrumb().split(","))));
             router.setPage(pageMap);
             //权限处理 目前只放permission
-            Map<String,String> authMap = new HashMap<>();
-            authMap.put("permission",router.getAuth());
+            Map<String, String> authMap = new HashMap<>();
+            authMap.put("permission", router.getAuth());
             router.setAuthority(authMap);
             //是否显示处理
             router.setInvisible(router.getIfshow() == 1 ? false : true);
-            if(router.getChildren() != null && router.getChildren().size() > 0){
+            if (router.getChildren() != null && router.getChildren().size() > 0) {
                 parseRouter(router.getChildren());
             }
         }
@@ -115,8 +146,8 @@ public class LoginController {
         //将用户菜单转化为前端需要的格式
         List<Map> userTreePerm = new ArrayList<>();
         Map treeMap = new HashMap();
-        treeMap.put("router","root");
-        treeMap.put("children",userPerm);
+        treeMap.put("router", "root");
+        treeMap.put("children", userPerm);
         userTreePerm.add(treeMap);
         userInfo.setPermission(userAuth);
         userInfo.setRouters(userTreePerm);
@@ -125,22 +156,23 @@ public class LoginController {
 
     /**
      * 菜单递归操作
+     *
      * @return
      */
-    private static void parseRouter(List<Router> routers){
+    private static void parseRouter(List<Router> routers) {
         for (Router router : routers) {
             //meta中的page属性
-            Map<String,Object> pageMap = new HashMap<>();
-            pageMap.put("title",router.getRouter());
-            pageMap.put("breadcrumb",new HashSet<String>(Arrays.asList(router.getCrumb().split(","))));
+            Map<String, Object> pageMap = new HashMap<>();
+            pageMap.put("title", router.getRouter());
+            pageMap.put("breadcrumb", new HashSet<String>(Arrays.asList(router.getCrumb().split(","))));
             router.setPage(pageMap);
             //权限处理 目前只放permission
-            Map<String,String> authMap = new HashMap<>();
-            authMap.put("permission",router.getAuth());
+            Map<String, String> authMap = new HashMap<>();
+            authMap.put("permission", router.getAuth());
             router.setAuthority(authMap);
             //是否显示处理
             router.setInvisible(router.getIfshow() == 1 ? false : true);
-            if(router.getChildren() != null && router.getChildren().size() > 0){
+            if (router.getChildren() != null && router.getChildren().size() > 0) {
                 parseRouter(router.getChildren());
             }
         }
@@ -154,10 +186,11 @@ public class LoginController {
     }
 
 
-    @PostMapping("/logout")
+    @RequestMapping("/logout")
     public Result<?> logOut(HttpServletRequest request) throws Exception {
         return new Result<>().success();
     }
+
 
 
 }

@@ -17,6 +17,11 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 server:
   port: 9999
+  servlet:
+    encoding:
+      force: true
+      charset: utf-8
+      enabled: true
 
 shiro-redis:
   enabled: true

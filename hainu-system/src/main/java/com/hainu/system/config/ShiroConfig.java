@@ -2,6 +2,7 @@ package com.hainu.system.config;
 
 import com.hainu.system.service.ResourceService;
 import com.hainu.system.shiro.JWTFilter;
+import com.hainu.system.shiro.JWTFilter2;
 import com.hainu.system.shiro.UserRealm;
 import com.hainu.system.util.Constant;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -135,12 +136,12 @@ public class ShiroConfig {
         filterRuleMap.put("/500", "anon");
         filterRuleMap.put("/error", "anon");
 
-        filterRuleMap.put("/v2/api-docs", "anon");
-        filterRuleMap.put("/v3/api-docs", "anon");
-        filterRuleMap.put("/webjars/**", "anon");
-        filterRuleMap.put("/swagger-resources/**", "anon");
-        filterRuleMap.put("/swagger-ui.html", "anon");
-        filterRuleMap.put("/doc.html", "anon");
+//        filterRuleMap.put("/v2/api-docs", "anon");
+//        filterRuleMap.put("/v3/api-docs", "anon");
+//        filterRuleMap.put("/webjars/**", "anon");
+//        filterRuleMap.put("/swagger-resources/**", "anon");
+//        filterRuleMap.put("/swagger-ui.html", "anon");
+//        filterRuleMap.put("/doc.html", "anon");
 
         factoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return factoryBean;
@@ -161,7 +162,7 @@ public class ShiroConfig {
     }
 
     @Bean
-    public JWTFilter jwtFilter() {
-        return new JWTFilter();
+    public JWTFilter2 jwtFilter() {
+        return new JWTFilter2();
     }
 }
