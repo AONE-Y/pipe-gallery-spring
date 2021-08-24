@@ -1,6 +1,8 @@
-package com.hainu.system.shiro;
+package com.hainu.system.config;
 
 import com.hainu.system.service.ResourceService;
+import com.hainu.system.shiro.JWTFilter;
+import com.hainu.system.shiro.UserRealm;
 import com.hainu.system.util.Constant;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -103,7 +105,6 @@ public class ShiroConfig {
     @Bean
     public ShiroFilterChainDefinition shiroFilterChainDefinition() {
         DefaultShiroFilterChainDefinition chainDefinition = new DefaultShiroFilterChainDefinition();
-
         Map<String, String> filterMap = new LinkedHashMap<>();
 
         filterMap.put("/**", "jwt");
@@ -152,6 +153,7 @@ public class ShiroConfig {
         advisor.setSecurityManager(securityManager);
         return advisor;
     }
+
 
     @Bean
     public UserRealm userRealm() {

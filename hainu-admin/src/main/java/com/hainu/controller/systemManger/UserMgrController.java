@@ -1,5 +1,6 @@
 package com.hainu.controller.systemManger;
 
+import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hainu.system.common.annotation.CurrentUser;
@@ -59,6 +60,8 @@ public class UserMgrController {
     public Result<?> update(@RequestBody Map map){
         Object res = map.get("user");
         User user = JSON.parseObject(JSON.toJSONString(res),User.class);
+        String passwd=SecureUtil.md5(user.getUserPassword());
+        user.setUserPassword(passwd);
         user.setUserUpdateTime(DateUtil.formatTime(new Date()));
         userService.updateById(user);
         return new Result<>().success();
@@ -77,6 +80,8 @@ public class UserMgrController {
         if(count > 0){
             return new Result<>().error(500,"该用户已存在！");
         }
+        String passwd=SecureUtil.md5(user.getUserPassword());
+        user.setUserPassword(passwd);
         user.setUserDelFlag(1);
         user.setUserState(1);
         user.setUserCreatetime(DateUtil.formatTime(new Date()));
@@ -145,14 +150,14 @@ public class UserMgrController {
     @RequiresAuthentication
     public Result<?> setUserPass(@CurrentUser User user,@RequestBody Map map){
         try {
-            String oldPass = (String) map.get("oldPass");
-            String newPass = (String) map.get("newPass");
-            if(!oldPass.equals(user.getUserPassword())){
+            String oldPassMd5 = SecureUtil.md5((String) map.get("oldPass"));
+            String newPassMd5 = SecureUtil.md5((String) map.get("newPass"));
+            if(!oldPassMd5.equals(user.getUserPassword())){
                 return new Result<>().error(403,"旧密码输入错误");
-            }else if(oldPass.equals(newPass)){
+            }else if(oldPassMd5.equals(newPassMd5)){
                 return new Result<>().error(406,"新密码不能与旧密码相同");
             } else{
-                user.setUserPassword(newPass);
+                user.setUserPassword(newPassMd5);
                 userService.updateById(user);
             }
         }catch (Exception e){

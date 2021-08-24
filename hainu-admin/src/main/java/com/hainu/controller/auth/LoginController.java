@@ -1,5 +1,6 @@
 package com.hainu.controller.auth;
 
+import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hainu.system.common.annotation.CurrentUser;
 import com.hainu.system.common.result.ResponseConstant;
@@ -17,6 +18,7 @@ import com.hainu.system.util.JwtComponent;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,33 +40,39 @@ public class LoginController {
 
     @RequestMapping("/login")
     @CrossOrigin
-    public Result<Object> login(@RequestBody User loginUser, HttpServletRequest request){
+    public Result<String> login(@RequestBody User loginUser, HttpServletRequest request){
         String userAccount = loginUser.getUserAccount();
         String userPassword = loginUser.getUserPassword();
         if(ObjectUtils.isEmpty(userAccount) || ObjectUtils.isEmpty(userPassword)){
-            return new Result<Object>().error("参数错误");
+            return new Result<String>().error("参数错误");
         }
         //查询用户是否存在
         QueryWrapper<User> ew = new QueryWrapper<>();
         ew.eq("user_account",userAccount);
         User user = userService.getOne(ew);
+        String s=SecureUtil.md5(userPassword);
+        String msg=null;
         if(!ObjectUtils.isEmpty(user)){
-            if(!user.getUserPassword().equals(userPassword)){
-                return new Result<Object>().error("账号或密码错误");
+
+            if(!user.getUserPassword().equals(SecureUtil.md5(userPassword))){
+                msg="账号或密码错误";
             }
-            if(user.getUserState() == 0){
-                return new Result<Object>().error("账号已禁用");
+            else if(user.getUserState() == 0){
+                msg="账号已禁用";
             }
-            if(user.getUserDelFlag() == 0){
-                return new Result<Object>().error("账号已失效");
+            else if(user.getUserDelFlag() == 0){
+                msg="账号已失效";
+            }else{
+                String token = jwtComponent.sign(user.getUserAccount(),user.getUserPassword(), Constant.ExpTimeType.WEB);
+                return new Result<String>().success().put(token);
             }
+
         }else{
-            return new Result<Object>().error("用户不存在");
+            msg="用户不存在";
         }
-        String token = jwtComponent.sign(user.getUserAccount(),user.getUserPassword(), Constant.ExpTimeType.WEB);
-        Map<String,Object> map=new HashMap<String, Object>();
-        map.put("token",token);
-        return new Result<Object>().success().put(map);
+        return new Result<String>().error(msg);
+
+
     }
 
     /**
@@ -74,11 +82,9 @@ public class LoginController {
     @CrossOrigin
     @RequestMapping("/user/info")
     @RequiresAuthentication
-    public Result<UserInfo> userInfo(HttpServletRequest request,@CurrentUser String token){
+    public Result<UserInfo> userInfo(HttpServletRequest request,@CurrentUser User currentUser){
         UserInfo userInfo = new UserInfo();
         //放入用户角色
-        String userAccount = jwtComponent.getUserAccount(token);
-        User currentUser = userService.getOne(new QueryWrapper<User>().eq("user_account", userAccount));
         userInfo.setUserInfo(currentUser);
         Role userRole = roleService.queryUserRole(currentUser.getUserId());
         userInfo.setRoleName(userRole.getRoleName());
@@ -139,7 +145,7 @@ public class LoginController {
             }
         }
     }
-    
+
 
     @RequestMapping("401")
     @RequiresAuthentication

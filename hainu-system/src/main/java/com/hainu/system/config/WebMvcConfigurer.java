@@ -1,9 +1,11 @@
-package com.hainu.system.shiro;
+package com.hainu.system.config;
 
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.hainu.system.shiro.CurrentUserMethodArgumentResolver;
+import com.hainu.system.shiro.FastJsonHttpMessageConverterEx;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;

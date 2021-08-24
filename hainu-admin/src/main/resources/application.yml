@@ -11,12 +11,12 @@ spring:
     keepalive: 20                            # 保持连接数
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://${ip}:3306/pipe_gallery?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.10.183:3306/vue_blog?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
-    password: xinxi216
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 server:
-  port: 8080
+  port: 9999
 
 shiro-redis:
   enabled: true
