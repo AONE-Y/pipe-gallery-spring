@@ -103,7 +103,6 @@ public class LoginController {
 
     }
 
-    @CrossOrigin
     @RequestMapping("/user/info")
     @SaCheckLogin
     public Result<?> userInfo(HttpServletRequest request) {

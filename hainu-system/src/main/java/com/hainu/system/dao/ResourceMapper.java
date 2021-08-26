@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.hainu.system.dto.Router;
 import com.hainu.system.entity.Resource;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,10 +18,10 @@ public interface ResourceMapper extends BaseMapper<Resource> {
      * @param userId
      * @return
      */
-    List<Router> queryUserResource(String userId, String parentId);
+    List<Router> queryUserResource(@Param("userId") String userId, @Param("parentId")String parentId);
 
     /**
      * 查询用户权限集合
      */
-    List<Resource> queryUserPerm(String userId);
+    List<Resource> queryUserPerm(@Param("userId") String userId);
 }
