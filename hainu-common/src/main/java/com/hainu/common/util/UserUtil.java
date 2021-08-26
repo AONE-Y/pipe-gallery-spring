@@ -1,6 +1,6 @@
-package com.hainu.system.util;
+package com.hainu.common.util;
 
-import com.hainu.system.dto.Router;
+import com.hainu.common.dto.Router;
 
 import java.util.HashSet;
 import java.util.List;

@@ -36,7 +36,7 @@
     </sql>
 
     <!-- 根据用户名查询用户权限 -->
-    <select id="queryUserResource" resultType="com.hainu.system.dto.Router">
+    <select id="queryUserResource" resultType="com.hainu.common.dto.Router">
 		SELECT DISTINCT
 		D.resource_id as id,
 		D.resource_name as router,

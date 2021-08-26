@@ -1,8 +1,7 @@
-package com.hainu.system.dto;
+package com.hainu.common.dto;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
 @Data
 public class DateRange {
     private String beginDate;

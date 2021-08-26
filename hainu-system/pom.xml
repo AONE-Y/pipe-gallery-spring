@@ -13,9 +13,7 @@
     <version>0.0.1</version>
 
     <properties>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <mybatis-plus-boot-starter.version>3.1.0</mybatis-plus-boot-starter.version>
         <mybatis-plus-generator.version>3.1.0</mybatis-plus-generator.version>
         <fastjson.version>1.2.56</fastjson.version>
@@ -40,16 +38,6 @@
         </dependency>
         <!--        mqtt-->
 
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-             <version>2.3.1</version>
-        </dependency>
 
         <!-- mybatis-plus begin -->
         <dependency>
@@ -85,18 +73,10 @@
         </dependency>
         <!--sql-->
 
-        <!--        权限认证-->
         <dependency>
-            <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-spring-boot-starter</artifactId>
-            <version>1.25.0</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-dao-redis-jackson</artifactId>
-            <version>1.24.0</version>
-        </dependency>
-        <!--        权限认证-->
 
     </dependencies>
 

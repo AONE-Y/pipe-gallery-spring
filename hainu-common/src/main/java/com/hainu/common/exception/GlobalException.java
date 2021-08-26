@@ -1,10 +1,10 @@
-package com.hainu.system.common.exception;
+package com.hainu.common.exception;
 
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.exception.NotRoleException;
-import com.hainu.system.common.result.Result;
+import com.hainu.common.lang.Result;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

@@ -1,4 +1,4 @@
-package com.hainu.system.dto;
+package com.hainu.common.dto;
 
 import lombok.Data;
 

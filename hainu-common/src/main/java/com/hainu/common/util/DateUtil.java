@@ -1,4 +1,4 @@
-package com.hainu.system.util;
+package com.hainu.common.util;
 
 
 

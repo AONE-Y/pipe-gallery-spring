@@ -1,4 +1,6 @@
-package com.hainu.system.common.result;
+package com.hainu.common.lang;
+
+import com.hainu.common.constant.ResponseConstant;
 
 /**
  * @author ANONE

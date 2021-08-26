@@ -12,12 +12,17 @@
     <artifactId>hainu-common</artifactId>
 
     <dependencies>
+        <!--        系统信息工具-->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>5.6.1</version>
+        </dependency>
+        <!--        系统信息工具-->
+
 
     </dependencies>
 
-    <properties>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
-    </properties>
+
 
 </project>

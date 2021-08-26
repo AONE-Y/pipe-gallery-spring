@@ -1,4 +1,13 @@
 ip: 192.168.2.219
+
+server:
+  port: 9999
+  servlet:
+    encoding:
+      force: true
+      charset: utf-8
+      enabled: true
+
 ##############################hainu-system##################################################
 spring:
   mqtt:
@@ -18,15 +27,10 @@ spring:
   redis:
     port: 6379
     host: 192.168.2.219
-    database: 2
+    database: 3
 
-server:
-  port: 9999
-  servlet:
-    encoding:
-      force: true
-      charset: utf-8
-      enabled: true
+
+
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*/*.xml
@@ -47,11 +51,10 @@ mybatis-plus:
     logic-not-delete-value: 0
   configuration:
     map-underscore-to-camel-case: true
-    cache-enabled: false
+    cache-enabled: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志
 
-system:
-  expireTime: "{web: 10800000l, app: 15768000000l}"
+
 
 sa-token:
   # token名称 (同时也是cookie名称)

@@ -1,4 +1,4 @@
-package com.hainu.utils;
+package com.hainu.common.util.utils;
 
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;

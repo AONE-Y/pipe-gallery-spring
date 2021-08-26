@@ -1,4 +1,4 @@
-package com.hainu.system.util;
+package com.hainu.common.util;
 
 import cn.dev33.satoken.SaManager;
 import cn.dev33.satoken.config.SaTokenConfig;
@@ -16,6 +16,7 @@ import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+
 
 @Component
 public class SaTokenJwtUtil {

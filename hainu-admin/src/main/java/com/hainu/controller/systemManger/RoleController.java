@@ -3,13 +3,13 @@ package com.hainu.controller.systemManger;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.hainu.system.common.result.Result;
+import com.hainu.common.lang.Result;
 import com.hainu.system.entity.Role;
 import com.hainu.system.entity.*;
 import com.hainu.system.service.RoleResourceService;
 import com.hainu.system.service.RoleService;
 import com.hainu.system.service.UserRoleService;
-import com.hainu.system.util.DateUtil;
+import com.hainu.common.util.DateUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

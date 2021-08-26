@@ -1,4 +1,4 @@
-package com.hainu.system.common.result;
+package com.hainu.common.constant;
 
 /**
  * @ClassName: PublicResultConstant

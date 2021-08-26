@@ -1,7 +1,7 @@
 package com.hainu.system.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.hainu.system.dto.Router;
+import com.hainu.common.dto.Router;
 import com.hainu.system.entity.Resource;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

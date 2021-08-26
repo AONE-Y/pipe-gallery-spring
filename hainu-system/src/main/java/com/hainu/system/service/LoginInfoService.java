@@ -1,11 +1,9 @@
 package com.hainu.system.service;
 
-import com.hainu.system.entity.LoginInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.apache.ibatis.annotations.Param;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import com.hainu.system.config.MybatisRedisCache;
+import com.hainu.system.entity.LoginInfo;
+import org.apache.ibatis.annotations.CacheNamespace;
 
 public interface LoginInfoService extends IService<LoginInfo>{
 

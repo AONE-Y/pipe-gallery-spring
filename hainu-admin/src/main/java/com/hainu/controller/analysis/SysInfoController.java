@@ -2,7 +2,7 @@ package com.hainu.controller.analysis;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.system.oshi.OshiUtil;
-import com.hainu.utils.SysInfoUtil;
+import com.hainu.common.util.utils.SysInfoUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

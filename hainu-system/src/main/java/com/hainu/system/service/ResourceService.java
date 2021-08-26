@@ -1,7 +1,7 @@
 package com.hainu.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.hainu.system.dto.Router;
+import com.hainu.common.dto.Router;
 import com.hainu.system.entity.Resource;
 
 import java.util.List;
