@@ -13,6 +13,7 @@
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>11</java.version>
+        <skipTests>true</skipTests>
     </properties>
     <dependencies>
         <dependency>
@@ -20,6 +21,13 @@
             <artifactId>hainu-system</artifactId>
             <version>0.0.1</version>
         </dependency>
+        <!--        系统信息工具-->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>5.6.1</version>
+        </dependency>
+        <!--        系统信息工具-->
     </dependencies>
 
     <build>

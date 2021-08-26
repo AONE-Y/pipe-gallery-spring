@@ -1,5 +1,6 @@
 package com.hainu.controller.systemManger;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -10,7 +11,7 @@ import com.hainu.system.entity.UserRole;
 import com.hainu.system.service.UserRoleService;
 import com.hainu.system.service.UserService;
 import com.hainu.system.util.DateUtil;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +32,7 @@ public class UserMgrController {
     private UserRoleService userRoleService;
 
     @RequestMapping("getList")
-    @RequiresAuthentication
+@SaCheckLogin
     @ResponseBody
     @CrossOrigin
     public Result<?> getList(){
@@ -42,7 +43,7 @@ public class UserMgrController {
     }
 
     @RequestMapping("del")
-    @RequiresAuthentication
+@SaCheckLogin
     @ResponseBody
     @CrossOrigin
     public Result<?> getList(@RequestBody Map map){
@@ -54,7 +55,7 @@ public class UserMgrController {
     }
 
     @RequestMapping("update")
-    @RequiresAuthentication
+@SaCheckLogin
     @ResponseBody
     @CrossOrigin
     public Result<?> update(@RequestBody Map map){
@@ -68,7 +69,7 @@ public class UserMgrController {
     }
 
     @RequestMapping("add")
-    @RequiresAuthentication
+@SaCheckLogin
     @ResponseBody
     @CrossOrigin
     public Result<?> add(@RequestBody Map map){
@@ -91,7 +92,7 @@ public class UserMgrController {
     }
 
     @RequestMapping("setRole")
-    @RequiresAuthentication
+@SaCheckLogin
     @ResponseBody
     @CrossOrigin
     public Result<?> setRole(@RequestBody Map map){
@@ -114,7 +115,7 @@ public class UserMgrController {
     }
 
     @RequestMapping("setUserPerson")
-    @RequiresAuthentication
+@SaCheckLogin
     @ResponseBody
     @CrossOrigin
     public  Result<?> setUserPerson(@RequestBody Map map){
@@ -147,7 +148,7 @@ public class UserMgrController {
     @RequestMapping("setUserPass")
     @ResponseBody
     @CrossOrigin
-    @RequiresAuthentication
+@SaCheckLogin
     public Result<?> setUserPass(@CurrentUser User user,@RequestBody Map map){
         try {
             String oldPassMd5 = SecureUtil.md5((String) map.get("oldPass"));

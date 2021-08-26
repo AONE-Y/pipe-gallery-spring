@@ -1,16 +1,14 @@
 package com.hainu.controller.systemManger;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hainu.system.common.result.Result;
+import com.hainu.system.dto.DateRange;
 import com.hainu.system.entity.LoginInfo;
 import com.hainu.system.service.LoginInfoService;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/info")
@@ -19,11 +17,18 @@ public class LoginInfoController {
     @Autowired
     LoginInfoService logininfoService;
 
-    @GetMapping("/login")
-    public Result<?> login() {
-        List<LoginInfo> list = logininfoService.list();
-        return new Result<>().success().put(list);
-    }
 
+
+    @CrossOrigin
+    @SaCheckLogin
+    @PostMapping("logInfo")
+    public Result< ? > logInfo(@RequestBody(required = false)  DateRange date) {
+        QueryWrapper<LoginInfo> queryWrapper =null;
+        if (date != null) {
+            queryWrapper = new QueryWrapper<>();
+            queryWrapper.between("login_time",date.getBeginDate(),date.getEndDate());
+        }
+        return new Result<>().success().put(logininfoService.list(queryWrapper));
+    }
 
 }

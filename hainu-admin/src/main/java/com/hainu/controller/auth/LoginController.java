@@ -1,10 +1,11 @@
 package com.hainu.controller.auth;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.hainu.system.common.annotation.CurrentUser;
 import com.hainu.system.common.result.ResponseConstant;
 import com.hainu.system.common.result.Result;
 import com.hainu.system.dto.Router;
@@ -17,10 +18,7 @@ import com.hainu.system.service.ResourceService;
 import com.hainu.system.service.RoleService;
 import com.hainu.system.service.LoginInfoService;
 import com.hainu.system.service.UserService;
-import com.hainu.system.util.Constant;
 import com.hainu.system.util.IpUtil;
-import com.hainu.system.util.JwtComponent;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +36,7 @@ public class LoginController {
     private UserService userService;
     @Autowired
     private LoginInfoService logininfoService;
-    @Autowired
-    private JwtComponent jwtComponent;
+
     @Autowired
     private ResourceService resourceService;
     @Autowired
@@ -48,7 +45,7 @@ public class LoginController {
 
     @RequestMapping("/login")
     @CrossOrigin
-    public Result<String> login(@RequestBody User loginUser, HttpServletRequest request) {
+    public Result<?> login(@RequestBody User loginUser, HttpServletRequest request) {
         LoginInfo logininfo = new LoginInfo();
         Map<String, String[]> loginFlag = new HashMap<>();
 
@@ -84,7 +81,7 @@ public class LoginController {
             loginFlag.put("Flag", new String[]{"1", "用户不存在"});
         }
 
-
+        //登录日志记录
         logininfo.setIpaddr(ip);
         logininfo.setLoginLocation(IpUtil.internalIp(ip) ? "内网" : "外网");
         logininfo.setBrowser(ua.getBrowser().toString());
@@ -96,8 +93,9 @@ public class LoginController {
         logininfoService.save(logininfo);
 
         if (loginFlag.get("Flag")[0].equals("0")) {
-            String token = jwtComponent.sign(user.getUserAccount(), user.getUserPassword(), Constant.ExpTimeType.WEB);
-            return new Result<String>().success().put(token);
+
+            StpUtil.login(loginUser.getUserAccount());
+            return new Result<>().success().put(StpUtil.getTokenInfo());
         }
 
         return new Result<String>().error(loginFlag.get("Flag")[1]);
@@ -105,15 +103,15 @@ public class LoginController {
 
     }
 
-    /**
-     * 获取个人信息
-     *
-     * @return
-     */
     @CrossOrigin
     @RequestMapping("/user/info")
-    @RequiresAuthentication
-    public Result<UserInfo> userInfo(HttpServletRequest request, @CurrentUser User currentUser) {
+    @SaCheckLogin
+    public Result<?> userInfo(HttpServletRequest request) {
+
+
+        Object loginId = StpUtil.getLoginId();
+        User currentUser = userService.getOne(new QueryWrapper<User>().eq("user_account", loginId));
+
         UserInfo userInfo = new UserInfo();
         //放入用户角色
         userInfo.setUserInfo(currentUser);
@@ -180,17 +178,17 @@ public class LoginController {
 
 
     @RequestMapping("401")
-    @RequiresAuthentication
+    @SaCheckLogin
     public Result<?> unauthorized() {
         return new Result<>().error(ResponseConstant.USER_NO_PERMITION);
     }
 
 
-    @RequestMapping("/logout")
+    @PostMapping("/logout")
     public Result<?> logOut(HttpServletRequest request) throws Exception {
+        StpUtil.logout();
         return new Result<>().success();
     }
-
 
 
 }

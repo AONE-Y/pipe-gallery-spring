@@ -1,0 +1,8 @@
+version: "3.1"
+services:
+  pipejava:
+    build: docker
+    restart: always
+    container_name: pipejava
+    ports:
+      - 9999:9999

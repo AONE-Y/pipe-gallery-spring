@@ -1,0 +1,12 @@
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - echo java-pipe
+    - mvn package
+    - cp hainu-admin/target/*.jar docker/app.jar
+    - docker-compose down
+    - docker-compose up -d --build
+    - docker rmi $(docker images -qf dangling=true)

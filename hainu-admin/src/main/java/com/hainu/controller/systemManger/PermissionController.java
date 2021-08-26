@@ -1,12 +1,13 @@
 package com.hainu.controller.systemManger;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hainu.system.common.result.Result;
 import com.hainu.system.entity.Resource;
 import com.hainu.system.service.ResourceService;
 import com.hainu.system.util.DateUtil;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +21,8 @@ public class PermissionController {
     private ResourceService resourceService;
 
     @RequestMapping("getList")
-    @RequiresAuthentication
     @ResponseBody
-    @CrossOrigin
+    @SaCheckLogin
     public Result<?> getList(){
         List<Resource> list = resourceService.list();
         return new Result<>().success().put(list);
@@ -32,9 +32,8 @@ public class PermissionController {
      * 删除一个菜单
      */
     @RequestMapping("del")
-    @RequiresAuthentication
     @ResponseBody
-    @CrossOrigin
+    @SaCheckLogin
     public Result<?> del(@RequestBody Map map){
         resourceService.removeById((Serializable) map.get("id"));
         return new Result<>().success();
@@ -44,9 +43,8 @@ public class PermissionController {
      * 添加菜单
      */
     @RequestMapping("add")
-    @RequiresAuthentication
     @ResponseBody
-    @CrossOrigin
+    @SaCheckLogin
     public Result<?> add(@RequestBody Map map){
         Object res = map.get("resource");
         Resource resource = JSON.parseObject(JSON.toJSONString(res),Resource.class);
@@ -68,9 +66,9 @@ public class PermissionController {
      * 修改菜单
      */
     @RequestMapping("update")
-    @RequiresAuthentication
+
     @ResponseBody
-    @CrossOrigin
+    @SaCheckLogin
     public Result<?> update(@RequestBody Map map){
         Object res = map.get("resource");
         Resource resource = JSON.parseObject(JSON.toJSONString(res),Resource.class);
@@ -84,9 +82,8 @@ public class PermissionController {
      * 获取父级菜单下拉框
      */
     @RequestMapping("getCascader")
-    @RequiresAuthentication
     @ResponseBody
-    @CrossOrigin
+    @SaCheckLogin
     public Result<?> getCascader(){
         List<Resource> list = resourceService.list();
         List<Map> cas = new ArrayList<>();
