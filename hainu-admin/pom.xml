@@ -13,6 +13,8 @@
     <description>Demo project for Spring Boot</description>
     <packaging>jar</packaging>
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <java.version>11</java.version>
         <skipTests>true</skipTests>
     </properties>
@@ -20,6 +22,10 @@
         <dependency>
             <groupId>com.hainu</groupId>
             <artifactId>hainu-system</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hainu</groupId>
+            <artifactId>hainu-common</artifactId>
         </dependency>
 
     </dependencies>
