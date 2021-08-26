@@ -13,6 +13,8 @@
     <version>0.0.1</version>
 
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <java.version>11</java.version>
         <mybatis-plus-boot-starter.version>3.1.0</mybatis-plus-boot-starter.version>
         <mybatis-plus-generator.version>3.1.0</mybatis-plus-generator.version>
