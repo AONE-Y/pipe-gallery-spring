@@ -33,17 +33,21 @@ public class SysInfoController {
     public Object test2(){
         ArrayList<Object> re = new ArrayList<>();
         // re.add(OshiUtil.getMemory());
-        re.add(OshiUtil.getProcessor().getSystemLoadAverage(3));
+        re.add(OshiUtil.getProcessor().getSystemLoadAverage(3));//负载状态
         // re.add(OshiUtil.getProcessor().g);
         // re.add(OshiUtil.getDiskStores());
         CpuInfo cpuInfo = OshiUtil.getCpuInfo();
         // double used = cpuInfo.getUsed();
         // double toTal = cpuInfo.getToTal();
         // double sys = cpuInfo.getSys();
+        //cpu
+        re.add(cpuInfo.getCpuModel());
         re.add(cpuInfo.getFree());
         re.add(100-cpuInfo.getFree());
         // re.add(OshiUtil.getNetworkIFs());
         // SysInfoUtil.test();
+
+        re.add(OshiUtil.getDiskStores());
         return re;
     }
 
