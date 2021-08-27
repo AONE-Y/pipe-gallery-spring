@@ -2,8 +2,8 @@ package com.hainu.controller.systemManger;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.hainu.common.dto.DateRangeDto;
 import com.hainu.common.lang.Result;
-import com.hainu.common.dto.DateRange;
 import com.hainu.system.entity.LoginInfo;
 import com.hainu.system.service.LoginInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class LoginInfoController {
     @CrossOrigin
     @SaCheckLogin
     @PostMapping("logInfo")
-    public Result< ? > logInfo(@RequestBody(required = false)  DateRange date) {
+    public Result< ? > logInfo(@RequestBody(required = false) DateRangeDto date) {
         QueryWrapper<LoginInfo> queryWrapper =null;
         if (date != null) {
             queryWrapper = new QueryWrapper<>();

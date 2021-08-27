@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @Description mqtt相关配置信息
  */
 @Component
-@ConfigurationProperties("spring.mqtt")
+@ConfigurationProperties("mqtt")
 @Data
 public class MqttConfig {
     @Autowired

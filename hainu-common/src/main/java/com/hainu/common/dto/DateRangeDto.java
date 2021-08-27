@@ -3,7 +3,7 @@ package com.hainu.common.dto;
 import lombok.Data;
 
 @Data
-public class DateRange {
+public class DateRangeDto {
     private String beginDate;
     private String endDate;
 }

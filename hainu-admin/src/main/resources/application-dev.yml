@@ -10,14 +10,6 @@ server:
 
 ##############################hainu-system##################################################
 spring:
-  mqtt:
-    username: xinxi                           # 账号
-    password: xinxi216                           # 密码
-    host-url: tcp://${ip}:1883           # mqtt连接tcp地址
-    client-id: Monitor_${random.value}         # 客户端Id，每个启动的id要不同 随机：${random.value}
-    default-topic: status                       # 默认主题
-    timeout: 70                              # 超时时间
-    keepalive: 20                            # 保持连接数
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     url: jdbc:mysql://192.168.10.183:3306/vue_blog?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
@@ -29,31 +21,28 @@ spring:
     host: 192.168.2.219
     database: 3
 
-
-
-
 mybatis-plus:
   mapper-locations: classpath*:mapper/*/*.xml
   #typeAliasesPackage: com.jeebase.*.*.entity
   global-config:
-    #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
-    id-type: 2
-    #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
-    field-strategy: 2
-    #驼峰下划线转换
-    db-column-underline: true
-    #刷新mapper 调试神器
-    refresh-mapper: true
-    #数据库大写下划线转换
-    #capital-mode: true
-    #逻辑删除配置
-    logic-delete-value: 1
-    logic-not-delete-value: 0
+    db-config:
+      #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+      id-type: 2
+      #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+      field-strategy: 2
+      #驼峰下划线转换
+      db-column-underline: true
+      #刷新mapper 调试神器
+      refresh-mapper: true
+      #数据库大写下划线转换
+      #capital-mode: true
+      #逻辑删除配置
+      logic-delete-value: 1
+      logic-not-delete-value: 0
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志
-
 
 
 sa-token:
@@ -75,4 +64,17 @@ sa-token:
   is-read-cookie: false
   # 是否从head中读取token
   is-read-head: true
+
+
+mqtt:
+  username: xinxi                           # 账号
+  password: xinxi216                           # 密码
+  host-url: tcp://${ip}:1883           # mqtt连接tcp地址
+  client-id: Monitor_${random.value}         # 客户端Id，每个启动的id要不同 随机：${random.value}
+  default-topic: status                       # 默认主题
+  timeout: 70                              # 超时时间
+  keepalive: 20                            # 保持连接数
+
+
+
 ########################################hainu-system############################################################

@@ -1,13 +1,14 @@
 package com.hainu.controller.analysis;
 
-import cn.hutool.http.HttpRequest;
 import cn.hutool.system.oshi.CpuInfo;
 import cn.hutool.system.oshi.OshiUtil;
-import com.hainu.common.util.utils.SysInfoUtil;
+import com.hainu.common.dto.SysInfoDto;
+import com.hainu.common.lang.Result;
+import com.hainu.common.util.SysInfoUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import oshi.software.os.OSFileStore;
+import oshi.util.FormatUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,21 +23,29 @@ import java.util.List;
  * @Modified By: yy188
  */
 @RestController
-@RequestMapping("/sys")
+@RequestMapping("/aly")
 public class SysInfoController {
 
-    @GetMapping("/test")
-    public String test(){
-        String st=HttpRequest.get("http://mqtt.xinxi.ml:8081/api/v4")
-                .basicAuth("admin","public")
-                .execute().body();
-        return st;
+    @GetMapping("/sys")
+    public Result<?> getSysInfo(){
+        SysInfoDto sysInfo= new SysInfoDto();
+        //负载信息
+        sysInfo.setLoadAverage(OshiUtil.getProcessor().getSystemLoadAverage(3));
+        //返回cpu信息
+        CpuInfo cpuInfo = OshiUtil.getCpuInfo();
+        sysInfo.setCpuInfo(cpuInfo);
+        //返回内存信息
+        String[] memoryInfo={FormatUtil.formatBytes(OshiUtil.getMemory().getTotal()),FormatUtil.formatBytes(OshiUtil.getMemory().getAvailable())};
+        sysInfo.setGlobalMemoryInfo(memoryInfo);
+        //返回硬盘信息
+        sysInfo.setHardDiskInfo(SysInfoUtil.getFileSystemInfo());
+        return new Result<>().success().put(sysInfo);
     }
     @GetMapping("/test2")
     public Object test2(){
         ArrayList<Object> re = new ArrayList<>();
         // re.add(OshiUtil.getMemory());
-        re.add(OshiUtil.getProcessor().getSystemLoadAverage(3));//负载状态
+        // re.add();//负载状态
         // re.add(OshiUtil.getProcessor().g);
         // re.add(OshiUtil.getDiskStores());
         CpuInfo cpuInfo = OshiUtil.getCpuInfo();
@@ -45,13 +54,13 @@ public class SysInfoController {
         // double sys = cpuInfo.getSys();
         //cpu
         re.add(cpuInfo.getCpuModel());
-        re.add(cpuInfo.getFree());
+        // re.add();
         re.add(100-cpuInfo.getFree());
         // re.add(OshiUtil.getNetworkIFs());
         // SysInfoUtil.test();
 
-        re.add(OshiUtil.getMemory().getTotal()/1024.0/1024.0/1024.0);
-        re.add(OshiUtil.getMemory().getAvailable()/1024/1024/1024);
+        re.add(FormatUtil.formatBytes(OshiUtil.getMemory().getTotal()));
+        re.add(FormatUtil.formatBytes(OshiUtil.getMemory().getAvailable()));
 
 
         return re;
@@ -59,11 +68,17 @@ public class SysInfoController {
 
     @GetMapping("test3")
     public List<String> test3(){
-        List<String> list = new ArrayList<>();
-        List<OSFileStore> fileSystemInfo = SysInfoUtil.getFileSystemInfo();
-        for (OSFileStore osFileStore : fileSystemInfo) {
-            list.add(osFileStore.getDescription());
-        }
-        return list;
+        // List<String> list = new ArrayList<>();
+        // List<OSFileStore> fileSystemInfo = SysInfoUtil.getFileSystemInfo();
+        // for (OSFileStore osFileStore : fileSystemInfo) {
+        //     list.add(osFileStore.getDescription());
+        //     list.add(FormatUtil.formatBytes(osFileStore.getUsableSpace()));
+        // }
+        // List<Object> reList = new ArrayList<>();
+        // reList.add(OshiUtil.getProcessor().getSystemLoadAverage(3));
+        // String st=HttpRequest.get("http://mqtt.xinxi.ml:8081/api/v4")
+        //         .basicAuth("admin","public")
+        //         .execute().body();
+        return null;
     }
 }

@@ -15,7 +15,7 @@
     <properties>
         <mybatis-plus-boot-starter.version>3.1.0</mybatis-plus-boot-starter.version>
         <mybatis-plus-generator.version>3.1.0</mybatis-plus-generator.version>
-        <fastjson.version>1.2.56</fastjson.version>
+
         <freemarker.version>2.3.28</freemarker.version>
         <shiro-spring.version>1.4.0</shiro-spring.version>
         <java-jwt.version>3.7.0</java-jwt.version>
@@ -52,12 +52,7 @@
 
         <!-- mybatis-plus end -->
 
-        <!--fast json-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson.version}</version>
-        </dependency>
+
 
         <!--sql-->
         <dependency>
@@ -72,10 +67,6 @@
         </dependency>
         <!--sql-->
 
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-        </dependency>
 
     </dependencies>
 
