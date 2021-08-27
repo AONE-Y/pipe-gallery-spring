@@ -3,11 +3,14 @@ package com.hainu.controller.analysis;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.system.oshi.CpuInfo;
 import cn.hutool.system.oshi.OshiUtil;
+import com.hainu.common.util.utils.SysInfoUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import oshi.software.os.OSFileStore;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Project：pipe-gallery
@@ -47,8 +50,20 @@ public class SysInfoController {
         // re.add(OshiUtil.getNetworkIFs());
         // SysInfoUtil.test();
 
-        re.add(OshiUtil.getDiskStores());
+        re.add(OshiUtil.getMemory().getTotal()/1024.0/1024.0/1024.0);
+        re.add(OshiUtil.getMemory().getAvailable()/1024/1024/1024);
+
+
         return re;
     }
 
+    @GetMapping("test3")
+    public List<Object> test3(){
+        List<Object> list = new ArrayList<>();
+        List<OSFileStore> fileSystemInfo = SysInfoUtil.getFileSystemInfo();
+        for (OSFileStore osFileStore : fileSystemInfo) {
+            list.add(osFileStore.getDescription());
+        }
+        return list;
+    }
 }

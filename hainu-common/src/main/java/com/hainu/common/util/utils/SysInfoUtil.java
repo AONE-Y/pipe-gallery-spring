@@ -1,12 +1,11 @@
 package com.hainu.common.util.utils;
 
 import oshi.SystemInfo;
-import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.software.os.OperatingSystem;
 import oshi.util.FormatUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,33 +18,13 @@ import java.util.List;
  * @Modified By: yy188
  */
 public class SysInfoUtil {
-    public static void test() {
 
-        // System.out.println("Initializing System...");
-        SystemInfo si = new SystemInfo();
-
-        HardwareAbstractionLayer hal = si.getHardware();
-        OperatingSystem os = si.getOperatingSystem();
-
-        // System.out.println(os);
-
-
-        System.out.println("Checking File System...");
-        printFileSystem(os.getFileSystem());
-
-
-
-
-
-
-
-    }
 
     private static void printFileSystem(FileSystem fileSystem) {
-        System.out.println("File System:");
 
-        System.out.format(" File Descriptors: %d/%d%n", fileSystem.getOpenFileDescriptors(),
-                fileSystem.getMaxFileDescriptors());
+        //
+        // System.out.format(" File Descriptors: %d/%d%n", fileSystem.getOpenFileDescriptors(),
+        //         fileSystem.getMaxFileDescriptors());
 
         List<OSFileStore> fsArray = fileSystem.getFileStores();
         for (OSFileStore fs : fsArray) {
@@ -61,6 +40,25 @@ public class SysInfoUtil {
         }
     }
 
+    public static List<OSFileStore> getFileSystemInfo() {
+
+        List<OSFileStore> fileInfo = new ArrayList<>();
+        List<OSFileStore> fsArray = new SystemInfo()
+                .getOperatingSystem()
+                .getFileSystem()
+                .getFileStores();
+
+
+        for (OSFileStore fs : fsArray) {
+            if (!fs.getName().equals(fs.getDescription())) {
+                break;
+            }
+            fileInfo.add(fs);
+
+        }
+        return fileInfo;
+
+    }
 
 
 }
