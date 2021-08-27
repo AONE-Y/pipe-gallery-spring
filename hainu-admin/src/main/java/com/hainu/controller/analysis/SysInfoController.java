@@ -2,7 +2,6 @@ package com.hainu.controller.analysis;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.system.oshi.OshiUtil;
-import com.hainu.common.util.utils.SysInfoUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,9 +35,11 @@ public class SysInfoController {
         re.add(OshiUtil.getProcessor().getSystemLoadAverage(3));
         // re.add(OshiUtil.getProcessor().g);
         // re.add(OshiUtil.getDiskStores());
-        // re.add(OshiUtil.getCpuInfo());
+        re.add(OshiUtil.getCpuInfo().getUsed());
+        re.add(OshiUtil.getCpuInfo().getToTal());
+        re.add(OshiUtil.getCpuInfo().getUsed()/OshiUtil.getCpuInfo().getToTal());
         // re.add(OshiUtil.getNetworkIFs());
-        SysInfoUtil.test();
+        // SysInfoUtil.test();
         return re;
     }
 
