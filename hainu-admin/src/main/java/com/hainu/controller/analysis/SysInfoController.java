@@ -58,8 +58,8 @@ public class SysInfoController {
     }
 
     @GetMapping("test3")
-    public List<Object> test3(){
-        List<Object> list = new ArrayList<>();
+    public List<String> test3(){
+        List<String> list = new ArrayList<>();
         List<OSFileStore> fileSystemInfo = SysInfoUtil.getFileSystemInfo();
         for (OSFileStore osFileStore : fileSystemInfo) {
             list.add(osFileStore.getDescription());
