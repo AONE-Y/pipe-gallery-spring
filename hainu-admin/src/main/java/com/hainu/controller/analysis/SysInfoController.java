@@ -33,7 +33,8 @@ public class SysInfoController {
     public Object test2(){
         ArrayList<Object> re = new ArrayList<>();
         // re.add(OshiUtil.getMemory());
-        re.add(OshiUtil.getProcessor());
+        re.add(OshiUtil.getProcessor().getSystemLoadAverage(3));
+        // re.add(OshiUtil.getProcessor().g);
         // re.add(OshiUtil.getDiskStores());
         // re.add(OshiUtil.getCpuInfo());
         // re.add(OshiUtil.getNetworkIFs());
