@@ -48,15 +48,16 @@ public class SysInfoUtil {
                 .getFileSystem()
                 .getFileStores();
 
+        return fsArray;
 
-        for (OSFileStore fs : fsArray) {
-            if (!fs.getName().equals(fs.getDescription())) {
-                break;
-            }
-            fileInfo.add(fs);
-
-        }
-        return fileInfo;
+        // for (OSFileStore fs : fsArray) {
+        //     if (!fs.getName().equals(fs.getDescription())) {
+        //         break;
+        //     }
+        //     fileInfo.add(fs);
+        //
+        // }
+        // return fileInfo;
 
     }
 
