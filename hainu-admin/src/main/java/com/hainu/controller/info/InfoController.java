@@ -81,7 +81,8 @@ public class InfoController {
         String brokerInfo = HttpRequest.get("http://mqtt.xinxi.ml:8081/api/v4/brokers")
                 .basicAuth("admin", "public")
                 .execute().body();
-        JSON brokerInfoJson = JSONUtil.parse(brokerInfo);
+        JSON brokerInfoJson = (JSON) JSONUtil.parse(brokerInfo).getByPath("data");
+        // brokerInfoJson.getByPath("data");
         return new Result<>().success().put(brokerInfoJson);
 
     }
