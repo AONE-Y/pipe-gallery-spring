@@ -1,18 +1,12 @@
 package com.hainu.system.config;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 跨域过滤器
@@ -30,9 +24,11 @@ public class CorsFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
         response.setHeader("Access-control-Allow-Origin", request.getHeader("Origin"));
+        // response.setHeader("Access-control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
         response.setHeader("Access-Control-Allow-Headers",
                 request.getHeader("Access-Control-Request-Headers"));
+
 //        // 允许指定域访问跨域资源
 //        response.setHeader("Access-Control-Allow-Origin", "*");
 //        // 允许所有请求方式

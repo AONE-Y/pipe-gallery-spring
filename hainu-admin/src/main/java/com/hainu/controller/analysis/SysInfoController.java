@@ -36,7 +36,7 @@ public class SysInfoController {
         sysInfo.setCpuInfo(cpuInfo);
         //返回内存信息
         String[] memoryInfo={FormatUtil.formatBytes(OshiUtil.getMemory().getTotal()),FormatUtil.formatBytes(OshiUtil.getMemory().getAvailable())};
-        sysInfo.setGlobalMemoryInfo(memoryInfo);
+        // sysInfo.setGlobalMemoryInfo(memoryInfo);
         //返回硬盘信息
         sysInfo.setHardDiskInfo(SysInfoUtil.getFileSystemInfo());
         return new Result<>().success().put(sysInfo);
@@ -68,17 +68,7 @@ public class SysInfoController {
 
     @GetMapping("test3")
     public List<String> test3(){
-        // List<String> list = new ArrayList<>();
-        // List<OSFileStore> fileSystemInfo = SysInfoUtil.getFileSystemInfo();
-        // for (OSFileStore osFileStore : fileSystemInfo) {
-        //     list.add(osFileStore.getDescription());
-        //     list.add(FormatUtil.formatBytes(osFileStore.getUsableSpace()));
-        // }
-        // List<Object> reList = new ArrayList<>();
-        // reList.add(OshiUtil.getProcessor().getSystemLoadAverage(3));
-        // String st=HttpRequest.get("http://mqtt.xinxi.ml:8081/api/v4")
-        //         .basicAuth("admin","public")
-        //         .execute().body();
+
         return null;
     }
 }

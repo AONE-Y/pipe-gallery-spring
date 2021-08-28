@@ -19,7 +19,7 @@ public class LoginInfoServiceImpl extends ServiceImpl<LoginInfoMapper, LoginInfo
         return getById(438);
     }
 
-    @Cach(key="test",expire = 3600)
+    @Cach(expire = 3600)
     @Override
     public List<LoginInfo> list() {
         System.out.println("test");

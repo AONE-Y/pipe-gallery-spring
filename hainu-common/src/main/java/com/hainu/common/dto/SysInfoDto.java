@@ -20,6 +20,6 @@ import java.util.List;
 public class SysInfoDto {
     private double[] loadAverage;
     private CpuInfo cpuInfo;
-    private String[] globalMemoryInfo;
+    private double[] globalMemoryInfo;
     private List<AbstractOSFileStore> hardDiskInfo;
 }
