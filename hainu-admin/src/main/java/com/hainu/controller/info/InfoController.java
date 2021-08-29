@@ -11,8 +11,8 @@ import com.hainu.common.lang.Result;
 import com.hainu.system.entity.LoginInfo;
 import com.hainu.system.service.LoginInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/info")
@@ -20,6 +20,11 @@ public class InfoController {
 
     @Autowired
     LoginInfoService logininfoService;
+
+    @Value("${info.baseBtUrl}")
+    private String baseBtUrl;
+    @Value("${info.baseEmqUrl}")
+    private String baseEmqUrl;
 
 
     /**
@@ -63,29 +68,49 @@ public class InfoController {
         // //返回硬盘信息
         // sysInfo.setHardDiskInfo(SysInfoUtil.getFileSystemInfo());
         // return new Result<>().success().put(sysInfo);
+
+        //通过宝塔获取服务器信息
         String btSign = "2bLKdfCQZHZFcTiM7TlbbXTy9rTVvNKu";
-        String url = "http://192.168.2.219:8888/system?action=GetNetWork";
         String timestamp = (System.currentTimeMillis()+"");
         String md5Sign = SecureUtil.md5(btSign);
         String token = SecureUtil.md5(timestamp + md5Sign);
         String json = "request_time="+timestamp+"&request_token="+token;
-        String responseText = HttpRequest.post(url)
+        String responseText = HttpRequest.post(baseBtUrl+"GetNetWork")
                 .body(json)
                 .execute().body();
         JSON parse = JSONUtil.parse(responseText);
-        return new Result<>().success().put(parse);
-    }
 
-    @GetMapping("/emqx/broker")
-    public Result<?> getEmqInfo(){
-        String brokerInfo = HttpRequest.get("http://mqtt.xinxi.ml:8081/api/v4/brokers")
+        //通过emqx获取mqtt服务器及客户端信息
+        String brokerInfo = HttpRequest.get(baseEmqUrl+"/brokers")
                 .basicAuth("admin", "public")
                 .execute().body();
         JSON brokerInfoJson = (JSON) JSONUtil.parse(brokerInfo).getByPath("data");
-        // brokerInfoJson.getByPath("data");
-        return new Result<>().success().put(brokerInfoJson);
 
+        String clientsInfo = HttpRequest.get(baseEmqUrl+"/clients")
+                .basicAuth("admin", "public")
+                .execute().body();
+        JSON clientsInfoJson = JSONUtil.parse(clientsInfo);
+
+        JSON clientsDataInfoJson =(JSON) clientsInfoJson.getByPath("data");
+
+        JSON infoJson=JSONUtil.createObj();
+        JSONUtil.putByPath(infoJson,"sysInfo",parse);
+        JSONUtil.putByPath(infoJson,"emqBrokerInfo",brokerInfoJson);
+        JSONUtil.putByPath(infoJson,"emqClientsInfo",clientsDataInfoJson);
+        return new Result<>().success().put(infoJson);
     }
+
+    // @GetMapping("/emqx/broker")
+    // public Result<?> getEmqInfo(){
+    //     String brokerInfo = HttpRequest.get("http://mqtt.xinxi.ml:8081/api/v4/brokers")
+    //             .basicAuth("admin", "public")
+    //             .execute().body();
+    //     JSON brokerInfoJson = (JSON) JSONUtil.parse(brokerInfo).getByPath("data");
+    //
+    //     // brokerInfoJson.getByPath("data");
+    //     return new Result<>().success().put(brokerInfoJson);
+    //
+    // }
 
 
 
