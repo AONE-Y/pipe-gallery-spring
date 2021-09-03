@@ -14,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/info")
 public class InfoController {
@@ -38,11 +42,10 @@ public class InfoController {
     @SaCheckLogin
     @PostMapping("logInfo")
     public Result< ? > loginInfo(@RequestBody(required = false) DateRangeDto date) {
-        QueryWrapper<LoginInfo> queryWrapper =null;
-        if (date != null) {
-            queryWrapper = new QueryWrapper<>();
-            queryWrapper.between("login_time",date.getBeginDate(),date.getEndDate());
-        }
+        QueryWrapper<LoginInfo> queryWrapper =Optional.ofNullable(date)
+                                                .map(d -> new QueryWrapper<LoginInfo>()
+                                                .between("login_time",d.getBeginDate(),d.getEndDate()))
+                                                .orElseGet(()->null);
         return new Result<>().success().put(logininfoService.list(queryWrapper));
     }
 
@@ -80,25 +83,56 @@ public class InfoController {
                 .execute().body();
         JSON parse = JSONUtil.parse(responseText);
 
-        //通过emqx获取mqtt服务器及客户端信息
-        String brokerInfo = HttpRequest.get(baseEmqUrl+"/brokers")
-                .basicAuth("admin", "public")
-                .execute().body();
-        JSON brokerInfoJson = (JSON) JSONUtil.parse(brokerInfo).getByPath("data");
 
-        String clientsInfo = HttpRequest.get(baseEmqUrl+"/clients")
-                .basicAuth("admin", "public")
-                .execute().body();
-        JSON clientsInfoJson = JSONUtil.parse(clientsInfo);
-
-        JSON clientsDataInfoJson =(JSON) clientsInfoJson.getByPath("data");
 
         JSON infoJson=JSONUtil.createObj();
+
         JSONUtil.putByPath(infoJson,"sysInfo",parse);
-        JSONUtil.putByPath(infoJson,"emqBrokerInfo",brokerInfoJson);
-        JSONUtil.putByPath(infoJson,"emqClientsInfo",clientsDataInfoJson);
+        Map<String, String> emqsInfo = new HashMap<>();
+        emqsInfo.put("/brokers","emqBrokerInfo");
+        emqsInfo.put("/clients","emqClientsInfo");
+        emqsInfo.put("/metrics","emqMetricsInfo");
+
+        emqsInfo.forEach((key,value)->{
+            //通过emqx获取mqtt服务器及客户端信息
+            String emqInfo = HttpRequest.get(baseEmqUrl+key)
+                    .basicAuth("admin", "public")
+                    .execute().body();
+            JSON emqInfoJson = (JSON) JSONUtil.parse(emqInfo).getByPath("data");
+            JSONUtil.putByPath(infoJson,value,emqInfoJson);
+        });
+
+        //通过emqx获取mqtt服务器及客户端信息
+        // String brokerInfo = HttpRequest.get(baseEmqUrl+"/brokers")
+        //         .basicAuth("admin", "public")
+        //         .execute().body();
+        // JSON brokerInfoJson = (JSON) JSONUtil.parse(brokerInfo).getByPath("data");
+        //
+        // String clientsInfo = HttpRequest.get(baseEmqUrl+"/clients")
+        //         .basicAuth("admin", "public")
+        //         .execute().body();
+        // JSON clientsInfoJson = JSONUtil.parse(clientsInfo);
+        //
+        // JSON clientsDataInfoJson =(JSON) clientsInfoJson.getByPath("data");
+
+
+
+        // JSONUtil.putByPath(infoJson,"emqBrokerInfo",brokerInfoJson);
+        // JSONUtil.putByPath(infoJson,"emqClientsInfo",clientsDataInfoJson);
         return new Result<>().success().put(infoJson);
     }
+
+
+    @RequestMapping("emqSubtopInfo")
+    public Result<?> getSubTop( String clientid){
+        String emqInfo = HttpRequest.get(baseEmqUrl+"/subscriptions/"+clientid)
+                .basicAuth("admin", "public")
+                .execute().body();
+        JSON emqInfoJson = (JSON) JSONUtil.parse(emqInfo).getByPath("data");
+        return new Result<>().success().put(emqInfoJson);
+
+    }
+
 
     // @GetMapping("/emqx/broker")
     // public Result<?> getEmqInfo(){
