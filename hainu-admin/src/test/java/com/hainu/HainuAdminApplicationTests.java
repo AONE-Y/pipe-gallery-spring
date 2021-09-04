@@ -2,7 +2,6 @@ package com.hainu;
 
 
 import com.hainu.common.lang.Result;
-import com.hainu.controller.analysis.SysInfoController;
 import com.hainu.controller.info.InfoController;
 import com.hainu.system.service.LoginInfoService;
 import org.junit.jupiter.api.Test;
@@ -16,8 +15,7 @@ class HainuAdminApplicationTests {
     @Autowired
     LoginInfoService ls;
 
-    @Autowired
-    SysInfoController sc;
+
 
     @Test
     void contextLoads() {

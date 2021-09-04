@@ -112,4 +112,23 @@ public class MqttPushClient {
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * @param @param topic 主题
+     * @return
+     * @description: 取消订阅主题
+     * @author： ANONE
+     * @date： 2021/09/03
+     */
+    public void unSubscribe(String topic){
+        logger.info("取消订阅主题" +topic);
+        try {
+            MqttPushClient.getClient().unsubscribe(topic);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
