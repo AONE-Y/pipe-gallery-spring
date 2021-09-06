@@ -1,6 +1,6 @@
 package com.hainu.test;
 
-import java.util.Optional;
+import com.hainu.controller.device.DeviceController;
 
 /**
  * @author frank
@@ -23,14 +23,16 @@ public class Test {
             //         .execute().body();
             // System.out.println(responseText);
 
-        Integer i=1;
-        int b=0;
-        Optional<Integer> integer = Optional.ofNullable(i)
-                .map((w) -> {
-                    return w+1;
-                });
-        System.out.println(integer.orElseGet(()->null));
+        // Integer i=1;
+        // int b=0;
+        // Optional<Integer> integer = Optional.ofNullable(i)
+        //         .map((w) -> {
+        //             return w+1;
+        //         });
+        // System.out.println(integer.orElseGet(()->null));
 
+        DeviceController deviceController = new DeviceController();
+        deviceController.saveTopic("/dev/dat");
 
     }
 

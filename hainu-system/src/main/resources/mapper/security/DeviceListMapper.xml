@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hainu.system.dao.DeviceListMapper">
+  <resultMap id="BaseResultMap" type="com.hainu.system.entity.DeviceList">
+    <!--@mbg.generated-->
+    <!--@Table vue_blog.device_list-->
+    <id column="topic_id" jdbcType="BIGINT" property="topicId" />
+    <result column="device_topic" jdbcType="VARCHAR" property="deviceTopic" />
+    <result column="device_name" jdbcType="VARCHAR" property="deviceName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    topic_id, device_topic, device_name
+  </sql>
+
+  <update id="truncateData">
+    truncate table device_list
+  </update>
+</mapper>
