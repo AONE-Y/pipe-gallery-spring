@@ -1,9 +1,9 @@
 package com.hainu;
 
 
-import cn.hutool.core.date.LocalDateTimeUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hainu.system.dao.DeviceListMapper;
-import com.hainu.system.entity.DeviceLog;
+import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.service.DeviceCurrentService;
 import com.hainu.system.service.DeviceListService;
 import com.hainu.system.service.DeviceLogService;
@@ -11,8 +11,6 @@ import com.hainu.system.service.LoginInfoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.LocalDateTime;
 
 @SpringBootTest
 class HainuAdminApplicationTests {
@@ -65,15 +63,23 @@ class HainuAdminApplicationTests {
         // deviceController.saveTopic("/dev/dae");
 
         //
-        // DeviceCurrent deviceCurrent = new DeviceCurrent();
-        // deviceCurrent.setDeviceName("123");
-        // dcs.save(deviceCurrent);
-        LocalDateTime now = LocalDateTime.now().minusMonths(1);
-        DeviceLog deviceLog = new DeviceLog();
-        LocalDateTimeUtil.format(now, "yyyy-MM-dd HH:MM:ss");
-        deviceLog.setDeviceName("12375765");
-        deviceLog.setCreateTime(LocalDateTime.now());
-        dlogs.save(deviceLog);
+        DeviceCurrent deviceCurrent = new DeviceCurrent();
+        String name="12345";
+        deviceCurrent.setDeviceName(name);
+        deviceCurrent.setDeviceHumi(1);
+
+        UpdateWrapper<DeviceCurrent> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("device_name", name);
+        if(!dcs.update(deviceCurrent,updateWrapper)){
+            dcs.save(deviceCurrent);
+        }
+
+        // LocalDateTime now = LocalDateTime.now().minusMonths(1);
+        // DeviceLog deviceLog = new DeviceLog();
+        // LocalDateTimeUtil.format(now, "yyyy-MM-dd HH:MM:ss");
+        // deviceLog.setDeviceName("12375765");
+        // deviceLog.setCreateTime(LocalDateTime.now());
+        // dlogs.save(deviceLog);
 
     }
 
