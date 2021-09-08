@@ -15,24 +15,24 @@ import lombok.NoArgsConstructor;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/9/8 19:32
+ * @Date：2021/9/8 20:22
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
  * @Modified By: ANONE
  */
-@ApiModel(value = "com-hainu-system-entity-DeviceCurrent")
+@ApiModel(value = "com-hainu-system-entity-DeviceLog")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "testshardingjdbc.device_current")
-public class DeviceCurrent implements Serializable {
+@TableName(value = "testshardingjdbc.device_log")
+public class DeviceLog implements Serializable {
     /**
      * 设备辨识id
      */
     @TableId(value = "device_id", type = IdType.AUTO)
     @ApiModelProperty(value = "设备辨识id")
-    private Integer deviceId;
+    private Long deviceId;
 
     /**
      * 设备名称
@@ -119,11 +119,11 @@ public class DeviceCurrent implements Serializable {
     private Integer deviceGuard;
 
     /**
-     * 设备信息更新时间
+     * 设备信息创建时间
      */
-    @TableField(value = "update_time")
-    @ApiModelProperty(value = "设备信息更新时间")
-    private LocalDateTime updateTime;
+    @TableField(value = "create_time")
+    @ApiModelProperty(value = "设备信息创建时间")
+    private LocalDateTime createTime;
 
     private static final long serialVersionUID = 1L;
 
@@ -153,5 +153,5 @@ public class DeviceCurrent implements Serializable {
 
     public static final String COL_DEVICE_GUARD = "device_guard";
 
-    public static final String COL_UPDATE_TIME = "update_time";
+    public static final String COL_CREATE_TIME = "create_time";
 }

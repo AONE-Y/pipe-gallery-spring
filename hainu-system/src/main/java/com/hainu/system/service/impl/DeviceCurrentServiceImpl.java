@@ -1,12 +1,10 @@
 package com.hainu.system.service.impl;
 
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-import java.util.List;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.dao.DeviceCurrentMapper;
+import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.service.DeviceCurrentService;
+import org.springframework.stereotype.Service;
 
 /**
  * @Project：pipe-gallery
@@ -21,4 +19,6 @@ import com.hainu.system.service.DeviceCurrentService;
 public class DeviceCurrentServiceImpl extends ServiceImpl<DeviceCurrentMapper, DeviceCurrent> implements DeviceCurrentService {
 
 }
+
+
 

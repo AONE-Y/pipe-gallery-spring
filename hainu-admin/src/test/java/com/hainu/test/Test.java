@@ -1,6 +1,6 @@
 package com.hainu.test;
 
-import com.hainu.controller.device.DeviceController;
+import java.time.LocalDateTime;
 
 /**
  * @author frank
@@ -30,10 +30,12 @@ public class Test {
         //             return w+1;
         //         });
         // System.out.println(integer.orElseGet(()->null));
+        //
+        // DeviceController deviceController = new DeviceController();
+        // deviceController.saveTopic("/dev/dat");
 
-        DeviceController deviceController = new DeviceController();
-        deviceController.saveTopic("/dev/dat");
 
+        System.out.println(LocalDateTime.now());
     }
 
 
