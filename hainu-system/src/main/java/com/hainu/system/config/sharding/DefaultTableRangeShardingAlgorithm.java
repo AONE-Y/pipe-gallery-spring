@@ -4,6 +4,7 @@ import com.google.common.collect.Range;
 import org.apache.shardingsphere.api.sharding.standard.RangeShardingAlgorithm;
 import org.apache.shardingsphere.api.sharding.standard.RangeShardingValue;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -13,15 +14,15 @@ import java.util.LinkedHashSet;
  *
  * @author lr
  */
-public class DefaultTableRangeShardingAlgorithm implements RangeShardingAlgorithm<LocalDateTime> {
+public class DefaultTableRangeShardingAlgorithm implements RangeShardingAlgorithm<Date> {
 
     @Override
     public Collection<String> doSharding(Collection<String> availableTargetNames,
-                                         RangeShardingValue<LocalDateTime> rangeShardingValue) {
-        Range<LocalDateTime> ranges = rangeShardingValue.getValueRange();
+                                         RangeShardingValue<Date> rangeShardingValue) {
+        Range<Date> ranges = rangeShardingValue.getValueRange();
 
-        LocalDateTime start = ranges.lowerEndpoint();
-        LocalDateTime end = ranges.upperEndpoint();
+        LocalDateTime start = ranges.lowerEndpoint().toLocalDate().atTime(0,0,0);
+        LocalDateTime end = ranges.upperEndpoint().toLocalDate().atTime(23,59,59);;
 
         int startYear = start.getYear();
         int endYear = end.getYear();

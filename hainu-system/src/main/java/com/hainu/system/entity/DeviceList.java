@@ -15,7 +15,7 @@ import java.io.Serializable;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/9/5 17:44
+ * @Date：2021/9/9 16:01
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
@@ -25,7 +25,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "vue_blog.device_list")
+@TableName(value = "testshardingjdbc.device_list")
 public class DeviceList implements Serializable {
     public static final String COL_DEVICE_NUM = "device_num";
     public static final String COL_DEVICE_ID = "topic_id";

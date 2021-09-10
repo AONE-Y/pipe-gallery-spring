@@ -13,9 +13,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @Modified By: yy188
  */
 public interface DeviceListService extends IService<DeviceList> {
-
+    void truncateData();
 
 }
+
 
 
 

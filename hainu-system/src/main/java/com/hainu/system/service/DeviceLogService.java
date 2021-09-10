@@ -1,7 +1,10 @@
 package com.hainu.system.service;
 
-import com.hainu.system.entity.DeviceLog;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hainu.system.entity.DeviceLog;
+import java.util.List;
+
+import java.time.LocalDate;
 
 /**
  * @Project：pipe-gallery
@@ -14,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface DeviceLogService extends IService<DeviceLog> {
 
+    List<DeviceLog> selectByAvg( LocalDate minDate,  LocalDate maxDate,String deviceName);
 
 }
 

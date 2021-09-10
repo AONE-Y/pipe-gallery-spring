@@ -3,6 +3,10 @@ package com.hainu.system.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.hainu.system.entity.DeviceLog;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @Project：pipe-gallery
@@ -15,4 +19,9 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface DeviceLogMapper extends BaseMapper<DeviceLog> {
+
+
+    List<DeviceLog> selectByAvg(@Param("minDate") LocalDate minDate, @Param("maxDate") LocalDate maxDate,
+                                @Param("deviceName") String deviceName);
+
 }

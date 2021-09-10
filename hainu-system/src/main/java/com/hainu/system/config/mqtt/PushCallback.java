@@ -11,11 +11,24 @@
 package com.hainu.system.config.mqtt;
 
 
-import org.eclipse.paho.client.mqttv3.*;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.hainu.system.entity.DeviceCurrent;
+import com.hainu.system.entity.DeviceLog;
+import com.hainu.system.service.DeviceCurrentService;
+import com.hainu.system.service.DeviceLogService;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
 
 /**
  * @Classname PushCallback
@@ -30,6 +43,11 @@ public class PushCallback implements MqttCallbackExtended {
 
     @Autowired
     private MqttPushClient mqttPushClient;
+
+    @Autowired
+    private DeviceCurrentService dcs;
+    @Autowired
+    private DeviceLogService dls;
 
     private static MqttClient client;
 
@@ -99,6 +117,73 @@ public class PushCallback implements MqttCallbackExtended {
 //                iotDeviceStatusService.insertIotDeviceStatus(deviceStatusEntity);
 //            }
 //        }
+
+        String[] unIncludeTopic={"device_info","setting","status","offline"};
+        if (!Arrays.asList(unIncludeTopic).contains(topic)) {
+            String[] topicSplit = topic.split("/");
+            String deviceName= topicSplit[topicSplit.length - 1];
+
+            DeviceCurrent deviceCurrent = new DeviceCurrent();
+            DeviceLog deviceLog = new DeviceLog();
+            try {
+                JSON deviceInfo = JSONUtil.parse(new String(mqttMessage.getPayload()));
+
+                //设备当前状态
+                Integer temp = deviceInfo.getByPath("temp", Integer.class);
+                Integer humi = deviceInfo.getByPath("humi", Integer.class);
+                Integer llv = deviceInfo.getByPath("llv", Integer.class);
+                Integer gas = deviceInfo.getByPath("gas", Integer.class);
+                Integer o2 = deviceInfo.getByPath("O2", Integer.class);
+                Integer smoke = deviceInfo.getByPath("smoke", Integer.class);
+                Integer lighting = deviceInfo.getByPath("lighting", Integer.class);
+                Integer waterpump = deviceInfo.getByPath("waterpump", Integer.class);
+                Integer fan = deviceInfo.getByPath("fan", Integer.class);
+                Integer infra = deviceInfo.getByPath("infra", Integer.class);
+                Integer guard = deviceInfo.getByPath("guard", Integer.class);
+
+                deviceCurrent.setDeviceName(deviceName);
+                deviceCurrent.setDeviceTemp(temp);
+                deviceCurrent.setDeviceHumi(humi);
+                deviceCurrent.setDeviceLlv(llv);
+                deviceCurrent.setDeviceGas(gas);
+                deviceCurrent.setDeviceO2(o2);
+                deviceCurrent.setDeviceSmoke(smoke);
+                deviceCurrent.setDeviceLighting(lighting);
+                deviceCurrent.setDeviceWaterpump(waterpump);
+                deviceCurrent.setDeviceFan(fan);
+                deviceCurrent.setDeviceInfra(infra);
+                deviceCurrent.setDeviceGuard(guard);
+                UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
+                deviceUpdate.eq("device_name", deviceName);
+                if (!dcs.update(deviceCurrent, deviceUpdate)) {
+                    dcs.save(deviceCurrent);
+                }
+
+                //存储为历史记录
+                deviceLog.setDeviceName(deviceName);
+                deviceLog.setDeviceTemp(temp);
+                deviceLog.setDeviceHumi(humi);
+                deviceLog.setDeviceLlv(llv);
+                deviceLog.setDeviceGas(gas);
+                deviceLog.setDeviceO2(o2);
+                deviceLog.setDeviceSmoke(smoke);
+                deviceLog.setDeviceLighting(lighting);
+                deviceLog.setDeviceWaterpump(waterpump);
+                deviceLog.setDeviceFan(fan);
+                deviceLog.setDeviceInfra(infra);
+                deviceLog.setDeviceGuard(guard);
+                deviceLog.setCreateTime(LocalDateTime.now());
+
+                dls.save(deviceLog);
+
+            }catch (Exception ignored) {
+
+            }
+
+
+
+        }
+
     }
 
     @Override

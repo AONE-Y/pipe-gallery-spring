@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "vue_blog.sys_logininfor")
+@TableName(value = "testshardingjdbc.sys_logininfor")
 public class LoginInfo implements Serializable {
     /**
      * 访问ID

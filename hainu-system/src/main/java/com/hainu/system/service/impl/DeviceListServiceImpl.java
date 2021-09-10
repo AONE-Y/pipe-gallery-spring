@@ -1,12 +1,11 @@
 package com.hainu.system.service.impl;
 
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-import java.util.List;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hainu.system.entity.DeviceList;
 import com.hainu.system.dao.DeviceListMapper;
+import com.hainu.system.entity.DeviceList;
 import com.hainu.system.service.DeviceListService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @Project：pipe-gallery
@@ -19,8 +18,15 @@ import com.hainu.system.service.DeviceListService;
  */
 @Service
 public class DeviceListServiceImpl extends ServiceImpl<DeviceListMapper, DeviceList> implements DeviceListService {
+    @Autowired
+    private DeviceListMapper deviceListMapper;
 
+    @Override
+    public void truncateData() {
+        deviceListMapper.truncateData();
+    }
 }
+
 
 
 

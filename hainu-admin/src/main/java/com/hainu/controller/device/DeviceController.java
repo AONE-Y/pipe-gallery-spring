@@ -3,22 +3,26 @@ package com.hainu.controller.device;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hainu.common.lang.Result;
 import com.hainu.system.config.mqtt.MqttPushClient;
-import com.hainu.system.dao.DeviceCurrentMapper;
-import com.hainu.system.dao.DeviceListMapper;
 import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.entity.DeviceList;
+import com.hainu.system.entity.DeviceLog;
 import com.hainu.system.service.DeviceCurrentService;
 import com.hainu.system.service.DeviceListService;
+import com.hainu.system.service.DeviceLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Project：pipe-gallery
@@ -39,13 +43,14 @@ public class DeviceController {
     private String baseEmqUrl;
 
     @Autowired
-    private DeviceListService dls;
+    private DeviceListService deviceListService;
+
     @Autowired
-    private DeviceListMapper dlm;
+    private DeviceCurrentService deviceCurrentService;
+
+    
     @Autowired
-    private DeviceCurrentService dcs;
-    @Autowired
-    private DeviceCurrentMapper dcm;
+    private DeviceLogService deviceLogService;
 
     /**
      * @param
@@ -67,8 +72,8 @@ public class DeviceController {
                 .map((e) -> e
                         .getByPath("topic").toString())
                 .forEach((o) -> mqttPushClient.unSubscribe(o));
-        dlm.truncateData();
-        dcm.truncateData();
+        deviceListService.truncateData();
+        deviceCurrentService.truncateData();
 
 
         String subInfo = HttpRequest.get(baseEmqUrl + "/routes")
@@ -105,16 +110,47 @@ public class DeviceController {
 
         if (topicSplit.length>1) {
             deviceCurrent.setDeviceName(deviceName);
-            dcs.save(deviceCurrent);
+            deviceCurrentService.save(deviceCurrent);
         }
 
         deviceList.setDeviceName(deviceName);
 
-        dls.save(deviceList);
+        deviceListService.save(deviceList);
 
     }
 
+    @GetMapping("getDeviceInfo")
+    public Result<?> getDeviceInfo(String deviceName){
+        QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper=Optional.ofNullable(deviceName)
+                .map(e->new QueryWrapper<DeviceCurrent>()
+                        .eq("device_name",deviceName))
+                .orElseGet(()->null);
+        List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
+        return new Result<>().success().put(deviceCurrentsInfo);
+    }
 
+    @RequestMapping("getDeviceLog")
+    public Result<?> getDeviceLog(Integer day, String deviceName){
+        QueryWrapper<DeviceLog> deviceLogWrapper=Optional.ofNullable(deviceName)
+                .map(e->new QueryWrapper<DeviceLog>()
+                        .eq("device_name",deviceName))
+                .orElseGet(()->null);
+        LocalDate date = LocalDate.now();
+        LocalDate firstDay = date.with(TemporalAdjusters.firstDayOfMonth());
+
+        LocalDate lastDay = Optional.ofNullable(day)
+                .map(e -> {
+                    if (e<30){
+                        return date.plusDays(e);
+                    }
+                     return date.with(TemporalAdjusters.lastDayOfMonth());
+                })
+                .orElseGet(() -> date.with(TemporalAdjusters.lastDayOfMonth()));
+
+        List<DeviceLog> deviceLogs = deviceLogService.selectByAvg(firstDay, lastDay,deviceName);
+        return new Result<>().success().put(deviceLogs);
+    }
+    
 
 
 }

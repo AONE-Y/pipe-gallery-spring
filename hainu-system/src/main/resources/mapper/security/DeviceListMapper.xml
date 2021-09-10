@@ -3,7 +3,7 @@
 <mapper namespace="com.hainu.system.dao.DeviceListMapper">
   <resultMap id="BaseResultMap" type="com.hainu.system.entity.DeviceList">
     <!--@mbg.generated-->
-    <!--@Table vue_blog.device_list-->
+    <!--@Table testshardingjdbc.device_list-->
     <id column="topic_id" jdbcType="BIGINT" property="topicId" />
     <result column="device_topic" jdbcType="VARCHAR" property="deviceTopic" />
     <result column="device_name" jdbcType="VARCHAR" property="deviceName" />

@@ -25,4 +25,21 @@
     device_smoke, device_lighting, device_waterpump, device_fan, device_infra, device_guard, 
     create_time
   </sql>
+
+  <select id="selectByAvg" resultType="com.hainu.system.entity.DeviceLog">
+    SELECT
+    device_id, device_name, AVG(device_temp) as device_temp, AVG(device_humi) as device_humi,
+    AVG(device_llv) as device_llv, AVG(device_gas) as device_gas, AVG(device_O2) as device_O2,
+    AVG(device_smoke) as device_smoke, AVG(device_lighting) as device_lighting, AVG(device_waterpump) as device_waterpump,
+    AVG(device_fan) as device_fan, AVG(device_infra) as device_infra, AVG(device_guard) as device_guard,
+    DATE_FORMAT(create_time,'%Y-%m-%d') AS create_time
+    FROM device_log
+    <where>
+      create_time between #{minDate} and #{maxDate}
+      <if test="deviceName != null">
+        and device_name=#{deviceName}
+      </if>
+    </where>
+    GROUP BY DATE_FORMAT(create_time,'%Y-%m-%d') , device_name
+  </select>
 </mapper>

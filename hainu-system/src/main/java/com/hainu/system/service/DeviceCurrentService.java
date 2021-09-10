@@ -13,7 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @Modified By: ANONE
  */
 public interface DeviceCurrentService extends IService<DeviceCurrent> {
-
+    void truncateData();
 
 }
 

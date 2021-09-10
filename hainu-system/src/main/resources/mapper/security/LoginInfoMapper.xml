@@ -3,7 +3,7 @@
 <mapper namespace="com.hainu.system.dao.LoginInfoMapper">
   <resultMap id="BaseResultMap" type="com.hainu.system.entity.LoginInfo">
     <!--@mbg.generated-->
-    <!--@Table vue_blog.sys_logininfor-->
+    <!--@Table testshardingjdbc.sys_logininfor-->
     <id column="info_id" jdbcType="BIGINT" property="infoId" />
     <result column="user_account" jdbcType="VARCHAR" property="userAccount" />
     <result column="user_nick_name" jdbcType="VARCHAR" property="userNickName" />
