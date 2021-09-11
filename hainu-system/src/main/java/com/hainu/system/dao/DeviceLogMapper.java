@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.dao
- * @Date：2021/9/11 9:46
+ * @Date：2021/9/11 16:03
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
@@ -16,5 +16,5 @@ import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations
 @Mapper
 public interface DeviceLogMapper extends BaseMapper<DeviceLog> {
     List<DeviceLog> selectByAvg(@Param("minDate") LocalDate minDate, @Param("maxDate") LocalDate maxDate,
-                                @Param("deviceName") String deviceName);
+                                @Param("wsName") String wsName, @Param("node") String node);
 }

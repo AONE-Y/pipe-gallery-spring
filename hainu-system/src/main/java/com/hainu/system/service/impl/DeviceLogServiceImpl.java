@@ -27,10 +27,13 @@ public class DeviceLogServiceImpl extends ServiceImpl<DeviceLogMapper, DeviceLog
 
 
     @Override
-    public List<DeviceLog> selectByAvg(LocalDate minDate, LocalDate maxDate, String deviceName) {
-        return deviceLogMapper.selectByAvg(minDate, maxDate, deviceName);
+    public List<DeviceLog> selectByAvg(LocalDate minDate, LocalDate maxDate, String wsName, String node) {
+        return deviceLogMapper.selectByAvg(minDate, maxDate, wsName, node);
     }
 }
+
+
+
 
 
 

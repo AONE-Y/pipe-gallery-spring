@@ -4,8 +4,9 @@
   <resultMap id="BaseResultMap" type="com.hainu.system.entity.DeviceCurrent">
     <!--@mbg.generated-->
     <!--@Table testshardingjdbc.device_current-->
-    <id column="device_id" jdbcType="INTEGER" property="deviceId" />
-    <result column="device_name" jdbcType="VARCHAR" property="deviceName" />
+    <id column="ws_id" jdbcType="INTEGER" property="wsId" />
+    <result column="ws_name" jdbcType="VARCHAR" property="wsName" />
+    <result column="node" jdbcType="VARCHAR" property="node" />
     <result column="device_temp" jdbcType="DOUBLE" property="deviceTemp" />
     <result column="device_humi" jdbcType="DOUBLE" property="deviceHumi" />
     <result column="device_llv" jdbcType="DOUBLE" property="deviceLlv" />
@@ -21,7 +22,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    device_id, device_name, device_temp, device_humi, device_llv, device_gas, device_O2, 
+    ws_id, ws_name, node, device_temp, device_humi, device_llv, device_gas, device_O2, 
     device_smoke, device_lighting, device_waterpump, device_fan, device_infra, device_guard, 
     update_time
   </sql>

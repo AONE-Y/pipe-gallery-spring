@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/9/11 9:46
+ * @Date：2021/9/11 16:03
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
@@ -31,18 +31,25 @@ import java.time.LocalDateTime;
 @TableName(value = "testshardingjdbc.device_log")
 public class DeviceLog implements Serializable {
     /**
-     * 设备辨识id
+     * 仓端id
      */
-    @TableId(value = "device_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "设备辨识id")
-    private Long deviceId;
+    @TableId(value = "ws_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "仓端id")
+    private Long wsId;
 
     /**
-     * 设备名称
+     * 仓段名称
      */
-    @TableField(value = "device_name")
-    @ApiModelProperty(value = "设备名称")
-    private String deviceName;
+    @TableField(value = "ws_name")
+    @ApiModelProperty(value = "仓段名称")
+    private String wsName;
+
+    /**
+     * 节点名
+     */
+    @TableField(value = "node")
+    @ApiModelProperty(value = "节点名")
+    private String node;
 
     /**
      * 设备温度 0.1℃
@@ -130,9 +137,11 @@ public class DeviceLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String COL_DEVICE_ID = "device_id";
+    public static final String COL_WS_ID = "ws_id";
 
-    public static final String COL_DEVICE_NAME = "device_name";
+    public static final String COL_WS_NAME = "ws_name";
+
+    public static final String COL_NODE = "node";
 
     public static final String COL_DEVICE_TEMP = "device_temp";
 

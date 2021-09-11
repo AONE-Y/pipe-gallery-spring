@@ -61,8 +61,8 @@ class HainuAdminApplicationTests {
 
 
         DeviceList dl = new DeviceList();
-        dl.setDeviceTopic("/gad/sda");
-        dl.setDeviceName("gad");
+        // dl.setDeviceTopic("/gad/sda");
+        // dl.setDeviceName("gad");
 
         dls.save(dl);
         // // dlm.deleteData();
@@ -96,7 +96,7 @@ class HainuAdminApplicationTests {
         LocalDate date = LocalDate.now();
         LocalDate firstday = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDay = date.with(TemporalAdjusters.lastDayOfMonth());
-        List<DeviceLog> deviceLogs = dlogm.selectByAvg(firstday, lastDay,null);
+        List<DeviceLog> deviceLogs = dlogm.selectByAvg(firstday, lastDay,null,null);
         deviceLogs.forEach(System.out::println);
     }
 

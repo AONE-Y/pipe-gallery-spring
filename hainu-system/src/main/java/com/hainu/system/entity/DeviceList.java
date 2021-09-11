@@ -15,7 +15,7 @@ import java.io.Serializable;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/9/9 16:01
+ * @Date：2021/9/11 15:07
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
@@ -27,8 +27,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @TableName(value = "testshardingjdbc.device_list")
 public class DeviceList implements Serializable {
-    public static final String COL_DEVICE_NUM = "device_num";
-    public static final String COL_DEVICE_ID = "topic_id";
+
     /**
      * 话题辨识id
      */
@@ -39,22 +38,22 @@ public class DeviceList implements Serializable {
     /**
      * 设备订阅话题
      */
-    @TableField(value = "device_topic")
+    @TableField(value = "ws_topic")
     @ApiModelProperty(value = "设备订阅话题")
-    private String deviceTopic;
+    private String wsTopic;
 
     /**
      * 设备名称
      */
-    @TableField(value = "device_name")
+    @TableField(value = "ws_name")
     @ApiModelProperty(value = "设备名称")
-    private String deviceName;
+    private String wsName;
 
     private static final long serialVersionUID = 1L;
 
     public static final String COL_TOPIC_ID = "topic_id";
 
-    public static final String COL_DEVICE_TOPIC = "device_topic";
+    public static final String COL_WS_TOPIC = "ws_topic";
 
-    public static final String COL_DEVICE_NAME = "device_name";
+    public static final String COL_WS_NAME = "ws_name";
 }

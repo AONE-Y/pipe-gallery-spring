@@ -45,9 +45,9 @@ public class PushCallback implements MqttCallbackExtended {
     private MqttPushClient mqttPushClient;
 
     @Autowired
-    private DeviceCurrentService dcs;
+    private DeviceCurrentService deviceCurrentService;
     @Autowired
-    private DeviceLogService dls;
+    private DeviceLogService deviceLogService;
 
     private static MqttClient client;
 
@@ -121,13 +121,13 @@ public class PushCallback implements MqttCallbackExtended {
         String[] unIncludeTopic = {"device_info", "setting", "status", "offline"};
         if (!Arrays.asList(unIncludeTopic).contains(topic)) {
             String[] topicSplit = topic.split("/");
-            String deviceName = topicSplit[topicSplit.length - 1];
+            String wsName = topicSplit[topicSplit.length - 1];
 
 
             try {
                 JSON deviceInfo = JSONUtil.parse(new String(mqttMessage.getPayload()));
 
-
+                String node = deviceInfo.getByPath("node", String.class);
                 Double temp = deviceInfo.getByPath("temp", Double.class);
                 Double humi = deviceInfo.getByPath("humi", Double.class);
                 Double llv = deviceInfo.getByPath("llv", Double.class);
@@ -141,7 +141,8 @@ public class PushCallback implements MqttCallbackExtended {
                 Integer guard = deviceInfo.getByPath("guard", Integer.class);
                 //设备当前状态
                 DeviceCurrent deviceCurrent =DeviceCurrent.builder()
-                        .deviceName(deviceName)
+                        .wsName(wsName)
+                        .node(node)
                         .deviceTemp(temp)
                         .deviceHumi(humi)
                         .deviceLlv(llv)
@@ -157,15 +158,16 @@ public class PushCallback implements MqttCallbackExtended {
 
 
                 UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
-                deviceUpdate.eq("device_name", deviceName);
-                if (!dcs.update(deviceCurrent, deviceUpdate)) {
-                    dcs.save(deviceCurrent);
+                deviceUpdate.eq("ws_name", wsName);
+                if (!deviceCurrentService.update(deviceCurrent, deviceUpdate)) {
+                    deviceCurrentService.save(deviceCurrent);
                 }
 
 
                 //存储为历史记录
                 DeviceLog deviceLog =DeviceLog.builder()
-                        .deviceName(deviceName)
+                        .wsName(wsName)
+                        .node(node)
                         .deviceTemp(temp)
                         .deviceHumi(humi)
                         .deviceLlv(llv)
@@ -181,7 +183,7 @@ public class PushCallback implements MqttCallbackExtended {
                         .build();
 
 
-                dls.save(deviceLog);
+                deviceLogService.save(deviceLog);
 
             } catch (Exception ignored) {
 

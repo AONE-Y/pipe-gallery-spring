@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/9/11 9:48
+ * @Date：2021/9/11 15:46
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
@@ -25,24 +25,32 @@ import java.time.LocalDateTime;
  */
 @ApiModel(value = "com-hainu-system-entity-DeviceCurrent")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @TableName(value = "testshardingjdbc.device_current")
 public class DeviceCurrent implements Serializable {
-    /**
-     * 设备辨识id
-     */
-    @TableId(value = "device_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "设备辨识id")
-    private Integer deviceId;
 
     /**
-     * 设备名称
+     * 仓端地址
      */
-    @TableField(value = "device_name")
-    @ApiModelProperty(value = "设备名称")
-    private String deviceName;
+    @TableId(value = "ws_id", type = IdType.AUTO)
+    @ApiModelProperty(value = "仓端地址")
+    private Integer wsId;
+
+    /**
+     * 仓端名
+     */
+    @TableField(value = "ws_name")
+    @ApiModelProperty(value = "仓端名")
+    private String wsName;
+
+    /**
+     * 节点名
+     */
+    @TableField(value = "node")
+    @ApiModelProperty(value = "节点名")
+    private String node;
 
     /**
      * 设备温度 0.1℃
@@ -130,9 +138,11 @@ public class DeviceCurrent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String COL_DEVICE_ID = "device_id";
+    public static final String COL_WS_ID = "ws_id";
 
-    public static final String COL_DEVICE_NAME = "device_name";
+    public static final String COL_WS_NAME = "ws_name";
+
+    public static final String COL_NODE = "node";
 
     public static final String COL_DEVICE_TEMP = "device_temp";
 

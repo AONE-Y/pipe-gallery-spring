@@ -102,39 +102,53 @@ public class DeviceController {
      */
     public void saveTopic(String topic) {
         DeviceList deviceList = new DeviceList();
-        deviceList.setDeviceTopic(topic);
+        deviceList.setWsTopic(topic);
         String[] topicSplit = topic.split("/");
-        String deviceName= topicSplit[topicSplit.length - 1];
+        String wsName= topicSplit[topicSplit.length - 1];
 
         DeviceCurrent deviceCurrent = new DeviceCurrent();
 
         if (topicSplit.length>1) {
-            deviceCurrent.setDeviceName(deviceName);
+            deviceCurrent.setWsName(wsName);
             deviceCurrentService.save(deviceCurrent);
         }
 
-        deviceList.setDeviceName(deviceName);
+        deviceList.setWsName(wsName);
 
         deviceListService.save(deviceList);
 
     }
 
-    @GetMapping("getDeviceInfo")
-    public Result<?> getDeviceInfo(String deviceName){
-        QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper=Optional.ofNullable(deviceName)
-                .map(e->new QueryWrapper<DeviceCurrent>()
-                        .eq("device_name",deviceName))
-                .orElseGet(()->null);
+    @GetMapping("getDeviceCurrent")
+    public Result<?> getDeviceCurrent(String wsName,String node){
+        QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper=new QueryWrapper<>();
+        if (wsName != null) {
+            deviceCurrentQueryWrapper.eq("ws_name",wsName);
+        }
+        if (node != null) {
+            deviceCurrentQueryWrapper.eq("node",node);
+        }
+        if(wsName==null&&node==null){
+            deviceCurrentQueryWrapper=null;
+        }
+
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
         return new Result<>().success().put(deviceCurrentsInfo);
     }
 
     @RequestMapping("getDeviceLog")
-    public Result<?> getDeviceLog(Integer day, String deviceName){
-        QueryWrapper<DeviceLog> deviceLogWrapper=Optional.ofNullable(deviceName)
-                .map(e->new QueryWrapper<DeviceLog>()
-                        .eq("device_name",deviceName))
-                .orElseGet(()->null);
+    public Result<?> getDeviceLog(Integer day, String wsName,String node){
+        QueryWrapper<DeviceLog> deviceLogWrapper=new QueryWrapper<DeviceLog>();
+        if (wsName != null) {
+            deviceLogWrapper.eq("ws_name",wsName);
+        }
+        if (node != null) {
+            deviceLogWrapper.eq("node",node);
+        }
+        if (wsName==null&&node == null) {
+            deviceLogWrapper=null;
+        }
+
         LocalDate date = LocalDate.now();
         LocalDate firstDay = date.with(TemporalAdjusters.firstDayOfMonth());
 
@@ -147,7 +161,7 @@ public class DeviceController {
                 })
                 .orElseGet(() -> date.with(TemporalAdjusters.lastDayOfMonth()));
 
-        List<DeviceLog> deviceLogs = deviceLogService.selectByAvg(firstDay, lastDay,deviceName);
+        List<DeviceLog> deviceLogs = deviceLogService.selectByAvg(firstDay, lastDay,wsName,node);
         return new Result<>().success().put(deviceLogs);
     }
     

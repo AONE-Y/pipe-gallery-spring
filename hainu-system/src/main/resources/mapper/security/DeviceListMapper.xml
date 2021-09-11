@@ -5,12 +5,12 @@
     <!--@mbg.generated-->
     <!--@Table testshardingjdbc.device_list-->
     <id column="topic_id" jdbcType="BIGINT" property="topicId" />
-    <result column="device_topic" jdbcType="VARCHAR" property="deviceTopic" />
-    <result column="device_name" jdbcType="VARCHAR" property="deviceName" />
+    <result column="ws_topic" jdbcType="VARCHAR" property="wsTopic" />
+    <result column="ws_name" jdbcType="VARCHAR" property="wsName" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    topic_id, device_topic, device_name
+    topic_id, ws_topic, ws_name
   </sql>
 
   <update id="truncateData">

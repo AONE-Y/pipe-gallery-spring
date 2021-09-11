@@ -29,7 +29,7 @@ spring:
         # 这个table名字 要注意和下面的一样
         device_log:
           key-generator:
-            column: device_id
+            column: ws_id
             type: SNOWFLAKE
           actual-data-nodes: devicehistory.device_log_$->{2021..2030}0$->{1..9}, devicehistory.device_log_$->{2021..2030}$->{10..12}
           table-strategy:
