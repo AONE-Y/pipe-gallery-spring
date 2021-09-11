@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/9/8 20:39
+ * @Date：2021/9/11 9:48
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @TableName(value = "testshardingjdbc.device_current")
 public class DeviceCurrent implements Serializable {
     /**
@@ -47,35 +49,35 @@ public class DeviceCurrent implements Serializable {
      */
     @TableField(value = "device_temp")
     @ApiModelProperty(value = "设备温度 0.1℃")
-    private Integer deviceTemp;
+    private Double deviceTemp;
 
     /**
      * 设备湿度 0.1%RH
      */
     @TableField(value = "device_humi")
     @ApiModelProperty(value = "设备湿度 0.1%RH")
-    private Integer deviceHumi;
+    private Double deviceHumi;
 
     /**
      * 设备液位值 0.01 米
      */
     @TableField(value = "device_llv")
     @ApiModelProperty(value = "设备液位值 0.01 米")
-    private Integer deviceLlv;
+    private Double deviceLlv;
 
     /**
      * 设备可燃气浓度 0.1ppm
      */
     @TableField(value = "device_gas")
     @ApiModelProperty(value = "设备可燃气浓度 0.1ppm")
-    private Integer deviceGas;
+    private Double deviceGas;
 
     /**
      * 设备氧气浓度 0.1%
      */
     @TableField(value = "device_O2")
     @ApiModelProperty(value = "设备氧气浓度 0.1%")
-    private Integer deviceO2;
+    private Double deviceO2;
 
     /**
      * 设备烟感控制

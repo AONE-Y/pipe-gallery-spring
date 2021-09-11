@@ -6,11 +6,11 @@
     <!--@Table testshardingjdbc.device_current-->
     <id column="device_id" jdbcType="INTEGER" property="deviceId" />
     <result column="device_name" jdbcType="VARCHAR" property="deviceName" />
-    <result column="device_temp" jdbcType="INTEGER" property="deviceTemp" />
-    <result column="device_humi" jdbcType="INTEGER" property="deviceHumi" />
-    <result column="device_llv" jdbcType="INTEGER" property="deviceLlv" />
-    <result column="device_gas" jdbcType="INTEGER" property="deviceGas" />
-    <result column="device_O2" jdbcType="INTEGER" property="deviceO2" />
+    <result column="device_temp" jdbcType="DOUBLE" property="deviceTemp" />
+    <result column="device_humi" jdbcType="DOUBLE" property="deviceHumi" />
+    <result column="device_llv" jdbcType="DOUBLE" property="deviceLlv" />
+    <result column="device_gas" jdbcType="DOUBLE" property="deviceGas" />
+    <result column="device_O2" jdbcType="DOUBLE" property="deviceO2" />
     <result column="device_smoke" jdbcType="INTEGER" property="deviceSmoke" />
     <result column="device_lighting" jdbcType="INTEGER" property="deviceLighting" />
     <result column="device_waterpump" jdbcType="INTEGER" property="deviceWaterpump" />

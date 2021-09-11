@@ -21,11 +21,13 @@ public class DeviceCurrentServiceImpl extends ServiceImpl<DeviceCurrentMapper, D
 
     @Autowired
     private DeviceCurrentMapper deviceCurrentMapper;
+
     @Override
     public void truncateData() {
         deviceCurrentMapper.truncateData();
     }
 }
+
 
 
 

@@ -89,7 +89,7 @@ public class DeviceController {
                     saveTopic(o);
                 });
 
-        return new Result<>().success();
+        return new Result<>().success().put("话题刷新成功");
     }
 
 

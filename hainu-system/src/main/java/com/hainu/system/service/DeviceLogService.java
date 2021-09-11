@@ -17,8 +17,9 @@ import java.time.LocalDate;
  */
 public interface DeviceLogService extends IService<DeviceLog> {
 
-    List<DeviceLog> selectByAvg( LocalDate minDate,  LocalDate maxDate,String deviceName);
+    List<DeviceLog> selectByAvg(LocalDate minDate, LocalDate maxDate, String deviceName);
 
 }
+
 
 
