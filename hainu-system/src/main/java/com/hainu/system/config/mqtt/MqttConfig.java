@@ -66,7 +66,9 @@ public class MqttConfig {
         // 订阅设备离线遗嘱
         mqttPushClient.subscribe("offline", 1);
 
-        mqttPushClient.subscribe("/dev/test",1);
+        mqttPushClient.subscribe("/dev/test1",1);
+        mqttPushClient.subscribe("/dev/test2",1);
+        mqttPushClient.subscribe("/dev/test3",1);
         return mqttPushClient;
     }
 }

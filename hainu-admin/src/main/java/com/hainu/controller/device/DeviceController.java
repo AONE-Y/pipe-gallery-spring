@@ -4,6 +4,8 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.hainu.common.dto.DeviceSwitchDto;
 import com.hainu.common.lang.Result;
 import com.hainu.system.config.mqtt.MqttPushClient;
 import com.hainu.system.entity.DeviceCurrent;
@@ -14,9 +16,7 @@ import com.hainu.system.service.DeviceListService;
 import com.hainu.system.service.DeviceLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -48,7 +48,6 @@ public class DeviceController {
     @Autowired
     private DeviceCurrentService deviceCurrentService;
 
-    
     @Autowired
     private DeviceLogService deviceLogService;
 
@@ -104,11 +103,11 @@ public class DeviceController {
         DeviceList deviceList = new DeviceList();
         deviceList.setWsTopic(topic);
         String[] topicSplit = topic.split("/");
-        String wsName= topicSplit[topicSplit.length - 1];
+        String wsName = topicSplit[topicSplit.length - 1];
 
         DeviceCurrent deviceCurrent = new DeviceCurrent();
 
-        if (topicSplit.length>1) {
+        if (topicSplit.length > 1) {
             deviceCurrent.setWsName(wsName);
             deviceCurrentService.save(deviceCurrent);
         }
@@ -120,16 +119,16 @@ public class DeviceController {
     }
 
     @GetMapping("getDeviceCurrent")
-    public Result<?> getDeviceCurrent(String wsName,String node){
-        QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper=new QueryWrapper<>();
+    public Result<?> getDeviceCurrent(String wsName, String node) {
+        QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
         if (wsName != null) {
-            deviceCurrentQueryWrapper.eq("ws_name",wsName);
+            deviceCurrentQueryWrapper.eq("ws_name", wsName);
         }
         if (node != null) {
-            deviceCurrentQueryWrapper.eq("node",node);
+            deviceCurrentQueryWrapper.eq("node", node);
         }
-        if(wsName==null&&node==null){
-            deviceCurrentQueryWrapper=null;
+        if (wsName == null && node == null) {
+            deviceCurrentQueryWrapper = null;
         }
 
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
@@ -137,16 +136,16 @@ public class DeviceController {
     }
 
     @RequestMapping("getDeviceLog")
-    public Result<?> getDeviceLog(Integer day, String wsName,String node){
-        QueryWrapper<DeviceLog> deviceLogWrapper=new QueryWrapper<DeviceLog>();
+    public Result<?> getDeviceLog(Integer day, String wsName, String node) {
+        QueryWrapper<DeviceLog> deviceLogWrapper = new QueryWrapper<DeviceLog>();
         if (wsName != null) {
-            deviceLogWrapper.eq("ws_name",wsName);
+            deviceLogWrapper.eq("ws_name", wsName);
         }
         if (node != null) {
-            deviceLogWrapper.eq("node",node);
+            deviceLogWrapper.eq("node", node);
         }
-        if (wsName==null&&node == null) {
-            deviceLogWrapper=null;
+        if (wsName == null && node == null) {
+            deviceLogWrapper = null;
         }
 
         LocalDate date = LocalDate.now();
@@ -154,17 +153,45 @@ public class DeviceController {
 
         LocalDate lastDay = Optional.ofNullable(day)
                 .map(e -> {
-                    if (e<30){
+                    if (e < 30) {
                         return date.plusDays(e);
                     }
-                     return date.with(TemporalAdjusters.lastDayOfMonth());
+                    return date.with(TemporalAdjusters.lastDayOfMonth());
                 })
                 .orElseGet(() -> date.with(TemporalAdjusters.lastDayOfMonth()));
 
-        List<DeviceLog> deviceLogs = deviceLogService.selectByAvg(firstDay, lastDay,wsName,node);
+        List<DeviceLog> deviceLogs = deviceLogService.selectByAvg(firstDay, lastDay, wsName, node);
         return new Result<>().success().put(deviceLogs);
     }
-    
+
+    // @PostMapping("stateSwitch")
+    // public Result<?> stateSwitch(DeviceCurrent deviceCurrent){
+    //     UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
+    //     deviceUpdate.eq("ws_name",deviceCurrent.getWsName());
+    //     deviceCurrentService.update(deviceCurrent,deviceUpdate);
+    //     return new Result<>().success().put("操作成功");
+    // }
+
+    @PostMapping("stateSwitch")
+    public Result<?> stateSwitch(@RequestBody DeviceCurrent deviceCurrent) {
+
+
+        DeviceSwitchDto deviceSwitchDto = DeviceSwitchDto.builder()
+                .node(deviceCurrent.getNode())
+                .smoke(deviceCurrent.getDeviceSmoke())
+                .waterpump(deviceCurrent.getDeviceWaterpump())
+                .infra(deviceCurrent.getDeviceInfra())
+                .lighting(deviceCurrent.getDeviceLighting())
+                .fan(deviceCurrent.getDeviceFan())
+                .guard(deviceCurrent.getDeviceGuard())
+                .build();
+
+        mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
+        UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
+        deviceUpdate.eq("ws_name", deviceCurrent.getWsName());
+        deviceCurrentService.update(deviceCurrent, deviceUpdate);
+        return new Result<>().success().put("操作成功");
+    }
 
 
 }
