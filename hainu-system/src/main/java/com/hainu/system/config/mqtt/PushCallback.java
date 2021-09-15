@@ -140,7 +140,7 @@ public class PushCallback implements MqttCallbackExtended {
                 Integer infra = deviceInfo.getByPath("infra", Integer.class);
                 Integer guard = deviceInfo.getByPath("guard", Integer.class);
                 //设备当前状态
-                DeviceCurrent deviceCurrent =DeviceCurrent.builder()
+                DeviceCurrent deviceCurrent = DeviceCurrent.builder()
                         .wsName(wsName)
                         .node(node)
                         .deviceTemp(temp)
@@ -154,11 +154,13 @@ public class PushCallback implements MqttCallbackExtended {
                         .deviceFan(fan)
                         .deviceInfra(infra)
                         .deviceGuard(guard)
+                        .updateTime(LocalDateTime.now())
                         .build();
 
 
                 UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
                 deviceUpdate.eq("ws_name", wsName);
+                deviceUpdate.eq("node", node);
                 if (!deviceCurrentService.update(deviceCurrent, deviceUpdate)) {
                     deviceCurrentService.save(deviceCurrent);
                 }

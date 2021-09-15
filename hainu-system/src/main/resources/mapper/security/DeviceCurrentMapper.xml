@@ -7,6 +7,7 @@
     <id column="ws_id" jdbcType="INTEGER" property="wsId" />
     <result column="ws_name" jdbcType="VARCHAR" property="wsName" />
     <result column="node" jdbcType="VARCHAR" property="node" />
+    <result column="status" jdbcType="INTEGER" property="status" />
     <result column="device_temp" jdbcType="DOUBLE" property="deviceTemp" />
     <result column="device_humi" jdbcType="DOUBLE" property="deviceHumi" />
     <result column="device_llv" jdbcType="DOUBLE" property="deviceLlv" />
@@ -22,9 +23,9 @@
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    ws_id, ws_name, node, device_temp, device_humi, device_llv, device_gas, device_O2, 
-    device_smoke, device_lighting, device_waterpump, device_fan, device_infra, device_guard, 
-    update_time
+    ws_id, ws_name, node, `status`, device_temp, device_humi, device_llv, device_gas, 
+    device_O2, device_smoke, device_lighting, device_waterpump, device_fan, device_infra, 
+    device_guard, update_time
   </sql>
 
   <update id="truncateData">

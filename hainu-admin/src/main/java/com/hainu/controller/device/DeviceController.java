@@ -6,6 +6,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hainu.common.dto.DeviceSwitchDto;
+import com.hainu.common.dto.QueryDeviceDto;
 import com.hainu.common.lang.Result;
 import com.hainu.system.config.mqtt.MqttPushClient;
 import com.hainu.system.entity.DeviceCurrent;
@@ -18,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,7 @@ public class DeviceController {
 
     @Autowired
     private DeviceLogService deviceLogService;
+
 
     /**
      * @param
@@ -118,20 +122,63 @@ public class DeviceController {
 
     }
 
-    @GetMapping("getDeviceCurrent")
-    public Result<?> getDeviceCurrent(String wsName, String node) {
+    // @GetMapping("getDeviceCurrent")
+    // public Result<?> getDeviceCurrent(String wsName, String node) {
+    //     QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
+    //     if (wsName != null) {
+    //         deviceCurrentQueryWrapper.eq("ws_name", wsName);
+    //     }
+    //     if (node != null) {
+    //         deviceCurrentQueryWrapper.eq("node", node);
+    //     }
+    //     if (wsName == null && node == null) {
+    //         deviceCurrentQueryWrapper = null;
+    //     }
+    //
+    //     List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
+    //     return new Result<>().success().put(deviceCurrentsInfo);
+    // }
+
+
+    @PostMapping("getDeviceCurrent")
+    public Result<?> getDeviceCurrent(@RequestBody QueryDeviceDto queryDevice) {
         QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
-        if (wsName != null) {
-            deviceCurrentQueryWrapper.eq("ws_name", wsName);
+
+        if (queryDevice.getWsName() != null && !queryDevice.getWsName().equals("")) {
+            deviceCurrentQueryWrapper.eq("ws_name", queryDevice.getWsName());
+
         }
-        if (node != null) {
-            deviceCurrentQueryWrapper.eq("node", node);
+        if (queryDevice.getNode() != null && !queryDevice.getNode().equals("")) {
+            deviceCurrentQueryWrapper.eq("node", queryDevice.getNode());
         }
-        if (wsName == null && node == null) {
-            deviceCurrentQueryWrapper = null;
+        if (queryDevice.getSw() != null && !queryDevice.getSw().equals("all")) {
+            deviceCurrentQueryWrapper.eq("device_" + queryDevice.getSw(), 1);
+        }
+        if (queryDevice.getMeasure() != null) {
+
+            deviceCurrentQueryWrapper.between("device_" + queryDevice.getMeasure()
+                    , queryDevice.getStart() == null ? 0 : queryDevice.getStart()
+                    , queryDevice.getEnd() == null ? 999 : queryDevice.getEnd());
         }
 
+
+        deviceCurrentQueryWrapper.orderByAsc("ws_name");
+
+        // if (wsName != null) {
+        //     deviceCurrentQueryWrapper.eq("ws_name", wsName);
+        // }
+        // if (node != null) {
+        //     deviceCurrentQueryWrapper.eq("node", node);
+        // }
+        // if (wsName == null && node == null) {
+        //     deviceCurrentQueryWrapper = null;
+        // }
+
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
+        deviceCurrentsInfo.forEach((deviceCurrentInfo)->{
+            long interval = Duration.between(deviceCurrentInfo.getUpdateTime(), LocalDateTime.now()).toSeconds();
+            deviceCurrentInfo.setStatus(interval<10 ?1:0);
+        });
         return new Result<>().success().put(deviceCurrentsInfo);
     }
 
@@ -174,8 +221,6 @@ public class DeviceController {
 
     @PostMapping("stateSwitch")
     public Result<?> stateSwitch(@RequestBody DeviceCurrent deviceCurrent) {
-
-
         DeviceSwitchDto deviceSwitchDto = DeviceSwitchDto.builder()
                 .node(deviceCurrent.getNode())
                 .smoke(deviceCurrent.getDeviceSmoke())
@@ -189,9 +234,9 @@ public class DeviceController {
         mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
         UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
         deviceUpdate.eq("ws_name", deviceCurrent.getWsName());
+        deviceUpdate.eq("node", deviceCurrent.getNode());
         deviceCurrentService.update(deviceCurrent, deviceUpdate);
         return new Result<>().success().put("操作成功");
     }
-
 
 }

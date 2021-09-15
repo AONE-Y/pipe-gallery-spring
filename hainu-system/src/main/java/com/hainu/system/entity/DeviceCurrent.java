@@ -6,18 +6,17 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/9/11 15:46
+ * @Date：2021/9/15 20:30
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
@@ -30,7 +29,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @TableName(value = "testshardingjdbc.device_current")
 public class DeviceCurrent implements Serializable {
-
     /**
      * 仓端地址
      */
@@ -51,6 +49,13 @@ public class DeviceCurrent implements Serializable {
     @TableField(value = "node")
     @ApiModelProperty(value = "节点名")
     private String node;
+
+    /**
+     * 节点状态
+     */
+    @TableField(value = "`status`")
+    @ApiModelProperty(value = "节点状态")
+    private Integer status;
 
     /**
      * 设备温度 0.1℃
@@ -143,6 +148,8 @@ public class DeviceCurrent implements Serializable {
     public static final String COL_WS_NAME = "ws_name";
 
     public static final String COL_NODE = "node";
+
+    public static final String COL_STATUS = "status";
 
     public static final String COL_DEVICE_TEMP = "device_temp";
 

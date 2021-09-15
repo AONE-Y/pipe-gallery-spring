@@ -1,5 +1,6 @@
 package com.hainu.test;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -34,10 +35,22 @@ public class Test {
         // DeviceController deviceController = new DeviceController();
         // deviceController.saveTopic("/dev/dat");
 
+        //
+        // System.out.println(LocalDateTime.now());
+        // QueryDeviceDto queryDevice;
+        // queryDevice = new QueryDeviceDto(null,null,null,null,null,null);
+        // System.out.println(queryDevice);
 
-        System.out.println(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.of(2021,9,15,18,43,25);
+        System.out.println(now);
+        LocalDateTime now2 = LocalDateTime.now();
+        Duration between = Duration.between(now, now2);
 
+        System.out.println(between.toSeconds());
     }
+
+
+
 
 
 

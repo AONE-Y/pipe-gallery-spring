@@ -19,9 +19,9 @@ spring:
       devicehistory:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://192.168.10.183:3306/testshardingjdbc?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://${ip}:3306/testshardingjdbc?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
-        password: root
+        password: xinxi216
     sharding:
       default-data-source-name: devicehistory
 
