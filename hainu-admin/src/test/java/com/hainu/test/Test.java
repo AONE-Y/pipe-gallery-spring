@@ -1,7 +1,8 @@
 package com.hainu.test;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
+import org.springframework.util.ObjectUtils;
 
 /**
  * @author frank
@@ -41,12 +42,18 @@ public class Test {
         // queryDevice = new QueryDeviceDto(null,null,null,null,null,null);
         // System.out.println(queryDevice);
 
-        LocalDateTime now = LocalDateTime.of(2021,9,15,18,43,25);
-        System.out.println(now);
-        LocalDateTime now2 = LocalDateTime.now();
-        Duration between = Duration.between(now, now2);
+        // LocalDateTime now = LocalDateTime.of(2021,9,15,18,43,25);
+        // System.out.println(now);
+        // LocalDateTime now2 = LocalDateTime.now();
+        // Duration between = Duration.between(now, now2);
+        //
+        // System.out.println(between.toSeconds());
+    String json="{\"id\":1}";
+        JSON parse = JSONUtil.parse(json);
+        boolean empty = ObjectUtils.isEmpty(parse.getByPath("id"));
+        System.out.println(empty);
 
-        System.out.println(between.toSeconds());
+
     }
 
 

@@ -6,37 +6,22 @@ import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.service.DeviceCurrentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.service.impl
- * @Date：2021/9/5 17:23
+ * @Date：2021/9/15 20:35
  * @Author：ANONE
  * @Address： HaiKou·China
- * @Description:
+ * @Description: 
  * @Modified By: ANONE
  */
 @Service
-public class DeviceCurrentServiceImpl extends ServiceImpl<DeviceCurrentMapper, DeviceCurrent> implements DeviceCurrentService {
+public class DeviceCurrentServiceImpl extends ServiceImpl<DeviceCurrentMapper, DeviceCurrent> implements DeviceCurrentService{
 
     @Autowired
-    private DeviceCurrentMapper deviceCurrentMapper;
-
+    DeviceCurrentMapper deviceCurrentMapper;
     @Override
     public void truncateData() {
         deviceCurrentMapper.truncateData();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

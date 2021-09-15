@@ -16,6 +16,11 @@ import lombok.Data;
 @Builder
 @Data
 public class DeviceSwitchDto {
+
+    /**
+     * 客户端名
+     */
+    private String clientId;
     /**
      * 节点名
      */

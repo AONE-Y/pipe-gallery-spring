@@ -27,7 +27,6 @@
     device_O2, device_smoke, device_lighting, device_waterpump, device_fan, device_infra, 
     device_guard, update_time
   </sql>
-
   <update id="truncateData">
     truncate table device_current
   </update>

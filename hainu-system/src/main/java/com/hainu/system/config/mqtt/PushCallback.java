@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -119,14 +120,13 @@ public class PushCallback implements MqttCallbackExtended {
 //        }
 
         String[] unIncludeTopic = {"device_info", "setting", "status", "offline"};
-        if (!Arrays.asList(unIncludeTopic).contains(topic)) {
+        JSON deviceInfo = JSONUtil.parse(new String(mqttMessage.getPayload()));
+        if (!Arrays.asList(unIncludeTopic).contains(topic)&& ObjectUtils.isEmpty(deviceInfo.getByPath("clientId"))) {
             String[] topicSplit = topic.split("/");
             String wsName = topicSplit[topicSplit.length - 1];
 
 
             try {
-                JSON deviceInfo = JSONUtil.parse(new String(mqttMessage.getPayload()));
-
                 String node = deviceInfo.getByPath("node", String.class);
                 Double temp = deviceInfo.getByPath("temp", Double.class);
                 Double humi = deviceInfo.getByPath("humi", Double.class);

@@ -139,6 +139,21 @@ public class DeviceController {
     //     return new Result<>().success().put(deviceCurrentsInfo);
     // }
 
+    // {
+    //     "node" : "tt1",
+    //         "temp":36,
+    //         "humi":25,
+    //         "llv":92,
+    //         "gas":58,
+    //         "O2":28,
+    //         "guard" : 1,
+    //         "smoke" : 1,
+    //         "infra" : 1,
+    //         "lighting" : 0,
+    //         "fan" : 1,
+    //         "waterpump" : 1
+    // }
+
 
     @PostMapping("getDeviceCurrent")
     public Result<?> getDeviceCurrent(@RequestBody QueryDeviceDto queryDevice) {
@@ -177,7 +192,7 @@ public class DeviceController {
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
         deviceCurrentsInfo.forEach((deviceCurrentInfo)->{
             long interval = Duration.between(deviceCurrentInfo.getUpdateTime(), LocalDateTime.now()).toSeconds();
-            deviceCurrentInfo.setStatus(interval<10 ?1:0);
+            deviceCurrentInfo.setStatus(interval<65 ?1:0);
         });
         return new Result<>().success().put(deviceCurrentsInfo);
     }
@@ -222,6 +237,7 @@ public class DeviceController {
     @PostMapping("stateSwitch")
     public Result<?> stateSwitch(@RequestBody DeviceCurrent deviceCurrent) {
         DeviceSwitchDto deviceSwitchDto = DeviceSwitchDto.builder()
+                .clientId("Monitor")
                 .node(deviceCurrent.getNode())
                 .smoke(deviceCurrent.getDeviceSmoke())
                 .waterpump(deviceCurrent.getDeviceWaterpump())
