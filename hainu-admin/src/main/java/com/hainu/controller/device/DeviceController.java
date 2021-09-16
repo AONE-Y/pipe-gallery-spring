@@ -1,14 +1,11 @@
 package com.hainu.controller.device;
 
-import cn.hutool.http.HttpRequest;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hainu.common.dto.DeviceSwitchDto;
 import com.hainu.common.dto.QueryDeviceDto;
 import com.hainu.common.lang.Result;
-import com.hainu.system.config.mqtt.MqttPushClient;
+import com.hainu.system.config.tcp.TcpSever;
 import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.entity.DeviceList;
 import com.hainu.system.entity.DeviceLog;
@@ -19,11 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.Socket;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,8 +36,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/device")
 public class DeviceController {
-    @Autowired
-    private MqttPushClient mqttPushClient;
+    // @Autowired
+    // private MqttPushClient mqttPushClient;
 
     @Value("${info.baseEmqUrl}")
     private String baseEmqUrl;
@@ -62,38 +59,38 @@ public class DeviceController {
      * @author： ANONE
      * @date： 2021/09/05
      */
-    @GetMapping("reSubTopic")
-    public Result<?> reSubTopic() {
-
-
-        String unSubInfo = HttpRequest.get(baseEmqUrl + "/routes")
-                .basicAuth("admin", "public")
-                .execute().body();
-        List<JSON> unSubdata = JSONUtil.parseObj(unSubInfo).getByPath("data", ArrayList.class);
-
-        unSubdata.stream()
-                .map((e) -> e
-                        .getByPath("topic").toString())
-                .forEach((o) -> mqttPushClient.unSubscribe(o));
-        deviceListService.truncateData();
-        deviceCurrentService.truncateData();
-
-
-        String subInfo = HttpRequest.get(baseEmqUrl + "/routes")
-                .basicAuth("admin", "public")
-                .execute().body();
-        List<JSON> subData = JSONUtil.parseObj(subInfo).getByPath("data", ArrayList.class);
-
-        subData.stream()
-                .map((e) -> e
-                        .getByPath("topic").toString())
-                .forEach((o) -> {
-                    mqttPushClient.subscribe(o, 1);
-                    saveTopic(o);
-                });
-
-        return new Result<>().success().put("话题刷新成功");
-    }
+    // @GetMapping("reSubTopic")
+    // public Result<?> reSubTopic() {
+    //
+    //
+    //     String unSubInfo = HttpRequest.get(baseEmqUrl + "/routes")
+    //             .basicAuth("admin", "public")
+    //             .execute().body();
+    //     List<JSON> unSubdata = JSONUtil.parseObj(unSubInfo).getByPath("data", ArrayList.class);
+    //
+    //     unSubdata.stream()
+    //             .map((e) -> e
+    //                     .getByPath("topic").toString())
+    //             .forEach((o) -> mqttPushClient.unSubscribe(o));
+    //     deviceListService.truncateData();
+    //     deviceCurrentService.truncateData();
+    //
+    //
+    //     String subInfo = HttpRequest.get(baseEmqUrl + "/routes")
+    //             .basicAuth("admin", "public")
+    //             .execute().body();
+    //     List<JSON> subData = JSONUtil.parseObj(subInfo).getByPath("data", ArrayList.class);
+    //
+    //     subData.stream()
+    //             .map((e) -> e
+    //                     .getByPath("topic").toString())
+    //             .forEach((o) -> {
+    //                 mqttPushClient.subscribe(o, 1);
+    //                 saveTopic(o);
+    //             });
+    //
+    //     return new Result<>().success().put("话题刷新成功");
+    // }
 
 
     /**
@@ -247,12 +244,21 @@ public class DeviceController {
                 .guard(deviceCurrent.getDeviceGuard())
                 .build();
 
-        mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
+        // mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
         UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
         deviceUpdate.eq("ws_name", deviceCurrent.getWsName());
         deviceUpdate.eq("node", deviceCurrent.getNode());
         deviceCurrentService.update(deviceCurrent, deviceUpdate);
         return new Result<>().success().put("操作成功");
+    }
+
+    @Autowired
+    TcpSever tcpSever;
+    @GetMapping("test")
+    public String test(){
+        Socket socket = tcpSever.getSocket();
+        tcpSever.sendMessage("147258");
+        return "123";
     }
 
 }

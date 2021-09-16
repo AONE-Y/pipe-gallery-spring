@@ -7,13 +7,12 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 /**
  * @Classname MtqqEntity
  * @Description mqtt相关配置信息
  */
-@Component
+// @Component
 @ConfigurationProperties("mqtt")
 @Data
 public class MqttConfig {
