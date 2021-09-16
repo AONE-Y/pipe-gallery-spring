@@ -1,12 +1,14 @@
 package com.hainu.system.config.tcp;
 
+import com.hainu.system.entity.DeviceCurrent;
+import com.hainu.system.service.DeviceCurrentService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * @Project：pipe-gallery
@@ -20,6 +22,10 @@ import java.net.Socket;
 @Slf4j
 // @Component
 public class TcpSever extends Thread{
+
+
+     DeviceCurrentService deviceCurrentService;
+
     private Socket socket ;
     InputStream inputStream;
     OutputStream outputStream;
@@ -29,6 +35,7 @@ public class TcpSever extends Thread{
     public  void setSocket(Socket socket){
         this.socket=socket;
     }
+    public void setDeviceCurrentService(DeviceCurrentService deviceCurrentService){this.deviceCurrentService = deviceCurrentService;}
     public Socket getSocket(){
         return this.socket;
     }
@@ -53,7 +60,10 @@ public class TcpSever extends Thread{
                 //向客户端发送消息
                 outputStream = socket.getOutputStream();
                 outputStream.write("OK".getBytes());
+
                 // System.out.println("OK");
+                List<DeviceCurrent> list = deviceCurrentService.list();
+                System.out.println(list);
 
             }
         } catch (Exception e) {

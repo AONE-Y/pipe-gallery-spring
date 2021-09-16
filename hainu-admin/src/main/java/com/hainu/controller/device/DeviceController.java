@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hainu.common.dto.DeviceSwitchDto;
 import com.hainu.common.dto.QueryDeviceDto;
 import com.hainu.common.lang.Result;
-import com.hainu.system.config.tcp.TcpSever;
+import com.hainu.system.config.tcp.TcpConnect;
 import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.entity.DeviceList;
 import com.hainu.system.entity.DeviceLog;
@@ -16,12 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -252,13 +254,32 @@ public class DeviceController {
         return new Result<>().success().put("操作成功");
     }
 
-    @Autowired
-    TcpSever tcpSever;
+    // @Autowired
+    // TcpSever tcpSever;
+    // @GetMapping("test")
+    // public String test(){
+    //     Socket socket = tcpSever.getSocket();
+    //     tcpSever.sendMessage("147258");
+    //     return "123";
+    // }
+    // @Autowired
+    // ServerSocket1 serverSocket1;
+    // @GetMapping("/test1")
+    // public void test1(){
+    //     serverSocket1.ServerSocketDemo();
+    // }
+
+
     @GetMapping("test")
-    public String test(){
-        Socket socket = tcpSever.getSocket();
-        tcpSever.sendMessage("147258");
-        return "123";
+    public String test2(String id) {
+        Map<String, Socket> socketClient = TcpConnect.socketClient;
+        Socket user1111 = socketClient.get("user"+id);
+        try {
+            user1111.getOutputStream().write("hello".getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return user1111.getInetAddress().toString()+":"+user1111.getPort();
     }
 
 }
