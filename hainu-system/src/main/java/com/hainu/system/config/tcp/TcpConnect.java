@@ -45,7 +45,7 @@ public class TcpConnect implements CommandLineRunner {
                 try {
                     //建立跟客户端的连接
                     socket = serverSocket.accept();
-                    socketClient.put("user"+i,socket);
+                    socketClient.put(socket.getInetAddress().getHostAddress(),socket);
                     i++;
                 } catch (Exception e) {
                     System.out.println("建立与客户端的连接出现异常");

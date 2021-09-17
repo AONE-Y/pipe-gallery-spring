@@ -1,8 +1,10 @@
 package com.hainu.controller.device;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.hainu.common.dto.DeviceSwitchDto;
+import com.hainu.common.constant.SwReflect;
+import com.hainu.common.dto.DeviceCurrentSw;
 import com.hainu.common.dto.QueryDeviceDto;
 import com.hainu.common.lang.Result;
 import com.hainu.system.config.tcp.TcpConnect;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -234,40 +237,49 @@ public class DeviceController {
     // }
 
     @PostMapping("stateSwitch")
-    public Result<?> stateSwitch(@RequestBody DeviceCurrent deviceCurrent) {
-        DeviceSwitchDto deviceSwitchDto = DeviceSwitchDto.builder()
-                .clientId("Monitor")
-                .node(deviceCurrent.getNode())
-                .smoke(deviceCurrent.getDeviceSmoke())
-                .waterpump(deviceCurrent.getDeviceWaterpump())
-                .infra(deviceCurrent.getDeviceInfra())
-                .lighting(deviceCurrent.getDeviceLighting())
-                .fan(deviceCurrent.getDeviceFan())
-                .guard(deviceCurrent.getDeviceGuard())
-                .build();
+    public Result<?> stateSwitch(@RequestBody DeviceCurrentSw deviceCurrentSw) {
+        DeviceCurrent deviceCurrent = new DeviceCurrent();
+
+        ByteBuffer bytes=ByteBuffer.allocate(100);
+        bytes.put(new byte[]{(byte) 0xfe,0x12,0x03});
+        bytes.put((byte)Integer.parseInt(deviceCurrentSw.getNode()));
+        bytes.put(SwReflect.swChange.get(deviceCurrentSw.getChangeSw()));
+        bytes.put(SwReflect.swChangeValue.get(deviceCurrentSw.getChangeValue()));
+        bytes.put(new byte[] {(byte)0x99, (byte) 0xfd});
+
+        Socket socket = TcpConnect.socketClient.get(deviceCurrentSw.getWsName());
+        try {
+            bytes.flip();
+            socket.getOutputStream().write(conver(bytes));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
         UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
-        deviceUpdate.eq("ws_name", deviceCurrent.getWsName());
-        deviceUpdate.eq("node", deviceCurrent.getNode());
+        deviceUpdate.eq("ws_name", deviceCurrentSw.getWsName());
+        deviceUpdate.eq("node", deviceCurrentSw.getNode());
+
+
+
+        BeanUtil.copyProperties(deviceCurrentSw,deviceCurrent,"changeSw","changeValue");
         deviceCurrentService.update(deviceCurrent, deviceUpdate);
         return new Result<>().success().put("操作成功");
     }
 
-    // @Autowired
-    // TcpSever tcpSever;
-    // @GetMapping("test")
-    // public String test(){
-    //     Socket socket = tcpSever.getSocket();
-    //     tcpSever.sendMessage("147258");
-    //     return "123";
-    // }
-    // @Autowired
-    // ServerSocket1 serverSocket1;
-    // @GetMapping("/test1")
-    // public void test1(){
-    //     serverSocket1.ServerSocketDemo();
-    // }
+    public static byte[] conver(ByteBuffer byteBuffer){
+        int len = byteBuffer.limit() - byteBuffer.position();
+        byte[] bytes = new byte[len];
+
+        if(byteBuffer.isReadOnly()){
+            return null;
+        }else {
+            byteBuffer.get(bytes);
+        }
+        return bytes;
+    }
+
+
 
 
     @GetMapping("test")

@@ -1,8 +1,6 @@
 package com.hainu.test;
 
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
-import org.springframework.util.ObjectUtils;
+import com.hainu.common.constant.SwReflect;
 
 /**
  * @author frank
@@ -48,12 +46,23 @@ public class Test {
         // Duration between = Duration.between(now, now2);
         //
         // System.out.println(between.toSeconds());
-    String json="{\"id\":1}";
-        JSON parse = JSONUtil.parse(json);
-        boolean empty = ObjectUtils.isEmpty(parse.getByPath("id"));
-        System.out.println(empty);
+    // String json="{\"id\":1}";
+    //     JSON parse = JSONUtil.parse(json);
+    //     boolean empty = ObjectUtils.isEmpty(parse.getByPath("id"));
+    //     System.out.println(empty);
+
+        // String string="ff";
+        //
+        // int bytes = ;
+        // System.out.println(bytes);
 
 
+    }
+
+    @org.junit.jupiter.api.Test
+    void test(){
+        Byte deviceSmoke = SwReflect.swChange.get("deviceLighting");
+        System.out.println(deviceSmoke);
     }
 
 
