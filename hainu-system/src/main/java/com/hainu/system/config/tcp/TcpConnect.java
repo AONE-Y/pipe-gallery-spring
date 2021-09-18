@@ -1,5 +1,6 @@
 package com.hainu.system.config.tcp;
 
+import cn.hutool.log.StaticLog;
 import com.hainu.system.service.DeviceCurrentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -27,28 +28,24 @@ public class TcpConnect implements CommandLineRunner {
     private DeviceCurrentService deviceCurrentService;
 
     //监听端口
-    private static final int PORT = 8083;
+    private static final int PORT = 8999;
 
     public static Map<String,Socket> socketClient=new HashMap<>();
 
 
     @Override
     public void run(String... args) throws Exception {
-        ServerSocket serverSocket = null;
         Socket socket = null;
-        try {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             //建立服务器的Socket，并设定一个监听的端口PORT
-            serverSocket = new ServerSocket(PORT);
             //由于需要进行循环监听，因此获取消息的操作应放在一个while大循环中
-            int i = 0;
-            while(true){
+            while (true) {
                 try {
                     //建立跟客户端的连接
                     socket = serverSocket.accept();
-                    socketClient.put(socket.getInetAddress().getHostAddress(),socket);
-                    i++;
+                    socketClient.put(socket.getInetAddress().getHostAddress(), socket);
                 } catch (Exception e) {
-                    System.out.println("建立与客户端的连接出现异常");
+                    StaticLog.error("建立与客户端的连接出现异常");
                     e.printStackTrace();
                 }
                 TcpSever thread = new TcpSever();
@@ -57,11 +54,8 @@ public class TcpConnect implements CommandLineRunner {
                 thread.start();
             }
         } catch (Exception e) {
-            System.out.println("端口被占用");
+            StaticLog.error("端口被占用");
             e.printStackTrace();
-        }
-        finally {
-            serverSocket.close();
         }
     }
 }

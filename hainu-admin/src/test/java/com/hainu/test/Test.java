@@ -61,7 +61,8 @@ public class Test {
 
     @org.junit.jupiter.api.Test
     void test(){
-        Byte deviceSmoke = SwReflect.swChange.get("deviceLighting");
+        Byte deviceSmoke = SwReflect.options.get("deviceLighting");
+
         System.out.println(deviceSmoke);
     }
 

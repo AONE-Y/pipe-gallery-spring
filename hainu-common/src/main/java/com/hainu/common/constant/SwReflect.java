@@ -14,16 +14,21 @@ import java.util.Map;
  */
 public class SwReflect {
 
-    public static  Map<String, Byte> swChange=new HashMap<>();
+    public static  Map<String, Byte> options =new HashMap<>();
     public static  Map<Integer, Byte> swChangeValue=new HashMap<>();
 
      static {
-        swChange.put("deviceSmoke", (byte) 0x80);
-        swChange.put("deviceLighting", (byte) 0x81);
-        swChange.put("deviceWaterpump", (byte) 0x82);
-        swChange.put("deviceFan", (byte) 0x83);
-        swChange.put("deviceInfra", (byte) 0x84);
-        swChange.put("deviceGuard", (byte) 0x85);
+         options.put("deviceTemp", (byte) 0x01);
+         options.put("deviceHumi", (byte) 0x02);
+         options.put("deviceLlv", (byte) 0x03);
+         options.put("deviceGas", (byte) 0x04);
+         options.put("deviceO2", (byte) 0x05);
+        options.put("deviceSmoke", (byte) 0x80);
+        options.put("deviceLighting", (byte) 0x81);
+        options.put("deviceWaterpump", (byte) 0x82);
+        options.put("deviceFan", (byte) 0x83);
+        options.put("deviceInfra", (byte) 0x84);
+        options.put("deviceGuard", (byte) 0x85);
 
 
         swChangeValue.put(1,(byte)0xff);

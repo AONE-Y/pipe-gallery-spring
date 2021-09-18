@@ -33,7 +33,7 @@ public class TcpSever extends Thread {
     OutputStream outputStream;
 
     public TcpSever() {
-        
+
     }
 
     public void setSocket(Socket socket) {
@@ -49,86 +49,67 @@ public class TcpSever extends Thread {
     public void run() {
 
         try {
+
+            String hostAddress = socket.getInetAddress().getHostAddress();
+            StaticLog.info(hostAddress + ":" + socket.getPort() + "已连接");
+            byte[] bytes = new byte[512];
+            outputStream = socket.getOutputStream();
+            inputStream = socket.getInputStream();
+
+            //设备一连接后显示在线状态，若60秒后未发送消息则显示离线状态
+            UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
+            DeviceCurrent deviceCurrent = new DeviceCurrent();
+            deviceCurrent.setWsName(hostAddress);
+            deviceUpdate.eq("ws_name",hostAddress);
+            deviceCurrent.setUpdateTime(LocalDateTime.now());
+            if (!deviceCurrentService.update(deviceCurrent, deviceUpdate)) {
+                deviceCurrentService.save(deviceCurrent);
+            }
+
+
             while (true) {
 
-                StaticLog.info(socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "已连接");
-                //接收客户端的消息并打印
-                // System.out.println(socket);
-                // System.out.println(socket.getInetAddress());
-                byte[] bytes = new byte[512];
 
-
-                outputStream = socket.getOutputStream();
-                inputStream = socket.getInputStream();
-
+                //获取原始数据以及数据转换
                 int length = inputStream.read(bytes);
                 if (length == -1) {
-                    StaticLog.warn(socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "连接断开");
-                    TcpConnect.socketClient.remove(socket.getInetAddress().getHostAddress());
+                    StaticLog.warn(hostAddress + ":" + socket.getPort() + "连接断开");
+                    TcpConnect.socketClient.remove(hostAddress);
                     break;
                 }
-
                 String info = HexUtil.encodeHexStr(bytes);
-                while (true) {
-                    int begin = 0;
-                    String str = info.substring(begin, begin + 2);
-                    if (str.equals("fe")) {
-                        begin += 2;
-                        str = info.substring(begin, begin + 2);
-                        if (str.equals("81")) {
-                            begin = store(info, begin + 2, socket.getInetAddress().getHostAddress());
-                        }
 
-                        //##########校验###########
-
-                        // str = info.substring(begin, begin + 2);
-                        //######################
-
-                        begin += 2;
-                        if (!info.substring(begin, begin + 2).equals("fd")) {
-                            outputStream.write(new byte[] {
-                                    (byte) 0xfe,0x01,0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
-                            });
-                            break;
-                        } else {
-                            outputStream.write(new byte[] {
-                                    (byte) 0xfe,0x01,0x01,0x00, (byte) 0x99, (byte) 0xfd
-                            });
-                            break;
-                        }
-
-                    } else {
-                        outputStream.write(new byte[] {
-                                (byte) 0xfe,0x01,0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
-                        });
-                        break;
+                //数据处理
+                int begin = 0;
+                String str = info.substring(begin, begin + 2);
+                if (str.equals("fe")) {
+                    begin += 2;
+                    str = info.substring(begin, begin + 2);
+                    if (str.equals("81")) {
+                        begin = store(info, begin + 2, hostAddress);
                     }
 
+                    //##########校验###########
 
+                    // str = info.substring(begin, begin + 2);
+                    //######################
+
+                    begin += 2;
+                    if (!info.substring(begin, begin + 2).equals("fd")) {
+                        outputStream.write(new byte[]{
+                                (byte) 0xfe, 0x01, 0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
+                        });
+                    } else {
+                        outputStream.write(new byte[]{
+                                (byte) 0xfe, 0x01, 0x01, 0x00, (byte) 0x99, (byte) 0xfd
+                        });
+                    }
+
+                } else {
+                    outputStream.write(new byte[]{
+                            (byte) 0xfe, 0x01, 0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
+                    });
                 }
-
-
-                //
-                // String string = new String(bytes, 0, length);
-                // System.out.println(string);
-                // System.out.println(string.equals("12"));
-
-
-                //向客户端发送消息
-
-
-                // System.out.println("OK");
-                // List<DeviceCurrent> list = deviceCurrentService.list();
-                // System.out.println(list);
-
-                // try {
-                //     socket.sendUrgentData(0xFF);
-                // } catch (IOException e) {
-                //     StaticLog.warn(socket.getInetAddress().getHostAddress() + ":"+socket.getPort()+"连接断开");
-                //     TcpConnect.socketClient.remove(socket.getInetAddress().getHostAddress());
-                //     break;
-                // }
-
             }
 
 
@@ -147,6 +128,15 @@ public class TcpSever extends Thread {
     }
 
 
+    /**
+     * @param info   数据
+     * @param begin  数据读取位置
+     * @param wsName 仓端名
+     * @return @return int 下一次读取字节的位置
+     * @description: 存储数据到数据库
+     * @author： ANONE
+     * @date： 2021/09/18
+     */
     public int store(String info, int begin, String wsName) {
         int dataLength = Integer.parseInt(info.substring(begin, begin + 2));
         for (int i = 0; i < dataLength / 3; i++) {
@@ -156,14 +146,16 @@ public class TcpSever extends Thread {
             begin += 2;
             String sensorName = info.substring(begin, begin + 2);
             begin += 2;
-            Integer sensorValueTemp = HexUtil.hexToInt(info.substring(begin, begin + 2));
-            Double sensorValue = sensorValueTemp > 99 ? sensorValueTemp.doubleValue() / 10 : sensorValueTemp.doubleValue();
+            int sensorValueTemp = HexUtil.hexToInt(info.substring(begin, begin + 2));
+            Double sensorValue = sensorValueTemp > 99 ? (double) sensorValueTemp / 10 : (double) sensorValueTemp;
 
 
             UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
             DeviceCurrent deviceCurrent = new DeviceCurrent();
 
-            deviceUpdate.eq("node", node);
+            deviceUpdate.eq("ws_name",wsName);
+            deviceUpdate.eq("node", node).or().eq("node","");
+
 
             deviceCurrent.setWsName(wsName);
             deviceCurrent.setNode(node);
@@ -176,6 +168,15 @@ public class TcpSever extends Thread {
         return begin + 2;
     }
 
+    /**
+     * @param deviceCurrent 当前设备
+     * @param sensorName    传感器的名字
+     * @param sensorValue   传感器值
+     * @return @return {@link DeviceCurrent }
+     * @description: 设置传感器的数据
+     * @author： ANONE
+     * @date： 2021/09/18
+     */
     public DeviceCurrent setSensor(DeviceCurrent deviceCurrent, String sensorName
             , Double sensorValue) {
 
@@ -231,13 +232,4 @@ public class TcpSever extends Thread {
         return deviceCurrent;
     }
 
-    // public boolean sendMessage(String message){
-    //     try {
-    //         socket.getOutputStream().write(message.getBytes());
-    //         return true;
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //         return false;
-    //     }
-    // }
 }

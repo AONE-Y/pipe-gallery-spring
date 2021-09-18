@@ -1,10 +1,13 @@
 package com.hainu.controller.device;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.HexUtil;
+import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hainu.common.constant.SwReflect;
 import com.hainu.common.dto.DeviceCurrentSw;
+import com.hainu.common.dto.QueryCmdDto;
 import com.hainu.common.dto.QueryDeviceDto;
 import com.hainu.common.lang.Result;
 import com.hainu.system.config.tcp.TcpConnect;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -156,10 +160,61 @@ public class DeviceController {
     //         "waterpump" : 1
     // }
 
+    @PostMapping("queryDevice")
+    public Result<?> queryDevice(@RequestBody QueryCmdDto queryCmdDto) {
+       if (queryCmdDto.getWsName()==null||queryCmdDto.getWsName().equals("")) {
+           return new Result<>().error().put("仓端名不能为空");
+       }
+       if (queryCmdDto.getNode()==null||queryCmdDto.getNode().equals("")) {
+           return new Result<>().error().put("节点名不能为空");
+       }
+       if (queryCmdDto.getOptions()==null||queryCmdDto.getOptions().isEmpty()) {
+           return new Result<>().error().put("选项不能为空");
+       }
+
+
+
+        ByteBuffer bytes=ByteBuffer.allocate(100);
+        bytes.put(new byte[]{(byte) 0xfe,0x11});
+
+        byte nodeByte = (byte)Integer.parseInt(queryCmdDto.getNode());
+        ByteArrayOutputStream options= new ByteArrayOutputStream();
+
+        queryCmdDto.getOptions().forEach((option)->{
+            options.write(nodeByte);
+            options.write(SwReflect.options.get(option));
+            options.write((byte) 0xEE);
+        });
+        byte byteLength=(byte)options.size();
+        bytes.put(byteLength);
+        bytes.put(options.toByteArray());
+        bytes.put(new byte[]{(byte) 0x99, (byte) 0xFD});
+
+        bytes.flip();
+        StaticLog.error(HexUtil.encodeHexStr(conver(bytes)));
+
+
+        Socket socket = TcpConnect.socketClient.get(queryCmdDto.getWsName());
+        System.out.println(TcpConnect.socketClient);
+        if (socket == null){
+            return new Result<>().error().put("不存在此设备");
+        }
+
+
+        try {
+            bytes.flip();
+            socket.getOutputStream().write(conver(bytes));
+            StaticLog.info("发送成功");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new Result<>().success().put("操作成功");
+    }
 
     @PostMapping("getDeviceCurrent")
     public Result<?> getDeviceCurrent(@RequestBody QueryDeviceDto queryDevice) {
         QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
+
 
         if (queryDevice.getWsName() != null && !queryDevice.getWsName().equals("")) {
             deviceCurrentQueryWrapper.eq("ws_name", queryDevice.getWsName());
@@ -167,6 +222,7 @@ public class DeviceController {
         }
         if (queryDevice.getNode() != null && !queryDevice.getNode().equals("")) {
             deviceCurrentQueryWrapper.eq("node", queryDevice.getNode());
+
         }
         if (queryDevice.getSw() != null && !queryDevice.getSw().equals("all")) {
             deviceCurrentQueryWrapper.eq("device_" + queryDevice.getSw(), 1);
@@ -243,11 +299,12 @@ public class DeviceController {
         ByteBuffer bytes=ByteBuffer.allocate(100);
         bytes.put(new byte[]{(byte) 0xfe,0x12,0x03});
         bytes.put((byte)Integer.parseInt(deviceCurrentSw.getNode()));
-        bytes.put(SwReflect.swChange.get(deviceCurrentSw.getChangeSw()));
+        bytes.put(SwReflect.options.get(deviceCurrentSw.getChangeSw()));
         bytes.put(SwReflect.swChangeValue.get(deviceCurrentSw.getChangeValue()));
         bytes.put(new byte[] {(byte)0x99, (byte) 0xfd});
 
         Socket socket = TcpConnect.socketClient.get(deviceCurrentSw.getWsName());
+        System.out.println(TcpConnect.socketClient);
         if (socket == null){
             return new Result<>().error().put("设备未连接");
         }
@@ -256,6 +313,7 @@ public class DeviceController {
         try {
             bytes.flip();
             socket.getOutputStream().write(conver(bytes));
+            StaticLog.info("发送成功");
         } catch (IOException e) {
             e.printStackTrace();
         }

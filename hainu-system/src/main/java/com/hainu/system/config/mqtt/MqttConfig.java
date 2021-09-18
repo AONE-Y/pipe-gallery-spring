@@ -7,12 +7,13 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 /**
  * @Classname MtqqEntity
  * @Description mqtt相关配置信息
  */
-// @Component
+@Component
 @ConfigurationProperties("mqtt")
 @Data
 public class MqttConfig {
@@ -57,17 +58,17 @@ public class MqttConfig {
     public MqttPushClient getMqttPushClient() {
         mqttPushClient.connect(hostUrl, clientId, username, password, timeout, keepalive);
         // 订阅设备信息
-        mqttPushClient.subscribe("device_info", 1);
-        // 订阅设备状态
-        mqttPushClient.subscribe("status", 1);
-        // 订阅设备配置
-        mqttPushClient.subscribe("setting", 1);
-        // 订阅设备离线遗嘱
-        mqttPushClient.subscribe("offline", 1);
-
-        mqttPushClient.subscribe("/dev/test1",1);
-        mqttPushClient.subscribe("/dev/test2",1);
-        mqttPushClient.subscribe("/dev/test3",1);
+        // mqttPushClient.subscribe("device_info", 1);
+        // // 订阅设备状态
+        // mqttPushClient.subscribe("status", 1);
+        // // 订阅设备配置
+        // mqttPushClient.subscribe("setting", 1);
+        // // 订阅设备离线遗嘱
+        // mqttPushClient.subscribe("offline", 1);
+        //
+        // mqttPushClient.subscribe("/dev/test1",1);
+        // mqttPushClient.subscribe("/dev/test2",1);
+        // mqttPushClient.subscribe("/dev/test3",1);
         return mqttPushClient;
     }
 }

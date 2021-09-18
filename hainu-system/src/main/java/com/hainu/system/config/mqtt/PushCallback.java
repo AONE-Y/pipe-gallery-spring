@@ -25,6 +25,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
@@ -34,7 +35,7 @@ import java.util.Arrays;
  * @Classname PushCallback
  * @Description 消费监听类
  */
-// @Component
+@Component
 public class PushCallback implements MqttCallbackExtended {
     private static final Logger logger = LoggerFactory.getLogger(MqttPushClient.class);
 
@@ -160,9 +161,11 @@ public class PushCallback implements MqttCallbackExtended {
                 UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
                 deviceUpdate.eq("ws_name", wsName);
                 deviceUpdate.eq("node", node);
-                if (!deviceCurrentService.update(deviceCurrent, deviceUpdate)) {
-                    deviceCurrentService.save(deviceCurrent);
-                }
+
+
+                // if (!deviceCurrentService.update(deviceCurrent, deviceUpdate)) {
+                //     deviceCurrentService.save(deviceCurrent);
+                // }
 
 
                 //存储为历史记录
@@ -184,7 +187,7 @@ public class PushCallback implements MqttCallbackExtended {
                         .build();
 
 
-                deviceLogService.save(deviceLog);
+                // deviceLogService.save(deviceLog);
 
             } catch (Exception ignored) {
 
