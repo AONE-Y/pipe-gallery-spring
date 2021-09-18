@@ -248,6 +248,11 @@ public class DeviceController {
         bytes.put(new byte[] {(byte)0x99, (byte) 0xfd});
 
         Socket socket = TcpConnect.socketClient.get(deviceCurrentSw.getWsName());
+        if (socket == null){
+            return new Result<>().error().put("设备未连接");
+        }
+
+
         try {
             bytes.flip();
             socket.getOutputStream().write(conver(bytes));
@@ -285,13 +290,18 @@ public class DeviceController {
     @GetMapping("test")
     public String test2(String id) {
         Map<String, Socket> socketClient = TcpConnect.socketClient;
-        Socket user1111 = socketClient.get("user"+id);
+        Socket socket = socketClient.get("127.0.0.1");
+        if (socket == null) {
+            return "147258";
+        }
+
+
         try {
-            user1111.getOutputStream().write("hello".getBytes());
+            socket.getOutputStream().write("hello".getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return user1111.getInetAddress().toString()+":"+user1111.getPort();
+        return socket.getInetAddress().toString()+":"+socket.getPort();
     }
 
 }

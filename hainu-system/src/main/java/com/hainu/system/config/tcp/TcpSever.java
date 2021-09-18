@@ -1,10 +1,10 @@
 package com.hainu.system.config.tcp;
 
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.service.DeviceCurrentService;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
  * @Description:
  * @Modified By: ANONE
  */
-@Slf4j
+
 public class TcpSever extends Thread {
 
 
@@ -33,7 +33,7 @@ public class TcpSever extends Thread {
     OutputStream outputStream;
 
     public TcpSever() {
-
+        
     }
 
     public void setSocket(Socket socket) {
@@ -44,15 +44,14 @@ public class TcpSever extends Thread {
         this.deviceCurrentService = deviceCurrentService;
     }
 
+
     @Override
     public void run() {
 
         try {
-
-
             while (true) {
-                String name = this.getName();
-                System.out.println(name);
+
+                StaticLog.info(socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "已连接");
                 //接收客户端的消息并打印
                 // System.out.println(socket);
                 // System.out.println(socket.getInetAddress());
@@ -63,8 +62,12 @@ public class TcpSever extends Thread {
                 inputStream = socket.getInputStream();
 
                 int length = inputStream.read(bytes);
+                if (length == -1) {
+                    StaticLog.warn(socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + "连接断开");
+                    TcpConnect.socketClient.remove(socket.getInetAddress().getHostAddress());
+                    break;
+                }
 
-                System.out.println(length);
                 String info = HexUtil.encodeHexStr(bytes);
                 while (true) {
                     int begin = 0;
@@ -77,21 +80,30 @@ public class TcpSever extends Thread {
                         }
 
                         //##########校验###########
+
                         // str = info.substring(begin, begin + 2);
                         //######################
 
                         begin += 2;
                         if (!info.substring(begin, begin + 2).equals("fd")) {
-                            outputStream.write("data error".getBytes());
+                            outputStream.write(new byte[] {
+                                    (byte) 0xfe,0x01,0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
+                            });
                             break;
                         } else {
-                            outputStream.write("OK".getBytes());
+                            outputStream.write(new byte[] {
+                                    (byte) 0xfe,0x01,0x01,0x00, (byte) 0x99, (byte) 0xfd
+                            });
                             break;
                         }
 
                     } else {
+                        outputStream.write(new byte[] {
+                                (byte) 0xfe,0x01,0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
+                        });
                         break;
                     }
+
 
                 }
 
@@ -109,9 +121,20 @@ public class TcpSever extends Thread {
                 // List<DeviceCurrent> list = deviceCurrentService.list();
                 // System.out.println(list);
 
+                // try {
+                //     socket.sendUrgentData(0xFF);
+                // } catch (IOException e) {
+                //     StaticLog.warn(socket.getInetAddress().getHostAddress() + ":"+socket.getPort()+"连接断开");
+                //     TcpConnect.socketClient.remove(socket.getInetAddress().getHostAddress());
+                //     break;
+                // }
+
             }
+
+
         } catch (Exception e) {
             System.out.println("客户端主动断开连接了");
+
             //e.printStackTrace();
         }
         //操作结束，关闭socket
@@ -156,7 +179,6 @@ public class TcpSever extends Thread {
     public DeviceCurrent setSensor(DeviceCurrent deviceCurrent, String sensorName
             , Double sensorValue) {
 
-       
 
         if (sensorName.equals("01")) {
             deviceCurrent.setDeviceTemp(sensorValue);
@@ -175,17 +197,16 @@ public class TcpSever extends Thread {
         }
 
 
-
         Double switchValuetemp = sensorValue;
         if (switchValuetemp == 1) {
-            switchValuetemp= (double) -1;
+            switchValuetemp = (double) -1;
         }
-        if (switchValuetemp == 25.5||switchValuetemp==255) {
-            switchValuetemp= 1.0;
+        if (switchValuetemp == 25.5 || switchValuetemp == 255) {
+            switchValuetemp = 1.0;
         }
-        int switchValue=switchValuetemp.intValue();
+        int switchValue = switchValuetemp.intValue();
 
-        if (switchValue == 1||switchValue == 0) {
+        if (switchValue == 1 || switchValue == 0) {
             if (sensorName.equals("80")) {
                 deviceCurrent.setDeviceSmoke(switchValue);
             }
@@ -205,7 +226,7 @@ public class TcpSever extends Thread {
                 deviceCurrent.setDeviceGuard(switchValue);
             }
         }
-        
+
 
         return deviceCurrent;
     }
