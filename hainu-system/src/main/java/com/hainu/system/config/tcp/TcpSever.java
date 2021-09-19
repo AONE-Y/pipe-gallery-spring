@@ -91,7 +91,11 @@ public class TcpSever extends Thread {
 
                     //##########校验###########
 
-                    // str = info.substring(begin, begin + 2);
+                    // str = ;
+
+                    if (!info.substring(begin, begin + 2).equals("99")) {
+                        begin=0;
+                    }
                     //######################
 
                     begin += 2;
