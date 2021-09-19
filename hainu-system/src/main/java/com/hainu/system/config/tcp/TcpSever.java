@@ -85,8 +85,13 @@ public class TcpSever extends Thread {
                 if (str.equals("fe")) {
                     begin += 2;
                     str = info.substring(begin, begin + 2);
+                    int dataBegin=0;
+                    int dataLength=0;
                     if (str.equals("81")) {
-                        begin = store(info, begin + 2, hostAddress);
+                        begin += 2;
+                         dataLength = HexUtil.hexToInt(info.substring(begin, begin + 2));
+                         dataBegin=begin;
+                        begin=begin+2+dataLength*2;
                     }
 
                     //##########校验###########
@@ -109,6 +114,7 @@ public class TcpSever extends Thread {
                         outputStream.write(new byte[]{
                                 (byte) 0xfe, 0x01, 0x01, 0x00, (byte) 0x99, (byte) 0xfd
                         });
+                        store(info, dataBegin , dataLength, hostAddress);
                     }
 
                 } else {
@@ -143,8 +149,7 @@ public class TcpSever extends Thread {
      * @author： ANONE
      * @date： 2021/09/18
      */
-    public int store(String info, int begin, String wsName) {
-        int dataLength = HexUtil.hexToInt(info.substring(begin, begin + 2));
+    public int store(String info, int begin,int dataLength, String wsName) {
         for (int i = 0; i < dataLength / 3; i++) {
 
             begin += 2;
