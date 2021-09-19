@@ -1,7 +1,6 @@
 package com.hainu.controller.device;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.HexUtil;
 import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -191,13 +190,12 @@ public class DeviceController {
         bytes.put(new byte[]{(byte) 0x99, (byte) 0xFD});
 
         bytes.flip();
-        StaticLog.error(HexUtil.encodeHexStr(conver(bytes)));
 
 
         Socket socket = TcpConnect.socketClient.get(queryCmdDto.getWsName());
         System.out.println(TcpConnect.socketClient);
         if (socket == null){
-            return new Result<>().error().put("不存在此设备");
+            return new Result<>().error().put("设备离线或不存在此设备");
         }
 
 
