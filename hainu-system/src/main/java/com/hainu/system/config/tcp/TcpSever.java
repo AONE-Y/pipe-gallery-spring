@@ -94,7 +94,9 @@ public class TcpSever extends Thread {
                     // str = ;
 
                     if (!info.substring(begin, begin + 2).equals("99")) {
-                        begin=0;
+                        StringBuffer sb=new StringBuffer(info);
+                        sb.replace(begin+2,begin + 4,"fa");
+                        info=sb.toString();
                     }
                     //######################
 
@@ -142,7 +144,7 @@ public class TcpSever extends Thread {
      * @date： 2021/09/18
      */
     public int store(String info, int begin, String wsName) {
-        int dataLength = Integer.parseInt(info.substring(begin, begin + 2));
+        int dataLength = HexUtil.hexToInt(info.substring(begin, begin + 2));
         for (int i = 0; i < dataLength / 3; i++) {
 
             begin += 2;

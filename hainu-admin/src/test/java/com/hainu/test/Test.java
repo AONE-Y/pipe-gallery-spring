@@ -1,5 +1,6 @@
 package com.hainu.test;
 
+import cn.hutool.core.util.HexUtil;
 import com.hainu.common.constant.SwReflect;
 
 /**
@@ -62,7 +63,8 @@ public class Test {
     @org.junit.jupiter.api.Test
     void test(){
         Byte deviceSmoke = SwReflect.options.get("deviceLighting");
-
+        int i1 = HexUtil.hexToInt("0a");
+        System.out.println(i1);
         System.out.println(deviceSmoke);
     }
 

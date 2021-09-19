@@ -1,6 +1,7 @@
 package com.hainu.controller.device;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -176,7 +177,8 @@ public class DeviceController {
         ByteBuffer bytes=ByteBuffer.allocate(100);
         bytes.put(new byte[]{(byte) 0xfe,0x11});
 
-        byte nodeByte = (byte)Integer.parseInt(queryCmdDto.getNode());
+
+        byte nodeByte = (byte)HexUtil.hexToInt(queryCmdDto.getNode().toLowerCase().replace("0x",""));
         ByteArrayOutputStream options= new ByteArrayOutputStream();
 
         queryCmdDto.getOptions().forEach((option)->{
@@ -188,8 +190,6 @@ public class DeviceController {
         bytes.put(byteLength);
         bytes.put(options.toByteArray());
         bytes.put(new byte[]{(byte) 0x99, (byte) 0xFD});
-
-        bytes.flip();
 
 
         Socket socket = TcpConnect.socketClient.get(queryCmdDto.getWsName());
@@ -296,7 +296,8 @@ public class DeviceController {
 
         ByteBuffer bytes=ByteBuffer.allocate(100);
         bytes.put(new byte[]{(byte) 0xfe,0x12,0x03});
-        bytes.put((byte)Integer.parseInt(deviceCurrentSw.getNode()));
+        bytes.put((byte)HexUtil.hexToInt(deviceCurrentSw.getNode()
+                .toLowerCase().replace("0x","")));
         bytes.put(SwReflect.options.get(deviceCurrentSw.getChangeSw()));
         bytes.put(SwReflect.swChangeValue.get(deviceCurrentSw.getChangeValue()));
         bytes.put(new byte[] {(byte)0x99, (byte) 0xfd});
