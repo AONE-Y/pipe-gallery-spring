@@ -4,7 +4,6 @@ import cn.hutool.log.StaticLog;
 import com.hainu.system.service.DeviceCurrentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,7 +19,7 @@ import java.util.Map;
  * @Description:
  * @Modified By: ANONE
  */
-@Component
+// @Component
 public class TcpConnect implements CommandLineRunner {
 
 

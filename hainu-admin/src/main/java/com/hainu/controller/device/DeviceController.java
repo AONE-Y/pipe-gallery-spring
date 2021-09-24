@@ -10,6 +10,7 @@ import com.hainu.common.dto.DeviceCurrentSw;
 import com.hainu.common.dto.QueryCmdDto;
 import com.hainu.common.dto.QueryDeviceDto;
 import com.hainu.common.lang.Result;
+import com.hainu.system.config.nioudp.NioUDP;
 import com.hainu.system.config.tcp.TcpConnect;
 import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.entity.DeviceList;
@@ -23,8 +24,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -162,50 +165,63 @@ public class DeviceController {
 
     @PostMapping("queryDevice")
     public Result<?> queryDevice(@RequestBody QueryCmdDto queryCmdDto) {
-       if (queryCmdDto.getWsName()==null||queryCmdDto.getWsName().equals("")) {
-           return new Result<>().error().put("仓端名不能为空");
-       }
-       if (queryCmdDto.getNode()==null||queryCmdDto.getNode().equals("")) {
-           return new Result<>().error().put("节点名不能为空");
-       }
-       if (queryCmdDto.getOptions()==null||queryCmdDto.getOptions().isEmpty()) {
-           return new Result<>().error().put("选项不能为空");
-       }
+        if (queryCmdDto.getWsName() == null || queryCmdDto.getWsName().equals("")) {
+            return new Result<>().error().put("仓端名不能为空");
+        }
+        if (queryCmdDto.getNode() == null || queryCmdDto.getNode().equals("")) {
+            return new Result<>().error().put("节点名不能为空");
+        }
+        if (queryCmdDto.getOptions() == null || queryCmdDto.getOptions().isEmpty()) {
+            return new Result<>().error().put("选项不能为空");
+        }
 
 
+        ByteBuffer bytes = ByteBuffer.allocate(100);
+        bytes.put(new byte[]{(byte) 0xfe, 0x11});
 
-        ByteBuffer bytes=ByteBuffer.allocate(100);
-        bytes.put(new byte[]{(byte) 0xfe,0x11});
 
+        byte nodeByte = (byte) HexUtil.hexToInt(queryCmdDto.getNode().toLowerCase().replace("0x", ""));
+        ByteArrayOutputStream options = new ByteArrayOutputStream();
 
-        byte nodeByte = (byte)HexUtil.hexToInt(queryCmdDto.getNode().toLowerCase().replace("0x",""));
-        ByteArrayOutputStream options= new ByteArrayOutputStream();
-
-        queryCmdDto.getOptions().forEach((option)->{
+        queryCmdDto.getOptions().forEach((option) -> {
             options.write(nodeByte);
             options.write(SwReflect.options.get(option));
             options.write((byte) 0xEE);
         });
-        byte byteLength=(byte)options.size();
+        byte byteLength = (byte) options.size();
         bytes.put(byteLength);
         bytes.put(options.toByteArray());
         bytes.put(new byte[]{(byte) 0x99, (byte) 0xFD});
 
+        //tcp发送
+        // Socket socket = TcpConnect.socketClient.get(queryCmdDto.getWsName());
+        // System.out.println(TcpConnect.socketClient);
+        // if (socket == null) {
+        //     return new Result<>().error().put("设备离线或不存在此设备");
+        // }
+        //
+        // try {
+        //     bytes.flip();
+        //     socket.getOutputStream().write(ByteUtils.getBytes(bytes));
+        //     StaticLog.info("发送成功");
+        // } catch (IOException e) {
+        //return new Result<>().error().put("设备离线或不存在此设备");
+        // }
 
-        Socket socket = TcpConnect.socketClient.get(queryCmdDto.getWsName());
-        System.out.println(TcpConnect.socketClient);
-        if (socket == null){
+        //udp发送
+        DatagramChannel datagramChannel = NioUDP.udpClient.get(queryCmdDto.getWsName());
+        if (datagramChannel == null) {
+            return new Result<>().error().put("设备离线或不存在此设备");
+        }
+        try {
+            bytes.flip();
+            datagramChannel.send(bytes, new InetSocketAddress(queryCmdDto.getWsName(),1347) );
+            StaticLog.info("发送成功");
+        } catch (IOException e) {
             return new Result<>().error().put("设备离线或不存在此设备");
         }
 
 
-        try {
-            bytes.flip();
-            socket.getOutputStream().write(conver(bytes));
-            StaticLog.info("发送成功");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return new Result<>().success().put("操作成功");
     }
 
@@ -246,9 +262,9 @@ public class DeviceController {
         // }
 
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
-        deviceCurrentsInfo.forEach((deviceCurrentInfo)->{
+        deviceCurrentsInfo.forEach((deviceCurrentInfo) -> {
             long interval = Duration.between(deviceCurrentInfo.getUpdateTime(), LocalDateTime.now()).toSeconds();
-            deviceCurrentInfo.setStatus(interval<65 ?1:0);
+            deviceCurrentInfo.setStatus(interval < 65 ? 1 : 0);
         });
         return new Result<>().success().put(deviceCurrentsInfo);
     }
@@ -294,27 +310,41 @@ public class DeviceController {
     public Result<?> stateSwitch(@RequestBody DeviceCurrentSw deviceCurrentSw) {
         DeviceCurrent deviceCurrent = new DeviceCurrent();
 
-        ByteBuffer bytes=ByteBuffer.allocate(100);
-        bytes.put(new byte[]{(byte) 0xfe,0x12,0x03});
-        bytes.put((byte)HexUtil.hexToInt(deviceCurrentSw.getNode()
-                .toLowerCase().replace("0x","")));
+        ByteBuffer bytes = ByteBuffer.allocate(100);
+        bytes.put(new byte[]{(byte) 0xfe, 0x12, 0x03});
+        bytes.put((byte) HexUtil.hexToInt(deviceCurrentSw.getNode()
+                .toLowerCase().replace("0x", "")));
         bytes.put(SwReflect.options.get(deviceCurrentSw.getChangeSw()));
         bytes.put(SwReflect.swChangeValue.get(deviceCurrentSw.getChangeValue()));
-        bytes.put(new byte[] {(byte)0x99, (byte) 0xfd});
+        bytes.put(new byte[]{(byte) 0x99, (byte) 0xfd});
 
-        Socket socket = TcpConnect.socketClient.get(deviceCurrentSw.getWsName());
-        System.out.println(TcpConnect.socketClient);
-        if (socket == null){
+        // //tcp发送
+        // Socket socket = TcpConnect.socketClient.get(deviceCurrentSw.getWsName());
+        // System.out.println(TcpConnect.socketClient);
+        // if (socket == null) {
+        //     return new Result<>().error().put("设备未连接");
+        // }
+        //
+        //
+        // try {
+        //     bytes.flip();
+        //     socket.getOutputStream().write(ByteUtils.getBytes(bytes));
+        //     StaticLog.info("发送成功");
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
+
+        //udp发送
+        DatagramChannel datagramChannel = NioUDP.udpClient.get(deviceCurrentSw.getWsName());
+        if (datagramChannel == null) {
             return new Result<>().error().put("设备未连接");
         }
-
-
         try {
             bytes.flip();
-            socket.getOutputStream().write(conver(bytes));
+            datagramChannel.send(bytes, new InetSocketAddress(deviceCurrentSw.getWsName(),1347) );
             StaticLog.info("发送成功");
         } catch (IOException e) {
-            e.printStackTrace();
+            return new Result<>().error().put("设备离线或不存在此设备");
         }
 
         // mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
@@ -323,22 +353,9 @@ public class DeviceController {
         deviceUpdate.eq("node", deviceCurrentSw.getNode());
 
 
-
-        BeanUtil.copyProperties(deviceCurrentSw,deviceCurrent,"changeSw","changeValue");
+        BeanUtil.copyProperties(deviceCurrentSw, deviceCurrent, "changeSw", "changeValue");
         deviceCurrentService.update(deviceCurrent, deviceUpdate);
         return new Result<>().success().put("操作成功");
-    }
-
-    public static byte[] conver(ByteBuffer byteBuffer){
-        int len = byteBuffer.limit() - byteBuffer.position();
-        byte[] bytes = new byte[len];
-
-        if(byteBuffer.isReadOnly()){
-            return null;
-        }else {
-            byteBuffer.get(bytes);
-        }
-        return bytes;
     }
 
 
@@ -358,7 +375,7 @@ public class DeviceController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return socket.getInetAddress().toString()+":"+socket.getPort();
+        return socket.getInetAddress().toString() + ":" + socket.getPort();
     }
 
 }
