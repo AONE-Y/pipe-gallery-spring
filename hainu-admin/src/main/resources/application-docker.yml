@@ -116,7 +116,7 @@ mqtt:
 
 info:
   baseBtUrl: http://192.168.2.219:8888/system?action=
-  baseEmqUrl: http://mqtt.xinxi.ml:8081/api/v4
+  baseEmqUrl: http://${ip}:8081/api/v4
 
 
 management:

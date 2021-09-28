@@ -6,6 +6,7 @@ import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.service.DeviceCurrentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.util.ByteUtils;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,7 @@ import java.util.Set;
  * @Modified By: ANONE
  */
 @Component
+@Order(2)
 public class NioUDP implements CommandLineRunner {
 
     @Autowired
@@ -60,7 +62,7 @@ public class NioUDP implements CommandLineRunner {
                 channel1.configureBlocking(false);
                 buf.clear();
                 InetSocketAddress address = (InetSocketAddress) channel1.receive(buf);
-                udpClient.put(address.getHostName(), channel1);
+                udpClient.put(address.getAddress().getHostAddress(), channel1);
                 try {
 
                     buf.flip();
@@ -106,7 +108,7 @@ public class NioUDP implements CommandLineRunner {
                             }), address);
 
 
-                            store(info, dataBegin, dataLength, address.getHostName());
+                            store(info, dataBegin, dataLength, address.getAddress().getHostAddress());
                         }
 
                     } else {

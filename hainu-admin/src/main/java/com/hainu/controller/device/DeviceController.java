@@ -2,7 +2,6 @@ package com.hainu.controller.device;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hainu.common.constant.SwReflect;
@@ -10,7 +9,7 @@ import com.hainu.common.dto.DeviceCurrentSw;
 import com.hainu.common.dto.QueryCmdDto;
 import com.hainu.common.dto.QueryDeviceDto;
 import com.hainu.common.lang.Result;
-import com.hainu.system.config.nioudp.NioUDP;
+import com.hainu.system.config.netty.NettyServer;
 import com.hainu.system.config.tcp.TcpConnect;
 import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.entity.DeviceList;
@@ -18,16 +17,17 @@ import com.hainu.system.entity.DeviceLog;
 import com.hainu.system.service.DeviceCurrentService;
 import com.hainu.system.service.DeviceListService;
 import com.hainu.system.service.DeviceLogService;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,6 +46,7 @@ import java.util.Optional;
  * @Modified By: ANONE
  */
 @RestController
+
 @RequestMapping("/device")
 public class DeviceController {
     // @Autowired
@@ -209,17 +210,27 @@ public class DeviceController {
         // }
 
         //udp发送
-        DatagramChannel datagramChannel = NioUDP.udpClient.get(queryCmdDto.getWsName());
-        if (datagramChannel == null) {
-            return new Result<>().error().put("设备离线或不存在此设备");
+        // DatagramChannel datagramChannel = NioUDP.udpClient.get(queryCmdDto.getWsName());
+        // if (datagramChannel == null) {
+        //     return new Result<>().error().put("设备离线或不存在此设备");
+        // }
+        // try {
+        //     bytes.flip();
+        //     datagramChannel.send(bytes, new InetSocketAddress(queryCmdDto.getWsName(),1347) );
+        //     StaticLog.info("发送成功");
+        // } catch (IOException e) {
+        //     return new Result<>().error().put("设备离线或不存在此设备");
+        // }
+
+        //netty tcp 发送
+        Channel channel = NettyServer.clientChannel.get(queryCmdDto.getWsName());
+        if (channel == null) {
+            return new Result<>().error().put("设备未连接");
         }
-        try {
-            bytes.flip();
-            datagramChannel.send(bytes, new InetSocketAddress(queryCmdDto.getWsName(),1347) );
-            StaticLog.info("发送成功");
-        } catch (IOException e) {
-            return new Result<>().error().put("设备离线或不存在此设备");
-        }
+        ByteBuf responseMsg = ByteBufAllocator.DEFAULT.buffer();
+        bytes.flip();
+        responseMsg.writeBytes(bytes);
+        channel.writeAndFlush(responseMsg);
 
 
         return new Result<>().success().put("操作成功");
@@ -335,17 +346,28 @@ public class DeviceController {
         // }
 
         //udp发送
-        DatagramChannel datagramChannel = NioUDP.udpClient.get(deviceCurrentSw.getWsName());
-        if (datagramChannel == null) {
+        // DatagramChannel datagramChannel = NioUDP.udpClient.get(deviceCurrentSw.getWsName());
+        // if (datagramChannel == null) {
+        //     return new Result<>().error().put("设备未连接");
+        // }
+        // try {
+        //     bytes.flip();
+        //     datagramChannel.send(bytes, new InetSocketAddress(deviceCurrentSw.getWsName(),1347) );
+        //     StaticLog.info("发送成功");
+        // } catch (IOException e) {
+        //     return new Result<>().error().put("设备离线或不存在此设备");
+        // }
+
+        //netty tcp 发送
+        Channel channel = NettyServer.clientChannel.get(deviceCurrentSw.getWsName());
+        if (channel == null) {
             return new Result<>().error().put("设备未连接");
         }
-        try {
-            bytes.flip();
-            datagramChannel.send(bytes, new InetSocketAddress(deviceCurrentSw.getWsName(),1347) );
-            StaticLog.info("发送成功");
-        } catch (IOException e) {
-            return new Result<>().error().put("设备离线或不存在此设备");
-        }
+        ByteBuf responseMsg = ByteBufAllocator.DEFAULT.buffer();
+        bytes.flip();
+        responseMsg.writeBytes(bytes);
+        channel.writeAndFlush(responseMsg);
+
 
         // mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
         UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();

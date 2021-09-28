@@ -58,7 +58,7 @@ public class NioTcp implements CommandLineRunner {
                     try {
                         SocketChannel channel = (SocketChannel) key.channel();
                         InetSocketAddress remoteAddress = (InetSocketAddress) channel.getRemoteAddress();
-                        tcpClient.put(remoteAddress.getHostName(), channel);
+                        tcpClient.put(remoteAddress.getAddress().getHostAddress(), channel);
                         ByteBuffer buffer = (ByteBuffer) key.attachment();
                         int read = channel.read(buffer);
                         if (read==-1) {
@@ -108,7 +108,7 @@ public class NioTcp implements CommandLineRunner {
                                     }) );
 
 
-                                    store(info, dataBegin, dataLength, remoteAddress.getHostName());
+                                    store(info, dataBegin, dataLength, remoteAddress.getAddress().getHostAddress());
                                 }
 
                             } else {

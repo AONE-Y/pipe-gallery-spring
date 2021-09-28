@@ -82,11 +82,11 @@
 
         <!--        分库分表-->
 
-<!--        <dependency>-->
-<!--            <groupId>io.netty</groupId>-->
-<!--            <artifactId>netty-all</artifactId>-->
-<!--            <version>4.1.43.Final</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.68.Final</version>
+        </dependency>
 
 
     </dependencies>
