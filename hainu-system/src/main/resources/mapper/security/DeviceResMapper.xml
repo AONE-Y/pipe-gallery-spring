@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hainu.system.dao.DeviceResMapper">
+  <resultMap id="BaseResultMap" type="com.hainu.system.entity.DeviceRes">
+    <!--@mbg.generated-->
+    <!--@Table testshardingjdbc.device_res-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="ws_name" jdbcType="VARCHAR" property="wsName" />
+    <result column="node" jdbcType="VARCHAR" property="node" />
+    <result column="code_type" jdbcType="VARCHAR" property="codeType" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="code_value" jdbcType="DOUBLE" property="codeValue" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, ws_name, node, code_type, code, code_value
+  </sql>
+</mapper>

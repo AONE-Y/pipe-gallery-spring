@@ -1,16 +1,11 @@
-package com.hainu.system.config.nioudp;
+package com.hainu.test;
 
 import cn.hutool.core.util.HexUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hainu.system.entity.DeviceCurrent;
-import com.hainu.system.entity.DeviceRes;
 import com.hainu.system.service.DeviceCurrentService;
-import com.hainu.system.service.DeviceResService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.util.ByteUtils;
-import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -33,20 +28,16 @@ import java.util.Set;
  * @Description:
  * @Modified By: ANONE
  */
-@Component
-@Order(2)
-public class NioUDP implements CommandLineRunner {
+
+public class NioUDP {
 
     @Autowired
-    private DeviceCurrentService deviceCurrentService;
-    @Autowired
-    private DeviceResService deviceResService;
+    private static DeviceCurrentService deviceCurrentService;
 
-    public static Map<String,DatagramChannel> udpClientHost =new HashMap<>();
+    public static Map<String,DatagramChannel> udpClient=new HashMap<>();
 
 
-    @Override
-    public void run(String... args) throws Exception {
+    public static void main(String[] args) throws Exception {
         DatagramChannel channel = DatagramChannel.open();
         channel.configureBlocking(false);
         channel.socket().bind(new InetSocketAddress(9999));
@@ -67,7 +58,7 @@ public class NioUDP implements CommandLineRunner {
                 channel1.configureBlocking(false);
                 buf.clear();
                 InetSocketAddress address = (InetSocketAddress) channel1.receive(buf);
-                udpClientHost.put(address.getAddress().getHostAddress(), channel1);
+                udpClient.put(address.getAddress().getHostAddress(), channel1);
                 try {
 
                     buf.flip();
@@ -84,42 +75,40 @@ public class NioUDP implements CommandLineRunner {
                         str = info.substring(begin, begin + 2);
                         int dataBegin = 0;
                         int dataLength = 0;
-                        String flagStr=str;
-                        if (str.equals("83") ||str.equals("81")||str.equals("82")) {
+                        if (str.equals("83")) {
                             begin += 2;
                             dataLength = HexUtil.hexToInt(info.substring(begin, begin + 2));
                             dataBegin = begin;
                             begin = begin + 6 + dataLength * 2;
 
-                            //##########校验###########
 
-                            String checkStr = checkout(info);
+                        //##########校验###########
 
-                            if (!info.substring(begin, begin + 2).equals(checkStr)) {
-                                channel1.send(ByteBuffer.wrap(new byte[]{
-                                        (byte) 0xfe, 0x01, 0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
-                                }), address);
-                                continue;
-                            }
-                            //######################
+                        // str = ;
+                        String checkStr = checkout(info);
 
-                            begin += 2;
-                            if (!info.substring(begin, begin + 2).equals("fd")) {
-                                channel1.send(ByteBuffer.wrap(new byte[]{
-                                        (byte) 0xfe, 0x01, 0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
-                                }), address);
-                            } else {
-                                channel1.send(ByteBuffer.wrap(new byte[]{
-                                        (byte) 0xfe, 0x01, 0x01, 0x00, (byte) 0x99, (byte) 0xfd
-                                }), address);
-
-                                if (str.equals("83")) {
-                                    store(info, dataBegin, dataLength, address.getAddress().getHostAddress());
-                                }else {
-                                    storeRes(info, dataBegin,address.getAddress().getHostAddress());
-                                }
-                            }
+                        if (!info.substring(begin, begin + 2).equals(checkStr)) {
+                            channel1.send(ByteBuffer.wrap(new byte[]{
+                                    (byte) 0xfe, 0x01, 0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
+                            }), address);
+                            continue;
                         }
+                        //######################
+
+                        begin += 2;
+                        if (!info.substring(begin, begin + 2).equals("fd")) {
+                            channel1.send(ByteBuffer.wrap(new byte[]{
+                                    (byte) 0xfe, 0x01, 0x01, (byte) 0xff, (byte) 0x99, (byte) 0xfd
+                            }), address);
+                        } else {
+                            channel1.send(ByteBuffer.wrap(new byte[]{
+                                    (byte) 0xfe, 0x01, 0x01, 0x00, (byte) 0x99, (byte) 0xfd
+                            }), address);
+
+
+                            store(info, dataBegin, dataLength, address.getAddress().getHostAddress());
+                        }
+                    }
 
                     } else {
                         channel1.send(ByteBuffer.wrap(new byte[]{
@@ -153,28 +142,6 @@ public class NioUDP implements CommandLineRunner {
         }
     }
 
-   public void storeRes(String info, int begin,String wsName){
-
-       begin += 2;
-       String node = info.substring(begin, begin + 4);
-       begin += 4;
-       String code = info.substring(begin, begin + 2);
-       begin +=2;
-       String codeType = info.substring(begin, begin + 2);
-       begin += 2;
-       int codeValueTemp = HexUtil.hexToInt(info.substring(begin, begin + 2));
-       Double codeValue = codeValueTemp > 99 ? (double) codeValueTemp / 10 : (double) codeValueTemp;
-
-
-       DeviceRes deviceRes = new DeviceRes();
-       deviceRes.setWsName(wsName);
-       deviceRes.setNode(node);
-       deviceRes.setCodeType(codeType);
-       deviceRes.setCode(code);
-       deviceRes.setCodeValue(codeValue);
-       deviceResService.save(deviceRes);
-   }
-
     /**
      * @param info   数据
      * @param begin  数据读取位置
@@ -184,32 +151,32 @@ public class NioUDP implements CommandLineRunner {
      * @author： ANONE
      * @date： 2021/09/18
      */
-    public  void store(String info, int begin, int dataLength, String wsName) {
+    public static void store(String info, int begin, int dataLength, String wsName) {
 
 
-        begin += 2;
-        String node = info.substring(begin, begin + 4);
-        begin += 4;
-        String sensorName = info.substring(begin, begin + 2);
-        begin += 4;
-        int sensorValueTemp = HexUtil.hexToInt(info.substring(begin, begin + 2));
-        Double sensorValue = sensorValueTemp > 99 ? (double) sensorValueTemp / 10 : (double) sensorValueTemp;
+            begin += 2;
+            String node = info.substring(begin, begin + 4);
+            begin += 4;
+            String sensorName = info.substring(begin, begin + 2);
+            begin += 4;
+            int sensorValueTemp = HexUtil.hexToInt(info.substring(begin, begin + 2));
+            Double sensorValue = sensorValueTemp > 99 ? (double) sensorValueTemp / 10 : (double) sensorValueTemp;
 
 
-        UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
-        DeviceCurrent deviceCurrent = new DeviceCurrent();
+            UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
+            DeviceCurrent deviceCurrent = new DeviceCurrent();
 
-        deviceUpdate.eq("ws_name", wsName);
-        deviceUpdate.eq("node", node).or().eq("node", "");
+            deviceUpdate.eq("ws_name", wsName);
+            deviceUpdate.eq("node", node).or().eq("node", "");
 
 
-        deviceCurrent.setWsName(wsName);
-        deviceCurrent.setNode(node);
-        deviceCurrent.setUpdateTime(LocalDateTime.now());
-        deviceCurrent = setSensor(deviceCurrent, sensorName, sensorValue);
-        if (!deviceCurrentService.update(deviceCurrent, deviceUpdate)) {
-            deviceCurrentService.save(deviceCurrent);
-        }
+            deviceCurrent.setWsName(wsName);
+            deviceCurrent.setNode(node);
+            deviceCurrent.setUpdateTime(LocalDateTime.now());
+            deviceCurrent = setSensor(deviceCurrent, sensorName, sensorValue);
+            if (!deviceCurrentService.update(deviceCurrent, deviceUpdate)) {
+                deviceCurrentService.save(deviceCurrent);
+            }
 
     }
 
@@ -222,7 +189,7 @@ public class NioUDP implements CommandLineRunner {
      * @author： ANONE
      * @date： 2021/09/18
      */
-    public  DeviceCurrent setSensor(DeviceCurrent deviceCurrent, String sensorName
+    public static DeviceCurrent setSensor(DeviceCurrent deviceCurrent, String sensorName
             , Double sensorValue) {
 
 
@@ -276,7 +243,7 @@ public class NioUDP implements CommandLineRunner {
 
         return deviceCurrent;
     }
-    public  String checkout(String info){
+    public static String checkout(String info){
         int sum=0;
         for(int i = 10; i < info.length()-4; i+=2){
             sum += HexUtil.hexToInt(info.substring(i, i + 2));

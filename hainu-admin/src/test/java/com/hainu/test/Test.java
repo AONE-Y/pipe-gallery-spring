@@ -63,9 +63,13 @@ public class Test {
     @org.junit.jupiter.api.Test
     void test(){
         Byte deviceSmoke = SwReflect.options.get("deviceLighting");
-        int i1 = HexUtil.hexToInt("0a");
+        int i1 = HexUtil.hexToInt("0011");
+        String s = HexUtil.toHex(i1);
+        System.out.println(s);
+
+
         System.out.println(i1);
-        System.out.println(deviceSmoke);
+
     }
 
 
