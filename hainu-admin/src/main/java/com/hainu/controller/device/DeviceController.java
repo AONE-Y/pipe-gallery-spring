@@ -5,10 +5,11 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.hainu.common.constant.SwReflect;
+import com.hainu.common.constant.StaticObject;
 import com.hainu.common.dto.DeviceCurrentSw;
 import com.hainu.common.dto.QueryCmdDto;
 import com.hainu.common.dto.QueryDeviceDto;
+import com.hainu.common.guard.GuardObject;
 import com.hainu.common.lang.Result;
 import com.hainu.system.config.nioudp.NioUDP;
 import com.hainu.system.config.tcp.TcpConnect;
@@ -19,7 +20,6 @@ import com.hainu.system.entity.DeviceRes;
 import com.hainu.system.service.DeviceCurrentService;
 import com.hainu.system.service.DeviceListService;
 import com.hainu.system.service.DeviceLogService;
-import com.hainu.system.service.DeviceResService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -34,10 +34,9 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
+
 
 /**
  * @Project：pipe-gallery
@@ -67,8 +66,8 @@ public class DeviceController {
     @Autowired
     private DeviceLogService deviceLogService;
 
-    @Autowired
-    private DeviceResService deviceResService;
+    // @Autowired
+    // private DeviceResService deviceResService;
 
     private DeviceCurrentSw deviceCurrentSwTemp;
 
@@ -118,7 +117,14 @@ public class DeviceController {
         QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
 
 
+
         if (queryDevice.getWsName() != null && !queryDevice.getWsName().equals("")) {
+            if (queryDevice.getWsName().equals("2AC1")) {
+                Iterator<String> ipAddrs = NioUDP.udpClientHost.keySet().iterator();
+                if (ipAddrs.hasNext()) {
+                    queryDevice.setWsName(ipAddrs.next());
+                }
+            }
             deviceCurrentQueryWrapper.eq("ws_name", queryDevice.getWsName());
 
         }
@@ -266,7 +272,7 @@ public class DeviceController {
         ByteArrayOutputStream options = new ByteArrayOutputStream();
 
         queryCmdDto.getOptions().forEach((option) -> {
-            options.write(SwReflect.options.get(option));
+            options.write(StaticObject.options.get(option));
             options.write((byte) 0x11);
             options.write((byte) 0x11);
             options.write((byte) 0x11);
@@ -291,13 +297,32 @@ public class DeviceController {
         // }
 
         //udp发送
-        DatagramChannel datagramChannel = NioUDP.udpClientHost.get(queryCmdDto.getWsName());
+        DatagramChannel datagramChannel=null;
+        String ip=null;
+        String wsName = queryCmdDto.getWsName();
+        if (!wsName.equals("2AC1")) {
+            datagramChannel = NioUDP.udpClientHost.get(queryCmdDto.getWsName());
+            ip=queryCmdDto.getWsName();
+        }else {
+            Collection<DatagramChannel> datagramChannels = NioUDP.udpClientHost.values();
+            Iterator<DatagramChannel> iterator = datagramChannels.iterator();
+            if (iterator.hasNext()) {
+                datagramChannel = iterator.next();
+            }
+            Iterator<String> ipAddrs = NioUDP.udpClientHost.keySet().iterator();
+            if (ipAddrs.hasNext()) {
+                ip=ipAddrs.next();
+            }
+        }
+
+
+
         if (datagramChannel == null) {
             return new Result<>().error().put("设备离线或不存在此设备");
         }
         try {
             bytes.flip();
-            datagramChannel.send(bytes, new InetSocketAddress(queryCmdDto.getWsName(),1347) );
+            datagramChannel.send(bytes, new InetSocketAddress(ip,1347) );
             StaticLog.info("发送成功");
         } catch (IOException e) {
             return new Result<>().error().put("设备离线或不存在此设备");
@@ -320,25 +345,24 @@ public class DeviceController {
 
     @GetMapping("resData")
     public Result<?> getResData( String wsName, String node,String code){
-        String codeStr = HexUtil.encodeHexStr(new byte[]{SwReflect.options.get(code)});
-        QueryWrapper<DeviceRes> deviceResQueryWrapper = new QueryWrapper<>();
-        deviceResQueryWrapper.eq(DeviceRes.COL_WS_NAME,wsName);
-        deviceResQueryWrapper.eq(DeviceRes.COL_NODE,node);
-        deviceResQueryWrapper.eq(DeviceRes.COL_CODE,codeStr);
-        List<DeviceRes> res = deviceResService.list(deviceResQueryWrapper);
-        long start = System.currentTimeMillis();
-        while (res.size() == 0) {
-            res = deviceResService.list(deviceResQueryWrapper);
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            long end = System.currentTimeMillis();
-            if(end-start>3000){
-                return new Result<>().error("操作超时");
-            }
+        StaticObject.guardObject=new GuardObject();
+        DeviceRes deviceRes = null;
+        try {
+            deviceRes = (DeviceRes) StaticObject.guardObject.get(3000);
+        } catch (TimeoutException e) {
+            StaticObject.guardObject=null;
+            return new Result<>().error().put(e.getMessage());
         }
+
+
+
+        // String codeStr = HexUtil.encodeHexStr(new byte[]{StaticObject.options.get(code)});
+        // QueryWrapper<DeviceRes> deviceResQueryWrapper = new QueryWrapper<>();
+        // deviceResQueryWrapper.eq(DeviceRes.COL_WS_NAME,wsName);
+        // deviceResQueryWrapper.eq(DeviceRes.COL_NODE,node);
+        // deviceResQueryWrapper.eq(DeviceRes.COL_CODE,codeStr);
+        // deviceResQueryWrapper.orderByDesc(DeviceRes.COL_ID);
+
 
         UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
         DeviceCurrent deviceCurrent = new DeviceCurrent();
@@ -348,16 +372,24 @@ public class DeviceController {
         deviceCurrent.setWsName(wsName);
         deviceCurrent.setNode(node);
         deviceCurrent.setUpdateTime(LocalDateTime.now());
-        deviceCurrent = setSensor(deviceCurrent, code, res.get(0).getCodeValue());
+        // deviceResService.remove(deviceResQueryWrapper);
+        try {
+            deviceCurrent = setSensor(deviceCurrent, code, deviceRes.getCodeValue());
+
+        } catch (RuntimeException e) {
+            return new Result<>().error().put(e.getMessage());
+        }
         if (!deviceCurrentService.update(deviceCurrent, deviceUpdate)) {
             deviceCurrentService.save(deviceCurrent);
         }
-        deviceResService.remove(deviceResQueryWrapper);
-        return new Result<>().success().put(res.get(0));
+
+        deviceCurrentSwTemp=null;
+        StaticObject.guardObject=null;
+        return new Result<>().success().put(deviceRes);
     }
 
     public  DeviceCurrent setSensor(DeviceCurrent deviceCurrent, String code
-            , Double codeValue) {
+            , Double codeValue) throws RuntimeException{
 
         if (code.equals("deviceTemp")) {
             deviceCurrent.setDeviceTemp(codeValue);
@@ -386,6 +418,11 @@ public class DeviceController {
         int switchValue = switchValuetemp.intValue();
 
         if (switchValue == 1 || switchValue == 0) {
+            if (deviceCurrentSwTemp.getChangeValue()!=switchValue){
+                throw new RuntimeException("操作失败");
+            }
+
+
             if (code.equals("deviceSmoke")) {
                 deviceCurrent.setDeviceSmoke(switchValue);
             }
@@ -425,10 +462,10 @@ public class DeviceController {
         ByteBuffer bytes = ByteBuffer.allocate(100);
         bytes.put(new byte[]{(byte) 0xfe, 0x12, 0x04,0x00});
         bytes.put((byte) HexUtil.hexToInt(deviceCurrentSw.getNode().substring(2,4)));
-        bytes.put(SwReflect.options.get(deviceCurrentSw.getChangeSw()));
+        bytes.put(StaticObject.options.get(deviceCurrentSw.getChangeSw()));
         bytes.put((byte) 0x12);
-        bytes.put(SwReflect.swChangeValue.get(deviceCurrentSw.getChangeValue()));
-        bytes.put(SwReflect.swChangeValue.get(deviceCurrentSw.getChangeValue()));
+        bytes.put(StaticObject.swChangeValue.get(deviceCurrentSw.getChangeValue()));
+        bytes.put(StaticObject.swChangeValue.get(deviceCurrentSw.getChangeValue()));
         bytes.put((byte) 0x99);
         bytes.put( (byte) 0xfd);
 
@@ -449,13 +486,30 @@ public class DeviceController {
         // }
 
         //udp发送
-        DatagramChannel datagramChannel = NioUDP.udpClientHost.get(deviceCurrentSw.getWsName());
+        DatagramChannel datagramChannel=null;
+        String ip=null;
+        String wsName = deviceCurrentSw.getWsName();
+        if (!wsName.equals("2AC1")) {
+             datagramChannel = NioUDP.udpClientHost.get(deviceCurrentSw.getWsName());
+             ip=deviceCurrentSw.getWsName();
+        }else {
+            Collection<DatagramChannel> datagramChannels = NioUDP.udpClientHost.values();
+            Iterator<DatagramChannel> iterator = datagramChannels.iterator();
+            if (iterator.hasNext()) {
+                 datagramChannel = iterator.next();
+            }
+            Iterator<String> ipAddrs = NioUDP.udpClientHost.keySet().iterator();
+            if (ipAddrs.hasNext()) {
+                ip=ipAddrs.next();
+            }
+        }
+//#############################################
         if (datagramChannel == null) {
             return new Result<>().error().put("设备未连接");
         }
         try {
             bytes.flip();
-            datagramChannel.send(bytes, new InetSocketAddress(deviceCurrentSw.getWsName(),1347) );
+            datagramChannel.send(bytes, new InetSocketAddress(ip,1347) );
             StaticLog.info("发送成功");
         } catch (IOException e) {
             return new Result<>().error().put("设备离线或不存在此设备");

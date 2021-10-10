@@ -1,5 +1,7 @@
 package com.hainu.common.constant;
 
+import com.hainu.common.guard.GuardObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,10 +14,11 @@ import java.util.Map;
  * @Description:
  * @Modified By: ANONE
  */
-public class SwReflect {
+public class StaticObject {
 
     public static  Map<String, Byte> options =new HashMap<>();
     public static  Map<Integer, Byte> swChangeValue=new HashMap<>();
+    public static GuardObject guardObject;
 
      static {
          options.put("deviceTemp", (byte) 0x01);

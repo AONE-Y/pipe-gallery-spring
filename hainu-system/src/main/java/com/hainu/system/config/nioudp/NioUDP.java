@@ -2,10 +2,10 @@ package com.hainu.system.config.nioudp;
 
 import cn.hutool.core.util.HexUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.hainu.common.constant.StaticObject;
 import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.entity.DeviceRes;
 import com.hainu.system.service.DeviceCurrentService;
-import com.hainu.system.service.DeviceResService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -39,8 +39,8 @@ public class NioUDP implements CommandLineRunner {
 
     @Autowired
     private DeviceCurrentService deviceCurrentService;
-    @Autowired
-    private DeviceResService deviceResService;
+    // @Autowired
+    // private DeviceResService deviceResService;
 
     public static Map<String,DatagramChannel> udpClientHost =new HashMap<>();
 
@@ -172,7 +172,10 @@ public class NioUDP implements CommandLineRunner {
        deviceRes.setCodeType(codeType);
        deviceRes.setCode(code);
        deviceRes.setCodeValue(codeValue);
-       deviceResService.save(deviceRes);
+
+       StaticObject.guardObject.complete(deviceRes);
+
+       // deviceResService.save(deviceRes);
    }
 
     /**
