@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Project：pipe-gallery
@@ -41,7 +41,7 @@ public class NettyServer implements CommandLineRunner {
     @Autowired
     private DeviceCurrentService deviceCurrentService;
 
-    public static Map<String, Channel> clientChannel=new HashMap<>();
+    public static Map<String, Channel> clientChannel=new ConcurrentHashMap<>();
 
     @Override
     public void run(String... args) throws Exception {
@@ -183,7 +183,6 @@ public class NettyServer implements CommandLineRunner {
      */
     public DeviceCurrent setSensor(DeviceCurrent deviceCurrent, String sensorName
             , Double sensorValue) {
-
 
         if (sensorName.equals("01")) {
             deviceCurrent.setDeviceTemp(sensorValue);

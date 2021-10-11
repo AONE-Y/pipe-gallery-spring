@@ -19,6 +19,7 @@ public class StaticObject {
     public static  Map<String, Byte> options =new HashMap<>();
     public static  Map<Integer, Byte> swChangeValue=new HashMap<>();
     public static GuardObject guardObject;
+    // private static Map<String,>
 
      static {
          options.put("deviceTemp", (byte) 0x01);

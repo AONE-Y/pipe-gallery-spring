@@ -296,38 +296,38 @@ public class DeviceController {
         //return new Result<>().error().put("设备离线或不存在此设备");
         // }
 
+
+
+
         //udp发送
         DatagramChannel datagramChannel=null;
-        String ip=null;
+        InetSocketAddress inetSocketAddress = null;
         String wsName = queryCmdDto.getWsName();
         if (!wsName.equals("2AC1")) {
-            datagramChannel = NioUDP.udpClientHost.get(queryCmdDto.getWsName());
-            ip=queryCmdDto.getWsName();
+            datagramChannel = NioUDP.udpClientHost.get(wsName);
+            inetSocketAddress=NioUDP.udpClientInet.get(wsName);
         }else {
             Collection<DatagramChannel> datagramChannels = NioUDP.udpClientHost.values();
             Iterator<DatagramChannel> iterator = datagramChannels.iterator();
             if (iterator.hasNext()) {
                 datagramChannel = iterator.next();
             }
-            Iterator<String> ipAddrs = NioUDP.udpClientHost.keySet().iterator();
-            if (ipAddrs.hasNext()) {
-                ip=ipAddrs.next();
+            Iterator<InetSocketAddress> inetIterator = NioUDP.udpClientInet.values().iterator();
+            if (inetIterator.hasNext()) {
+                inetSocketAddress = inetIterator.next();
             }
         }
-
-
-
+//#############################################
         if (datagramChannel == null) {
-            return new Result<>().error().put("设备离线或不存在此设备");
+            return new Result<>().error().put("设备未连接");
         }
         try {
             bytes.flip();
-            datagramChannel.send(bytes, new InetSocketAddress(ip,1347) );
+            datagramChannel.send(bytes, inetSocketAddress );
             StaticLog.info("发送成功");
         } catch (IOException e) {
             return new Result<>().error().put("设备离线或不存在此设备");
         }
-
         //netty tcp 发送
         // Channel channel = NettyServer.clientChannel.get(queryCmdDto.getWsName());
         // if (channel == null) {
@@ -487,20 +487,20 @@ public class DeviceController {
 
         //udp发送
         DatagramChannel datagramChannel=null;
-        String ip=null;
+        InetSocketAddress inetSocketAddress = null;
         String wsName = deviceCurrentSw.getWsName();
         if (!wsName.equals("2AC1")) {
-             datagramChannel = NioUDP.udpClientHost.get(deviceCurrentSw.getWsName());
-             ip=deviceCurrentSw.getWsName();
+            datagramChannel = NioUDP.udpClientHost.get(wsName);
+            inetSocketAddress=NioUDP.udpClientInet.get(wsName);
         }else {
             Collection<DatagramChannel> datagramChannels = NioUDP.udpClientHost.values();
             Iterator<DatagramChannel> iterator = datagramChannels.iterator();
             if (iterator.hasNext()) {
-                 datagramChannel = iterator.next();
+                datagramChannel = iterator.next();
             }
-            Iterator<String> ipAddrs = NioUDP.udpClientHost.keySet().iterator();
-            if (ipAddrs.hasNext()) {
-                ip=ipAddrs.next();
+            Iterator<InetSocketAddress> inetIterator = NioUDP.udpClientInet.values().iterator();
+            if (inetIterator.hasNext()) {
+                inetSocketAddress = inetIterator.next();
             }
         }
 //#############################################
@@ -509,7 +509,7 @@ public class DeviceController {
         }
         try {
             bytes.flip();
-            datagramChannel.send(bytes, new InetSocketAddress(ip,1347) );
+            datagramChannel.send(bytes, inetSocketAddress );
             StaticLog.info("发送成功");
         } catch (IOException e) {
             return new Result<>().error().put("设备离线或不存在此设备");

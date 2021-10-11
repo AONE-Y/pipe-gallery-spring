@@ -1,7 +1,7 @@
 package com.hainu.test;
 
 import cn.hutool.core.util.HexUtil;
-import com.hainu.common.constant.StaticObject;
+import com.hainu.system.config.netty.UdpNetty;
 
 /**
  * @author frank
@@ -56,19 +56,20 @@ public class Test {
         //
         // int bytes = ;
         // System.out.println(bytes);
+        try {
+            new UdpNetty().run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }
 
     @org.junit.jupiter.api.Test
     void test(){
-        Byte deviceSmoke = StaticObject.options.get("deviceLighting");
-        int i1 = HexUtil.hexToInt("0011");
-        String s = HexUtil.toHex(i1);
-        System.out.println(s);
-
-
-        System.out.println(i1);
+        byte b = (byte) 0xfe;
+        String s = HexUtil.encodeHexStr(new byte[]{b});
+        System.out.println(b);
 
     }
 
