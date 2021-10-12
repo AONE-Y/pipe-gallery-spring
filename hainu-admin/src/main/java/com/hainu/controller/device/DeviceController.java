@@ -9,8 +9,9 @@ import com.hainu.common.constant.StaticObject;
 import com.hainu.common.dto.DeviceCurrentSw;
 import com.hainu.common.dto.QueryCmdDto;
 import com.hainu.common.dto.QueryDeviceDto;
-import com.hainu.common.guard.GuardObject;
 import com.hainu.common.lang.Result;
+import com.hainu.common.queue.MessageQueue;
+import com.hainu.system.config.netty.handle.ResponseHandler;
 import com.hainu.system.config.nioudp.NioUDP;
 import com.hainu.system.config.tcp.TcpConnect;
 import com.hainu.system.entity.DeviceCurrent;
@@ -20,6 +21,10 @@ import com.hainu.system.entity.DeviceRes;
 import com.hainu.system.service.DeviceCurrentService;
 import com.hainu.system.service.DeviceListService;
 import com.hainu.system.service.DeviceLogService;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +34,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -272,7 +276,7 @@ public class DeviceController {
         ByteArrayOutputStream options = new ByteArrayOutputStream();
 
         queryCmdDto.getOptions().forEach((option) -> {
-            options.write(StaticObject.options.get(option));
+            options.write(StaticObject.getOptions().get(option));
             options.write((byte) 0x11);
             options.write((byte) 0x11);
             options.write((byte) 0x11);
@@ -299,35 +303,66 @@ public class DeviceController {
 
 
 
-        //udp发送
-        DatagramChannel datagramChannel=null;
+//         //udp发送
+//         DatagramChannel datagramChannel=null;
+//         InetSocketAddress inetSocketAddress = null;
+//         String wsName = queryCmdDto.getWsName();
+//         if (!wsName.equals("2AC1")) {
+//             datagramChannel = NioUDP.udpClientHost.get(wsName);
+//             inetSocketAddress=NioUDP.udpClientInet.get(wsName);
+//         }else {
+//             Collection<DatagramChannel> datagramChannels = NioUDP.udpClientHost.values();
+//             Iterator<DatagramChannel> iterator = datagramChannels.iterator();
+//             if (iterator.hasNext()) {
+//                 datagramChannel = iterator.next();
+//             }
+//             Iterator<InetSocketAddress> inetIterator = NioUDP.udpClientInet.values().iterator();
+//             if (inetIterator.hasNext()) {
+//                 inetSocketAddress = inetIterator.next();
+//             }
+//         }
+// //#############################################
+//         if (datagramChannel == null) {
+//             return new Result<>().error().put("设备未连接");
+//         }
+//         try {
+//             bytes.flip();
+//             datagramChannel.send(bytes, inetSocketAddress );
+//             StaticLog.info("发送成功");
+//         } catch (IOException e) {
+//             return new Result<>().error().put("设备离线或不存在此设备");
+//         }
+
+
+
+        //netty udp
+        ChannelHandlerContext ctx=null;
         InetSocketAddress inetSocketAddress = null;
         String wsName = queryCmdDto.getWsName();
         if (!wsName.equals("2AC1")) {
-            datagramChannel = NioUDP.udpClientHost.get(wsName);
-            inetSocketAddress=NioUDP.udpClientInet.get(wsName);
+            ctx = ResponseHandler.udpClientHost.get(wsName);
+            inetSocketAddress=ResponseHandler.udpClientInet.get(wsName);
         }else {
-            Collection<DatagramChannel> datagramChannels = NioUDP.udpClientHost.values();
-            Iterator<DatagramChannel> iterator = datagramChannels.iterator();
+            Collection<ChannelHandlerContext> ctxs = ResponseHandler.udpClientHost.values();
+            Iterator<ChannelHandlerContext> iterator = ctxs.iterator();
             if (iterator.hasNext()) {
-                datagramChannel = iterator.next();
+                ctx= iterator.next();
             }
-            Iterator<InetSocketAddress> inetIterator = NioUDP.udpClientInet.values().iterator();
+            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
             if (inetIterator.hasNext()) {
                 inetSocketAddress = inetIterator.next();
             }
         }
 //#############################################
-        if (datagramChannel == null) {
+        if (ctx == null) {
             return new Result<>().error().put("设备未连接");
         }
-        try {
-            bytes.flip();
-            datagramChannel.send(bytes, inetSocketAddress );
-            StaticLog.info("发送成功");
-        } catch (IOException e) {
-            return new Result<>().error().put("设备离线或不存在此设备");
-        }
+        bytes.flip();
+        ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
+        buffer.writeBytes(bytes);
+        ctx.writeAndFlush(new DatagramPacket(buffer,inetSocketAddress));
+        StaticLog.info("发送成功");
+
         //netty tcp 发送
         // Channel channel = NettyServer.clientChannel.get(queryCmdDto.getWsName());
         // if (channel == null) {
@@ -345,12 +380,14 @@ public class DeviceController {
 
     @GetMapping("resData")
     public Result<?> getResData( String wsName, String node,String code){
-        StaticObject.guardObject=new GuardObject();
+        // StaticObject.guardObject=new GuardObject();
         DeviceRes deviceRes = null;
+        StaticObject.setMessageQueue(new MessageQueue(1));
         try {
-            deviceRes = (DeviceRes) StaticObject.guardObject.get(3000);
+            // deviceRes = (DeviceRes) StaticObject.guardObject.get(3000);
+             deviceRes = (DeviceRes) StaticObject.getMessageQueue().take(3000);
         } catch (TimeoutException e) {
-            StaticObject.guardObject=null;
+            StaticObject.setMessageQueue(null);
             return new Result<>().error().put(e.getMessage());
         }
 
@@ -384,7 +421,8 @@ public class DeviceController {
         }
 
         deviceCurrentSwTemp=null;
-        StaticObject.guardObject=null;
+        StaticObject.setMessageQueue(null);
+        // StaticObject.guardObject=null;
         return new Result<>().success().put(deviceRes);
     }
 
@@ -393,18 +431,23 @@ public class DeviceController {
 
         if (code.equals("deviceTemp")) {
             deviceCurrent.setDeviceTemp(codeValue);
+            return deviceCurrent;
         }
         if (code.equals("deviceHumi")) {
             deviceCurrent.setDeviceHumi(codeValue);
+            return deviceCurrent;
         }
         if (code.equals("deviceLlv")) {
             deviceCurrent.setDeviceLlv(codeValue);
+            return deviceCurrent;
         }
         if (code.equals("deviceGas")) {
             deviceCurrent.setDeviceGas(codeValue);
+            return deviceCurrent;
         }
         if (code.equals("deviceO2")) {
             deviceCurrent.setDeviceO2(codeValue);
+            return deviceCurrent;
         }
 
 
@@ -462,10 +505,10 @@ public class DeviceController {
         ByteBuffer bytes = ByteBuffer.allocate(100);
         bytes.put(new byte[]{(byte) 0xfe, 0x12, 0x04,0x00});
         bytes.put((byte) HexUtil.hexToInt(deviceCurrentSw.getNode().substring(2,4)));
-        bytes.put(StaticObject.options.get(deviceCurrentSw.getChangeSw()));
+        bytes.put(StaticObject.getOptions().get(deviceCurrentSw.getChangeSw()));
         bytes.put((byte) 0x12);
-        bytes.put(StaticObject.swChangeValue.get(deviceCurrentSw.getChangeValue()));
-        bytes.put(StaticObject.swChangeValue.get(deviceCurrentSw.getChangeValue()));
+        bytes.put(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
+        bytes.put(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
         bytes.put((byte) 0x99);
         bytes.put( (byte) 0xfd);
 
@@ -486,34 +529,63 @@ public class DeviceController {
         // }
 
         //udp发送
-        DatagramChannel datagramChannel=null;
+//         DatagramChannel datagramChannel=null;
+//         InetSocketAddress inetSocketAddress = null;
+//         String wsName = deviceCurrentSw.getWsName();
+//         if (!wsName.equals("2AC1")) {
+//             datagramChannel = NioUDP.udpClientHost.get(wsName);
+//             inetSocketAddress=NioUDP.udpClientInet.get(wsName);
+//         }else {
+//             Collection<DatagramChannel> datagramChannels = NioUDP.udpClientHost.values();
+//             Iterator<DatagramChannel> iterator = datagramChannels.iterator();
+//             if (iterator.hasNext()) {
+//                 datagramChannel = iterator.next();
+//             }
+//             Iterator<InetSocketAddress> inetIterator = NioUDP.udpClientInet.values().iterator();
+//             if (inetIterator.hasNext()) {
+//                 inetSocketAddress = inetIterator.next();
+//             }
+//         }
+// //#############################################
+//         if (datagramChannel == null) {
+//             return new Result<>().error().put("设备未连接");
+//         }
+//         try {
+//             bytes.flip();
+//             datagramChannel.send(bytes, inetSocketAddress );
+//             StaticLog.info("发送成功");
+//         } catch (IOException e) {
+//             return new Result<>().error().put("设备离线或不存在此设备");
+//         }
+
+
+        //netty udp
+        ChannelHandlerContext ctx=null;
         InetSocketAddress inetSocketAddress = null;
         String wsName = deviceCurrentSw.getWsName();
         if (!wsName.equals("2AC1")) {
-            datagramChannel = NioUDP.udpClientHost.get(wsName);
-            inetSocketAddress=NioUDP.udpClientInet.get(wsName);
+            ctx = ResponseHandler.udpClientHost.get(wsName);
+            inetSocketAddress=ResponseHandler.udpClientInet.get(wsName);
         }else {
-            Collection<DatagramChannel> datagramChannels = NioUDP.udpClientHost.values();
-            Iterator<DatagramChannel> iterator = datagramChannels.iterator();
+            Collection<ChannelHandlerContext> ctxs = ResponseHandler.udpClientHost.values();
+            Iterator<ChannelHandlerContext> iterator = ctxs.iterator();
             if (iterator.hasNext()) {
-                datagramChannel = iterator.next();
+                ctx= iterator.next();
             }
-            Iterator<InetSocketAddress> inetIterator = NioUDP.udpClientInet.values().iterator();
+            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
             if (inetIterator.hasNext()) {
                 inetSocketAddress = inetIterator.next();
             }
         }
 //#############################################
-        if (datagramChannel == null) {
+        if (ctx == null) {
             return new Result<>().error().put("设备未连接");
         }
-        try {
-            bytes.flip();
-            datagramChannel.send(bytes, inetSocketAddress );
-            StaticLog.info("发送成功");
-        } catch (IOException e) {
-            return new Result<>().error().put("设备离线或不存在此设备");
-        }
+        bytes.flip();
+        ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
+        buffer.writeBytes(bytes);
+        ctx.writeAndFlush(new DatagramPacket(buffer,inetSocketAddress));
+        StaticLog.info("发送成功");
 
         //netty tcp 发送
         // Channel channel = NettyServer.clientChannel.get(deviceCurrentSw.getWsName());

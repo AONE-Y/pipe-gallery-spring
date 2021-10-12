@@ -8,9 +8,7 @@ import com.hainu.system.entity.DeviceRes;
 import com.hainu.system.service.DeviceCurrentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.util.ByteUtils;
-import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -33,8 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description:
  * @Modified By: ANONE
  */
-@Component
-@Order(2)
+// @Component
+// @Order(2)
 public class NioUDP implements CommandLineRunner {
 
     @Autowired
@@ -177,7 +175,7 @@ public class NioUDP implements CommandLineRunner {
 
 
 
-        StaticObject.guardObject.complete(deviceRes);
+        StaticObject.getGuardObject().complete(deviceRes);
 
 
         // deviceResService.save(deviceRes);

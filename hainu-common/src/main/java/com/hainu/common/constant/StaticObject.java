@@ -1,6 +1,7 @@
 package com.hainu.common.constant;
 
 import com.hainu.common.guard.GuardObject;
+import com.hainu.common.queue.MessageQueue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,12 +17,44 @@ import java.util.Map;
  */
 public class StaticObject {
 
-    public static  Map<String, Byte> options =new HashMap<>();
-    public static  Map<Integer, Byte> swChangeValue=new HashMap<>();
-    public static GuardObject guardObject;
-    // private static Map<String,>
+    private static  Map<String, Byte> options =new HashMap<>();
+    private static  Map<Integer, Byte> swChangeValue=new HashMap<>();
+    private static GuardObject guardObject;
+    private static MessageQueue messageQueue;
 
-     static {
+    public static Map<String, Byte> getOptions() {
+        return options;
+    }
+
+    public static void setOptions(Map<String, Byte> options) {
+        StaticObject.options = options;
+    }
+
+    public static Map<Integer, Byte> getSwChangeValue() {
+        return swChangeValue;
+    }
+
+    public static void setSwChangeValue(Map<Integer, Byte> swChangeValue) {
+        StaticObject.swChangeValue = swChangeValue;
+    }
+
+    public static GuardObject getGuardObject() {
+        return guardObject;
+    }
+
+    public static void setGuardObject(GuardObject guardObject) {
+        StaticObject.guardObject = guardObject;
+    }
+
+    public static MessageQueue getMessageQueue() {
+        return messageQueue;
+    }
+
+    public static void setMessageQueue(MessageQueue messageQueue) {
+        StaticObject.messageQueue = messageQueue;
+    }
+
+    static {
          options.put("deviceTemp", (byte) 0x01);
          options.put("deviceHumi", (byte) 0x02);
          options.put("deviceLlv", (byte) 0x03);

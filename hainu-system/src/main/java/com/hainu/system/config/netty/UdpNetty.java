@@ -6,9 +6,10 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.handler.logging.LoggingHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 /**
  * @Project：pipe-gallery
@@ -19,8 +20,8 @@ import org.springframework.boot.CommandLineRunner;
  * @Description:
  * @Modified By: ANONE
  */
-// @Component
-// @Order(1)
+@Component
+@Order(1)
 public class UdpNetty implements CommandLineRunner {
     @Autowired
     private DeviceCurrentService deviceCurrentService;
@@ -34,7 +35,6 @@ public class UdpNetty implements CommandLineRunner {
                     @Override
                     protected void initChannel(NioDatagramChannel ch)  {
 
-                        ch.pipeline().addLast(new LoggingHandler());
                         ch.pipeline().addLast("responseBase",new ResponseHandler());
                         //校验发送过来的数据帧是否以0xfe开头
                         ch.pipeline().addLast("title", new HeaderHandler());
@@ -45,6 +45,6 @@ public class UdpNetty implements CommandLineRunner {
                         //数据帧尾，并且保存数据
                         ch.pipeline().addLast("lastAndStore",new TailAndStoreHandler(deviceCurrentService));
                     }
-                }).bind(1472);
+                }).bind(9999);
     }
 }

@@ -32,11 +32,19 @@ public class CheckoutNumHandler extends ChannelInboundHandlerAdapter {
             sum += HexUtil.hexToInt(strNum);
         }
         int checkNum = HexUtil.hexToInt(HexUtil.encodeHexStr(new byte[]{recBuf.readByte()}));
-        if (sum % 100 == checkNum) {
+
+        //测试时用
+        if (checkNum==153){
             super.channelRead(ctx, objectMap);
-        } else {
-            super.channelRead(ctx, objectMap);
+        }else {
             ctx.writeAndFlush(new DataAddrDto((byte) 0xff, rec.sender()));
         }
+        //记得删
+        //
+        // if (sum % 100 == checkNum) {
+        //     super.channelRead(ctx, objectMap);
+        // } else {
+        //     ctx.writeAndFlush(new DataAddrDto((byte) 0xff, rec.sender()));
+        // }
     }
 }

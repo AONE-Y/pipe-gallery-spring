@@ -20,8 +20,12 @@ public class HeaderHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         DatagramPacket rec = (DatagramPacket) msg;
         ByteBuf buf = rec.content();
-        if (buf.readByte()==(byte)0xfe){
-            super.channelRead(ctx, rec);
+        if (buf.readableBytes() == 11) {
+            if (buf.readByte()==(byte)0xfe){
+                super.channelRead(ctx, rec);
+            }else {
+                ctx.writeAndFlush(new DataAddrDto((byte)0xff,rec.sender()));
+            }
         }else {
             ctx.writeAndFlush(new DataAddrDto((byte)0xff,rec.sender()));
         }

@@ -35,8 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description:
  * @Modified By: ANONE
  */
-@Component
-@Order(1)
+// @Component
+// @Order(1)
 public class NettyServer implements CommandLineRunner {
     @Autowired
     private DeviceCurrentService deviceCurrentService;
