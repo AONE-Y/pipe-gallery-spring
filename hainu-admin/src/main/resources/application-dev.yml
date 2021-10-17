@@ -77,10 +77,10 @@ mybatis-plus:
       #逻辑删除配置
       logic-delete-value: 1
       logic-not-delete-value: 0
-  configuration:
-    map-underscore-to-camel-case: true
-    cache-enabled: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志
+#  configuration:
+#    map-underscore-to-camel-case: true
+#    cache-enabled: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志
 
 
 sa-token:

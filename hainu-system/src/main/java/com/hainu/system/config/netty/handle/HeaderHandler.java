@@ -1,5 +1,6 @@
 package com.hainu.system.config.netty.handle;
 
+import cn.hutool.core.util.HexUtil;
 import com.hainu.common.dto.DataAddrDto;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -20,6 +21,13 @@ public class HeaderHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         DatagramPacket rec = (DatagramPacket) msg;
         ByteBuf buf = rec.content();
+
+        for (int i=0;i<11;i++){
+            String string= HexUtil.encodeHexStr(new byte[]{buf.readByte()});
+            System.out.print(string+" ");
+
+        }
+        buf.resetReaderIndex();
         if (buf.readableBytes() == 11) {
             if (buf.readByte()==(byte)0xfe){
                 super.channelRead(ctx, rec);

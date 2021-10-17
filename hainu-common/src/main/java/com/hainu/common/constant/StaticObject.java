@@ -60,7 +60,7 @@ public class StaticObject {
          options.put("deviceLlv", (byte) 0x03);
          options.put("deviceGas", (byte) 0x04);
          options.put("deviceO2", (byte) 0x05);
-        options.put("deviceSmoke", (byte) 0x80);
+        options.put("deviceManHole", (byte) 0x80);
         options.put("deviceLighting", (byte) 0x81);
         options.put("deviceWaterpump", (byte) 0x82);
         options.put("deviceFan", (byte) 0x83);

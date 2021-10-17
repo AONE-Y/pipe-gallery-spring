@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hainu.system.dao.NodeSensorMapper">
+  <resultMap id="BaseResultMap" type="com.hainu.system.entity.NodeSensor">
+    <!--@mbg.generated-->
+    <!--@Table testshardingjdbc.node_sensor-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="node" jdbcType="VARCHAR" property="node" />
+    <result column="sensor" jdbcType="VARCHAR" property="sensor" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, node, sensor
+  </sql>
+</mapper>

@@ -41,7 +41,9 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
             byte sensorName = recBuf.readByte();
             //舍弃一字节
             recBuf.readByte();
-            double sensorValue = recBuf.readByte();
+            double sensorValue = Byte.toUnsignedInt(recBuf.readByte());
+            Double switchValuetemp = sensorValue;
+            sensorValue=sensorValue>99?sensorValue/10:sensorValue;
             //舍弃重复字节值
             recBuf.readByte();
 
@@ -67,7 +69,7 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
             }
 
 
-            Double switchValuetemp = sensorValue;
+
             if (switchValuetemp == 1) {
                 switchValuetemp = (double) -1;
             }

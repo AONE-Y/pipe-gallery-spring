@@ -6,6 +6,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.handler.logging.LoggingHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -34,6 +35,7 @@ public class UdpNetty implements CommandLineRunner {
 
                     @Override
                     protected void initChannel(NioDatagramChannel ch)  {
+                        ch.pipeline().addLast(new LoggingHandler());
 
                         ch.pipeline().addLast("responseBase",new ResponseHandler());
                         //校验发送过来的数据帧是否以0xfe开头

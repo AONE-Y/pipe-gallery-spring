@@ -5,17 +5,15 @@ import com.hainu.system.dao.DeviceListMapper;
 import com.hainu.system.dao.DeviceLogMapper;
 import com.hainu.system.entity.DeviceList;
 import com.hainu.system.entity.DeviceLog;
-import com.hainu.system.service.DeviceCurrentService;
-import com.hainu.system.service.DeviceListService;
-import com.hainu.system.service.DeviceLogService;
-import com.hainu.system.service.LoginInfoService;
+import com.hainu.system.entity.NodeSensor;
+import com.hainu.system.service.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 
 @SpringBootTest
 class HainuAdminApplicationTests {
@@ -39,11 +37,19 @@ class HainuAdminApplicationTests {
     @Autowired
     DeviceLogMapper dlogm;
 
+    @Autowired
+    NodeSensorService nss;
+
 
 
 
     @Test
     void contextLoads() {
+
+        List<NodeSensor> list1 = nss.list();
+
+
+
     }
 
     @Test

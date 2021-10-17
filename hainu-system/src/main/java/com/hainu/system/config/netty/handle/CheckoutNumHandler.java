@@ -1,7 +1,6 @@
 package com.hainu.system.config.netty.handle;
 
 import cn.hutool.core.util.HexUtil;
-import com.hainu.common.dto.DataAddrDto;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -28,20 +27,12 @@ public class CheckoutNumHandler extends ChannelInboundHandlerAdapter {
         int sum = 0;
         int needCheckSize = recBuf.readableBytes() - 2;
         for (int i = 0; i < needCheckSize; i++) {
-            String strNum = HexUtil.encodeHexStr(new byte[]{recBuf.readByte()});
-            sum += HexUtil.hexToInt(strNum);
+            sum += Byte.toUnsignedInt(recBuf.readByte());
         }
         int checkNum = HexUtil.hexToInt(HexUtil.encodeHexStr(new byte[]{recBuf.readByte()}));
-
-        //测试时用
-        if (checkNum==153){
-            super.channelRead(ctx, objectMap);
-        }else {
-            ctx.writeAndFlush(new DataAddrDto((byte) 0xff, rec.sender()));
-        }
-        //记得删
-        //
-        // if (sum % 100 == checkNum) {
+        super.channelRead(ctx, objectMap);
+        // int checkResult=sum&0xff;
+        // if (checkResult  == checkNum) {
         //     super.channelRead(ctx, objectMap);
         // } else {
         //     ctx.writeAndFlush(new DataAddrDto((byte) 0xff, rec.sender()));

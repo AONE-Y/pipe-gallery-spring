@@ -1,6 +1,5 @@
 package com.hainu.controller.device;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -9,18 +8,17 @@ import com.hainu.common.constant.StaticObject;
 import com.hainu.common.dto.DeviceCurrentSw;
 import com.hainu.common.dto.QueryCmdDto;
 import com.hainu.common.dto.QueryDeviceDto;
+import com.hainu.common.dto.SensorNodeRes;
 import com.hainu.common.lang.Result;
 import com.hainu.common.queue.MessageQueue;
 import com.hainu.system.config.netty.handle.ResponseHandler;
 import com.hainu.system.config.nioudp.NioUDP;
 import com.hainu.system.config.tcp.TcpConnect;
-import com.hainu.system.entity.DeviceCurrent;
-import com.hainu.system.entity.DeviceList;
-import com.hainu.system.entity.DeviceLog;
-import com.hainu.system.entity.DeviceRes;
+import com.hainu.system.entity.*;
 import com.hainu.system.service.DeviceCurrentService;
 import com.hainu.system.service.DeviceListService;
 import com.hainu.system.service.DeviceLogService;
+import com.hainu.system.service.NodeSensorService;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,6 +66,9 @@ public class DeviceController {
 
     @Autowired
     private DeviceLogService deviceLogService;
+
+    @Autowired
+    private NodeSensorService nodeSensorService;
 
     // @Autowired
     // private DeviceResService deviceResService;
@@ -114,12 +114,16 @@ public class DeviceController {
     //
     //     return new Result<>().success().put("话题刷新成功");
     // }
-
-
     @PostMapping("getDeviceCurrent")
     public Result<?> getDeviceCurrent(@RequestBody QueryDeviceDto queryDevice) {
         QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
-
+        deviceCurrentQueryWrapper.select("ws_id", "ws_name", "node", "SUM(device_temp) as device_temp",
+                "SUM(device_humi) as device_humi", "SUM(device_llv) as device_llv",
+                "SUM(device_gas) as device_gas", "SUM(device_O2) as device_O2", "SUM(device_smoke) as device_smoke",
+                "SUM(device_lighting) as device_lighting", "SUM(device_waterpump) as device_waterpump",
+                "SUM(device_fan) as device_fan", "SUM(device_infra) as device_infra", "SUM(device_guard) as device_guard",
+                "update_time");
+        deviceCurrentQueryWrapper.groupBy("ws_name");
 
 
         if (queryDevice.getWsName() != null && !queryDevice.getWsName().equals("")) {
@@ -149,6 +153,7 @@ public class DeviceController {
 
         deviceCurrentQueryWrapper.orderByAsc("ws_name");
 
+
         // if (wsName != null) {
         //     deviceCurrentQueryWrapper.eq("ws_name", wsName);
         // }
@@ -158,6 +163,7 @@ public class DeviceController {
         // if (wsName == null && node == null) {
         //     deviceCurrentQueryWrapper = null;
         // }
+
 
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
         deviceCurrentsInfo.forEach((deviceCurrentInfo) -> {
@@ -267,23 +273,57 @@ public class DeviceController {
         }
 
 
-        ByteBuffer bytes = ByteBuffer.allocate(100);
-        bytes.put(new byte[]{(byte) 0xfe, 0x11,0x04,0x00});
+        //netty udp
+        ChannelHandlerContext ctx = null;
+        InetSocketAddress inetSocketAddress = null;
+        String wsName = queryCmdDto.getWsName();
+        if (!wsName.equals("2AC1")) {
+            ctx = ResponseHandler.udpClientHost.get(wsName);
+            inetSocketAddress = ResponseHandler.udpClientInet.get(wsName);
+        } else {
+            Collection<ChannelHandlerContext> ctxs = ResponseHandler.udpClientHost.values();
+            Iterator<ChannelHandlerContext> iterator = ctxs.iterator();
+            if (iterator.hasNext()) {
+                ctx = iterator.next();
+            }
+            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
+            if (inetIterator.hasNext()) {
+                inetSocketAddress = inetIterator.next();
+            }
+        }
+//#############################################
+        if (ctx == null) {
+            return new Result<>().error().put("设备未连接");
+        }
 
-        byte nodeByte = (byte) HexUtil.hexToInt(queryCmdDto.getNode().substring(2,4));
-       bytes.put(nodeByte);
 
-        ByteArrayOutputStream options = new ByteArrayOutputStream();
+        for (String option : queryCmdDto.getOptions()) {
+            ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
+            buffer.writeBytes(new byte[]{(byte) 0xfe, 0x11, 0x04, 0x01});
 
-        queryCmdDto.getOptions().forEach((option) -> {
-            options.write(StaticObject.getOptions().get(option));
-            options.write((byte) 0x11);
-            options.write((byte) 0x11);
-            options.write((byte) 0x11);
-        });
-        bytes.put(options.toByteArray());
-        bytes.put((byte)0x99);
-        bytes.put((byte) 0xFD);
+            byte nodeByte = (byte) HexUtil.hexToInt(queryCmdDto.getNode().substring(2, 4));
+            buffer.writeByte(nodeByte);
+
+            ByteArrayOutputStream options = new ByteArrayOutputStream();
+
+
+            buffer.writeByte(StaticObject.getOptions().get(option));
+            buffer.writeByte((byte) 0x11);
+            buffer.writeByte((byte) 0x11);
+            buffer.writeByte((byte) 0x11);
+            int sum = 0;
+            for (int i = 0; i < 9; i++) {
+                sum += Byte.toUnsignedInt(buffer.readByte());
+            }
+            int result = sum & 0xff;
+            buffer.resetReaderIndex();
+            buffer.writeByte((byte) result);
+            buffer.writeByte((byte) 0xFD);
+
+            ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
+            StaticLog.info("发送成功");
+        }
+
 
         //tcp发送
         // Socket socket = TcpConnect.socketClient.get(queryCmdDto.getWsName());
@@ -299,8 +339,6 @@ public class DeviceController {
         // } catch (IOException e) {
         //return new Result<>().error().put("设备离线或不存在此设备");
         // }
-
-
 
 
 //         //udp发送
@@ -335,33 +373,6 @@ public class DeviceController {
 
 
 
-        //netty udp
-        ChannelHandlerContext ctx=null;
-        InetSocketAddress inetSocketAddress = null;
-        String wsName = queryCmdDto.getWsName();
-        if (!wsName.equals("2AC1")) {
-            ctx = ResponseHandler.udpClientHost.get(wsName);
-            inetSocketAddress=ResponseHandler.udpClientInet.get(wsName);
-        }else {
-            Collection<ChannelHandlerContext> ctxs = ResponseHandler.udpClientHost.values();
-            Iterator<ChannelHandlerContext> iterator = ctxs.iterator();
-            if (iterator.hasNext()) {
-                ctx= iterator.next();
-            }
-            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
-            if (inetIterator.hasNext()) {
-                inetSocketAddress = inetIterator.next();
-            }
-        }
-//#############################################
-        if (ctx == null) {
-            return new Result<>().error().put("设备未连接");
-        }
-        bytes.flip();
-        ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
-        buffer.writeBytes(bytes);
-        ctx.writeAndFlush(new DatagramPacket(buffer,inetSocketAddress));
-        StaticLog.info("发送成功");
 
         //netty tcp 发送
         // Channel channel = NettyServer.clientChannel.get(queryCmdDto.getWsName());
@@ -379,18 +390,17 @@ public class DeviceController {
 
 
     @GetMapping("resData")
-    public Result<?> getResData( String wsName, String node,String code){
+    public Result<?> getResData(String wsName, String node, String code) {
         // StaticObject.guardObject=new GuardObject();
         DeviceRes deviceRes = null;
-        StaticObject.setMessageQueue(new MessageQueue(1));
+        StaticObject.setMessageQueue(new MessageQueue(3));
         try {
             // deviceRes = (DeviceRes) StaticObject.guardObject.get(3000);
-             deviceRes = (DeviceRes) StaticObject.getMessageQueue().take(3000);
+            deviceRes = (DeviceRes) StaticObject.getMessageQueue().take(10000);
         } catch (TimeoutException e) {
             StaticObject.setMessageQueue(null);
             return new Result<>().error().put(e.getMessage());
         }
-
 
 
         // String codeStr = HexUtil.encodeHexStr(new byte[]{StaticObject.options.get(code)});
@@ -420,14 +430,14 @@ public class DeviceController {
             deviceCurrentService.save(deviceCurrent);
         }
 
-        deviceCurrentSwTemp=null;
+        deviceCurrentSwTemp = null;
         StaticObject.setMessageQueue(null);
         // StaticObject.guardObject=null;
         return new Result<>().success().put(deviceRes);
     }
 
-    public  DeviceCurrent setSensor(DeviceCurrent deviceCurrent, String code
-            , Double codeValue) throws RuntimeException{
+    public DeviceCurrent setSensor(DeviceCurrent deviceCurrent, String code
+            , Double codeValue) throws RuntimeException {
 
         if (code.equals("deviceTemp")) {
             deviceCurrent.setDeviceTemp(codeValue);
@@ -461,8 +471,8 @@ public class DeviceController {
         int switchValue = switchValuetemp.intValue();
 
         if (switchValue == 1 || switchValue == 0) {
-            if (deviceCurrentSwTemp.getChangeValue()!=switchValue){
-                throw new RuntimeException("操作失败");
+            if (deviceCurrentSwTemp.getChangeValue() != switchValue) {
+                throw new RuntimeException("设备已打开或关闭");
             }
 
 
@@ -502,15 +512,64 @@ public class DeviceController {
     @PostMapping("stateSwitch")
     public Result<?> stateSwitch(@RequestBody DeviceCurrentSw deviceCurrentSw) {
 
-        ByteBuffer bytes = ByteBuffer.allocate(100);
-        bytes.put(new byte[]{(byte) 0xfe, 0x12, 0x04,0x00});
-        bytes.put((byte) HexUtil.hexToInt(deviceCurrentSw.getNode().substring(2,4)));
-        bytes.put(StaticObject.getOptions().get(deviceCurrentSw.getChangeSw()));
-        bytes.put((byte) 0x12);
-        bytes.put(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
-        bytes.put(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
-        bytes.put((byte) 0x99);
-        bytes.put( (byte) 0xfd);
+        if (deviceCurrentSw.getWsName() == null || deviceCurrentSw.getWsName().equals("")) {
+            return new Result<>().error().put("仓端名不能为空");
+        }
+        if (deviceCurrentSw.getNode() == null || deviceCurrentSw.getNode().equals("")) {
+            return new Result<>().error().put("节点名不能为空");
+        }
+        if (deviceCurrentSw.getChangeSw() == null || deviceCurrentSw.getChangeSw().isEmpty()) {
+            return new Result<>().error().put("选项不能为空");
+        }
+        if (deviceCurrentSw.getChangeValue()==-1) {
+            return new Result<>().error().put("开关命令不能为空");
+        }
+
+
+        //netty udp
+        ChannelHandlerContext ctx = null;
+        InetSocketAddress inetSocketAddress = null;
+        String wsName = deviceCurrentSw.getWsName();
+        if (!wsName.equals("2AC1")) {
+            ctx = ResponseHandler.udpClientHost.get(wsName);
+            inetSocketAddress = ResponseHandler.udpClientInet.get(wsName);
+        } else {
+            Collection<ChannelHandlerContext> ctxs = ResponseHandler.udpClientHost.values();
+            Iterator<ChannelHandlerContext> iterator = ctxs.iterator();
+            if (iterator.hasNext()) {
+                ctx = iterator.next();
+            }
+            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
+            if (inetIterator.hasNext()) {
+                inetSocketAddress = inetIterator.next();
+            }
+        }
+//#############################################
+        if (ctx == null) {
+            return new Result<>().error().put("设备未连接");
+        }
+
+        for (String s : deviceCurrentSw.getChangeSw()) {
+            ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
+            buffer.writeBytes(new byte[]{(byte) 0xfe, 0x12, 0x04, 0x01});
+            buffer.writeByte((byte) HexUtil.hexToInt(deviceCurrentSw.getNode().substring(2, 4)));
+            buffer.writeByte(StaticObject.getOptions().get(s));
+            buffer.writeByte((byte) 0x12);
+            buffer.writeByte(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
+            buffer.writeByte(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
+            int sum = 0;
+            for (int i = 0; i < 9; i++) {
+                sum += Byte.toUnsignedInt(buffer.readByte());
+            }
+            int result = sum & 0xff;
+            buffer.resetReaderIndex();
+            buffer.writeByte((byte) result);
+            buffer.writeByte((byte) 0xfd);
+
+            ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
+            StaticLog.info("发送成功");
+        }
+
 
         // //tcp发送
         // Socket socket = TcpConnect.socketClient.get(deviceCurrentSw.getWsName());
@@ -559,34 +618,6 @@ public class DeviceController {
 //         }
 
 
-        //netty udp
-        ChannelHandlerContext ctx=null;
-        InetSocketAddress inetSocketAddress = null;
-        String wsName = deviceCurrentSw.getWsName();
-        if (!wsName.equals("2AC1")) {
-            ctx = ResponseHandler.udpClientHost.get(wsName);
-            inetSocketAddress=ResponseHandler.udpClientInet.get(wsName);
-        }else {
-            Collection<ChannelHandlerContext> ctxs = ResponseHandler.udpClientHost.values();
-            Iterator<ChannelHandlerContext> iterator = ctxs.iterator();
-            if (iterator.hasNext()) {
-                ctx= iterator.next();
-            }
-            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
-            if (inetIterator.hasNext()) {
-                inetSocketAddress = inetIterator.next();
-            }
-        }
-//#############################################
-        if (ctx == null) {
-            return new Result<>().error().put("设备未连接");
-        }
-        bytes.flip();
-        ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
-        buffer.writeBytes(bytes);
-        ctx.writeAndFlush(new DatagramPacket(buffer,inetSocketAddress));
-        StaticLog.info("发送成功");
-
         //netty tcp 发送
         // Channel channel = NettyServer.clientChannel.get(deviceCurrentSw.getWsName());
         // if (channel == null) {
@@ -597,22 +628,46 @@ public class DeviceController {
         // responseMsg.writeBytes(bytes);
         // channel.writeAndFlush(responseMsg);
 
-        deviceCurrentSwTemp=deviceCurrentSw;
+        deviceCurrentSwTemp = deviceCurrentSw;
         // mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
 
         return new Result<>().success().put("操作成功");
     }
 
-    public boolean saveSwitchData(){
-        DeviceCurrent deviceCurrent = new DeviceCurrent();
-        UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
-        deviceUpdate.eq("ws_name", deviceCurrentSwTemp.getWsName());
-        deviceUpdate.eq("node", deviceCurrentSwTemp.getNode());
 
-        BeanUtil.copyProperties(deviceCurrentSwTemp, deviceCurrent, "changeSw", "changeValue");
-        deviceCurrentService.update(deviceCurrent, deviceUpdate);
-        deviceCurrentSwTemp=null;
-        return true;
+    @GetMapping("nodeSensor")
+    public Result<?> getNodeSensors() {
+        List<NodeSensor> list = nodeSensorService.list();
+        ArrayList<SensorNodeRes> sensorNodeRes = new ArrayList<>();
+        list.forEach((e) -> {
+            String sensor = e.getSensor();
+            String[] array = sensor.substring(1, sensor.length() - 1).replace(" ", "").split(",");
+            sensorNodeRes.add(new SensorNodeRes(e.getNode(), Arrays.asList(array)));
+        });
+        return new Result<>().success().put(sensorNodeRes);
+    }
+
+    @PostMapping("nodeSensor")
+    public Result<?> addOrUpdateNodeSensor(@RequestBody SensorNodeRes sensorNodeRes) {
+        NodeSensor nodeSensor = new NodeSensor();
+        nodeSensor.setNode(sensorNodeRes.getNode());
+        nodeSensor.setSensor(sensorNodeRes.getSensors().toString());
+        QueryWrapper<NodeSensor> nodeSensorQueryWrapper = new QueryWrapper<>();
+        nodeSensorQueryWrapper.eq(NodeSensor.COL_NODE, nodeSensor.getNode());
+        if (!nodeSensorService.update(nodeSensor, nodeSensorQueryWrapper)) {
+            nodeSensorService.save(nodeSensor);
+        }
+        return new Result<>().success().put("操作成功");
+    }
+
+    @GetMapping("deleteNodeSensor")
+    public Result<?> deleteNodeSensor(@RequestParam(name = "node") String node) {
+        UpdateWrapper<NodeSensor> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq(NodeSensor.COL_NODE, node);
+        if (nodeSensorService.remove(updateWrapper)) {
+            return new Result<>().success().put("操作成功！");
+        }
+        return new Result<>().success().put("操作失败！");
     }
 
 
