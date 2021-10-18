@@ -220,7 +220,7 @@ public class TcpSever extends Thread {
 
         if (switchValue == 1 || switchValue == 0) {
             if (sensorName.equals("80")) {
-                deviceCurrent.setDeviceSmoke(switchValue);
+                // deviceCurrent.setDeviceSmoke(switchValue);
             }
             if (sensorName.equals("81")) {
                 deviceCurrent.setDeviceLighting(switchValue);
@@ -235,7 +235,7 @@ public class TcpSever extends Thread {
                 deviceCurrent.setDeviceInfra(switchValue);
             }
             if (sensorName.equals("85")) {
-                deviceCurrent.setDeviceGuard(switchValue);
+                // deviceCurrent.setDeviceGuard(switchValue);
             }
         }
 

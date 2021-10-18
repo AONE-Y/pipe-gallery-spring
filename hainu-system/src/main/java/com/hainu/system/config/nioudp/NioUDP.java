@@ -239,13 +239,16 @@ public class NioUDP implements CommandLineRunner {
             deviceCurrent.setDeviceHumi(sensorValue);
         }
         if (sensorName.equals("03")) {
-            deviceCurrent.setDeviceLlv(sensorValue);
+            deviceCurrent.setDeviceO2(sensorValue);
         }
         if (sensorName.equals("04")) {
             deviceCurrent.setDeviceGas(sensorValue);
         }
         if (sensorName.equals("05")) {
-            deviceCurrent.setDeviceO2(sensorValue);
+            deviceCurrent.setDeviceLlv(sensorValue);
+        }
+        if (sensorName.equals("06")) {
+            deviceCurrent.setDeviceSmoke(sensorValue);
         }
 
 
@@ -260,7 +263,7 @@ public class NioUDP implements CommandLineRunner {
 
         if (switchValue == 1 || switchValue == 0) {
             if (sensorName.equals("80")) {
-                deviceCurrent.setDeviceSmoke(switchValue);
+                // deviceCurrent.setDeviceSmoke(switchValue);
             }
             if (sensorName.equals("81")) {
                 deviceCurrent.setDeviceLighting(switchValue);
@@ -275,7 +278,7 @@ public class NioUDP implements CommandLineRunner {
                 deviceCurrent.setDeviceInfra(switchValue);
             }
             if (sensorName.equals("85")) {
-                deviceCurrent.setDeviceGuard(switchValue);
+                // deviceCurrent.setDeviceGuard(switchValue);
             }
         }
 

@@ -16,9 +16,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.util.ByteUtils;
-import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -212,7 +210,7 @@ public class NettyServer implements CommandLineRunner {
 
         if (switchValue == 1 || switchValue == 0) {
             if (sensorName.equals("80")) {
-                deviceCurrent.setDeviceSmoke(switchValue);
+                // deviceCurrent.setDeviceSmoke(switchValue);
             }
             if (sensorName.equals("81")) {
                 deviceCurrent.setDeviceLighting(switchValue);
@@ -227,7 +225,7 @@ public class NettyServer implements CommandLineRunner {
                 deviceCurrent.setDeviceInfra(switchValue);
             }
             if (sensorName.equals("85")) {
-                deviceCurrent.setDeviceGuard(switchValue);
+                // deviceCurrent.setDeviceGuard(switchValue);
             }
         }
 

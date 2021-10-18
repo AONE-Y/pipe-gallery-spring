@@ -63,13 +63,19 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
                 deviceCurrent.setDeviceHumi(sensorValue);
             }
             if (sensorName == (byte) 0x03) {
-                deviceCurrent.setDeviceLlv(sensorValue);
+                deviceCurrent.setDeviceO2(sensorValue);
             }
             if (sensorName == (byte) 0x04) {
                 deviceCurrent.setDeviceGas(sensorValue);
             }
             if (sensorName == (byte) 0x05) {
-                deviceCurrent.setDeviceO2(sensorValue);
+                deviceCurrent.setDeviceLlv(sensorValue);
+            }
+            if (sensorName == (byte) 0x06) {
+                deviceCurrent.setDeviceSmoke(sensorValue);
+            }
+            if (sensorName == (byte) 0x85) {
+                deviceCurrent.setDeviceInfra(sensorValue>0?1:0);
             }
             objectMap.put("dc", deviceCurrent);
             super.channelRead(ctx, objectMap);
@@ -77,25 +83,18 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
 
             int switchValue = sensorValue > 0 ? 1 : 0;
 
-            if (sensorName == (byte) 0x80) {
-                deviceCurrent.setDeviceSmoke(switchValue);
-            }
             if (sensorName == (byte) 0x81) {
-                deviceCurrent.setDeviceLighting(switchValue);
+                deviceCurrent.setDeviceManhole(switchValue);
             }
             if (sensorName == (byte) 0x82) {
-                deviceCurrent.setDeviceWaterpump(switchValue);
+                deviceCurrent.setDeviceLighting(switchValue);
             }
             if (sensorName == (byte) 0x83) {
-                deviceCurrent.setDeviceFan(switchValue);
+                deviceCurrent.setDeviceWaterpump(switchValue);
             }
             if (sensorName == (byte) 0x84) {
-                deviceCurrent.setDeviceInfra(switchValue);
+                deviceCurrent.setDeviceFan(switchValue);
             }
-            if (sensorName == (byte) 0x85) {
-                deviceCurrent.setDeviceGuard(switchValue);
-            }
-
             objectMap.put("dc", deviceCurrent);
             super.channelRead(ctx, objectMap);
         } else if (type == (byte) 0x81 || type == (byte) 0x82) {

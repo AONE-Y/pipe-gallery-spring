@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -118,10 +117,10 @@ public class DeviceController {
     public Result<?> getDeviceCurrent(@RequestBody QueryDeviceDto queryDevice) {
         QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
         deviceCurrentQueryWrapper.select("ws_id", "ws_name", "node", "SUM(device_temp) as device_temp",
-                "SUM(device_humi) as device_humi", "SUM(device_llv) as device_llv",
-                "SUM(device_gas) as device_gas", "SUM(device_O2) as device_O2", "SUM(device_smoke) as device_smoke",
+                "SUM(device_humi) as device_humi", "SUM(device_O2) as device_O2","SUM(device_gas) as device_gas",
+                "SUM(device_llv) as device_llv",  "SUM(device_smoke) as device_smoke","SUM(device_infra) as device_infra",
                 "SUM(device_lighting) as device_lighting", "SUM(device_waterpump) as device_waterpump",
-                "SUM(device_fan) as device_fan", "SUM(device_infra) as device_infra", "SUM(device_guard) as device_guard",
+                "SUM(device_fan) as device_fan", "SUM(device_manhole) as device_manhole",
                 "update_time");
         deviceCurrentQueryWrapper.groupBy("ws_name");
 
@@ -304,7 +303,6 @@ public class DeviceController {
             byte nodeByte = (byte) HexUtil.hexToInt(queryCmdDto.getNode().substring(2, 4));
             buffer.writeByte(nodeByte);
 
-            ByteArrayOutputStream options = new ByteArrayOutputStream();
 
             buffer.writeByte((byte) 0x11);
             buffer.writeByte(StaticObject.getOptions().get(option));
@@ -392,7 +390,7 @@ public class DeviceController {
     public Result<?> getResData(String wsName, String node, String code) {
         // StaticObject.guardObject=new GuardObject();
         DeviceRes deviceRes = null;
-        StaticObject.setMessageQueue(new MessageQueue(3));
+        StaticObject.setMessageQueue(new MessageQueue(1));
         try {
             // deviceRes = (DeviceRes) StaticObject.guardObject.get(3000);
             deviceRes = (DeviceRes) StaticObject.getMessageQueue().take(10000);
@@ -446,16 +444,24 @@ public class DeviceController {
             deviceCurrent.setDeviceHumi(codeValue);
             return deviceCurrent;
         }
-        if (code.equals("deviceLlv")) {
-            deviceCurrent.setDeviceLlv(codeValue);
+        if (code.equals("deviceO2")) {
+            deviceCurrent.setDeviceO2(codeValue);
             return deviceCurrent;
         }
         if (code.equals("deviceGas")) {
             deviceCurrent.setDeviceGas(codeValue);
             return deviceCurrent;
         }
-        if (code.equals("deviceO2")) {
-            deviceCurrent.setDeviceO2(codeValue);
+        if (code.equals("deviceLlv")) {
+            deviceCurrent.setDeviceLlv(codeValue);
+            return deviceCurrent;
+        }
+        if (code.equals("deviceSmoke")) {
+            deviceCurrent.setDeviceSmoke(codeValue);
+            return deviceCurrent;
+        }
+        if (code.equals("deviceInfra")) {
+            deviceCurrent.setDeviceInfra(codeValue>0?1:0);
             return deviceCurrent;
         }
 
@@ -473,10 +479,8 @@ public class DeviceController {
             if (deviceCurrentSwTemp.getChangeValue() != switchValue) {
                 throw new RuntimeException("设备已打开或关闭");
             }
-
-
-            if (code.equals("deviceSmoke")) {
-                deviceCurrent.setDeviceSmoke(switchValue);
+            if (code.equals("deviceManhole")) {
+                deviceCurrent.setDeviceManhole(switchValue);
             }
             if (code.equals("deviceLighting")) {
                 deviceCurrent.setDeviceLighting(switchValue);
@@ -487,12 +491,7 @@ public class DeviceController {
             if (code.equals("deviceFan")) {
                 deviceCurrent.setDeviceFan(switchValue);
             }
-            if (code.equals("deviceInfra")) {
-                deviceCurrent.setDeviceInfra(switchValue);
-            }
-            if (code.equals("deviceGuard")) {
-                deviceCurrent.setDeviceGuard(switchValue);
-            }
+
         }
 
 

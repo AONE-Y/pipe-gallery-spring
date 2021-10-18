@@ -10,22 +10,22 @@
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="device_temp" jdbcType="DOUBLE" property="deviceTemp" />
     <result column="device_humi" jdbcType="DOUBLE" property="deviceHumi" />
-    <result column="device_llv" jdbcType="DOUBLE" property="deviceLlv" />
-    <result column="device_gas" jdbcType="DOUBLE" property="deviceGas" />
     <result column="device_O2" jdbcType="DOUBLE" property="deviceO2" />
-    <result column="device_smoke" jdbcType="INTEGER" property="deviceSmoke" />
+    <result column="device_gas" jdbcType="DOUBLE" property="deviceGas" />
+    <result column="device_llv" jdbcType="DOUBLE" property="deviceLlv" />
+    <result column="device_smoke" jdbcType="DOUBLE" property="deviceSmoke" />
+    <result column="device_infra" jdbcType="INTEGER" property="deviceInfra" />
     <result column="device_lighting" jdbcType="INTEGER" property="deviceLighting" />
     <result column="device_waterpump" jdbcType="INTEGER" property="deviceWaterpump" />
     <result column="device_fan" jdbcType="INTEGER" property="deviceFan" />
-    <result column="device_infra" jdbcType="INTEGER" property="deviceInfra" />
-    <result column="device_guard" jdbcType="INTEGER" property="deviceGuard" />
+    <result column="device_manhole" jdbcType="INTEGER" property="deviceManhole" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    ws_id, ws_name, node, `status`, device_temp, device_humi, device_llv, device_gas, 
-    device_O2, device_smoke, device_lighting, device_waterpump, device_fan, device_infra, 
-    device_guard, update_time
+    ws_id, ws_name, node, `status`, device_temp, device_humi, device_O2, device_gas, 
+    device_llv, device_smoke, device_infra, device_lighting, device_waterpump, device_fan, 
+    device_manhole, update_time
   </sql>
   <update id="truncateData">
     truncate table device_current
