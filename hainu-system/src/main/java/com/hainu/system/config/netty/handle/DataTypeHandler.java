@@ -37,22 +37,24 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
         byte[] bytes = new byte[2];
         recBuf.readBytes(bytes);
         String node = HexUtil.encodeHexStr(bytes);
+
+        //舍弃一字节
+        recBuf.readByte();
+
+        byte sensorName = recBuf.readByte();
+
+        double sensorValue = Byte.toUnsignedInt(recBuf.readByte());
+        Double switchValuetemp = sensorValue;
+        sensorValue = sensorValue > 99 ? sensorValue / 10 : sensorValue;
+        //舍弃重复字节值
+        recBuf.readByte();
+
+        DeviceCurrent deviceCurrent = new DeviceCurrent();
+        deviceCurrent.setWsName(hostAddress);
+        deviceCurrent.setNode(node);
+        deviceCurrent.setUpdateTime(LocalDateTime.now());
+
         if (type == (byte) 0x83) {
-            //舍弃一字节
-            recBuf.readByte();
-
-            byte sensorName = recBuf.readByte();
-
-            double sensorValue = Byte.toUnsignedInt(recBuf.readByte());
-            Double switchValuetemp = sensorValue;
-            sensorValue=sensorValue>99?sensorValue/10:sensorValue;
-            //舍弃重复字节值
-            recBuf.readByte();
-
-            DeviceCurrent deviceCurrent = new DeviceCurrent();
-            deviceCurrent.setWsName(hostAddress);
-            deviceCurrent.setNode(node);
-            deviceCurrent.setUpdateTime(LocalDateTime.now());
 
             if (sensorName == (byte) 0x01) {
                 deviceCurrent.setDeviceTemp(sensorValue);
@@ -69,36 +71,29 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
             if (sensorName == (byte) 0x05) {
                 deviceCurrent.setDeviceO2(sensorValue);
             }
+            objectMap.put("dc", deviceCurrent);
+            super.channelRead(ctx, objectMap);
+        } else if (type == (byte) 0x84) {
 
+            int switchValue = sensorValue > 0 ? 1 : 0;
 
-
-            if (switchValuetemp == 1) {
-                switchValuetemp = (double) -1;
+            if (sensorName == (byte) 0x80) {
+                deviceCurrent.setDeviceSmoke(switchValue);
             }
-            if (switchValuetemp == 25.5 || switchValuetemp == 255) {
-                switchValuetemp = 1.0;
+            if (sensorName == (byte) 0x81) {
+                deviceCurrent.setDeviceLighting(switchValue);
             }
-            int switchValue = switchValuetemp.intValue();
-
-            if (switchValue == 1 || switchValue == 0) {
-                if (sensorName == (byte) 0x80) {
-                    deviceCurrent.setDeviceSmoke(switchValue);
-                }
-                if (sensorName == (byte) 0x81) {
-                    deviceCurrent.setDeviceLighting(switchValue);
-                }
-                if (sensorName == (byte) 0x82) {
-                    deviceCurrent.setDeviceWaterpump(switchValue);
-                }
-                if (sensorName == (byte) 0x83) {
-                    deviceCurrent.setDeviceFan(switchValue);
-                }
-                if (sensorName == (byte) 0x84) {
-                    deviceCurrent.setDeviceInfra(switchValue);
-                }
-                if (sensorName == (byte) 0x85) {
-                    deviceCurrent.setDeviceGuard(switchValue);
-                }
+            if (sensorName == (byte) 0x82) {
+                deviceCurrent.setDeviceWaterpump(switchValue);
+            }
+            if (sensorName == (byte) 0x83) {
+                deviceCurrent.setDeviceFan(switchValue);
+            }
+            if (sensorName == (byte) 0x84) {
+                deviceCurrent.setDeviceInfra(switchValue);
+            }
+            if (sensorName == (byte) 0x85) {
+                deviceCurrent.setDeviceGuard(switchValue);
             }
 
             objectMap.put("dc", deviceCurrent);
