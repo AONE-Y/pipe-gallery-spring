@@ -39,7 +39,7 @@ public class UdpNetty implements CommandLineRunner {
 
                         ch.pipeline().addLast("responseBase",new ResponseHandler());
                         //校验发送过来的数据帧是否以0xfe开头
-                        ch.pipeline().addLast("title", new HeaderHandler());
+                        ch.pipeline().addLast("header", new HeaderHandler());
                         //校验数据上传类型
                         ch.pipeline().addLast("dataType",new DataTypeHandler());
                         //校验帧

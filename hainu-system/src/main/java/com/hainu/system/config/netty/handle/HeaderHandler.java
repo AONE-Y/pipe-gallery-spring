@@ -22,10 +22,9 @@ public class HeaderHandler extends ChannelInboundHandlerAdapter {
         DatagramPacket rec = (DatagramPacket) msg;
         ByteBuf buf = rec.content();
 
-        for (int i=0;i<11;i++){
+        for (int i=0;i<buf.readableBytes();i++){
             String string= HexUtil.encodeHexStr(new byte[]{buf.readByte()});
             System.out.print(string+" ");
-
         }
         buf.resetReaderIndex();
         if (buf.readableBytes() == 11) {

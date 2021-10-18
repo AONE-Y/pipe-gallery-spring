@@ -31,9 +31,9 @@ public class ResponseHandler extends ChannelOutboundHandlerAdapter {
         udpClientInet.put(dataPack.getAddr().getAddress().getHostAddress(),dataPack.getAddr());
 
         ByteBuf res = ctx.alloc().buffer();
-        res.writeBytes(new byte[]{(byte) 0xfe, 0x01, 0x01});
+        res.writeBytes(new byte[]{(byte) 0xfa, (byte) 0x84, 0x01});
         res.writeByte((byte)dataPack.getData());
-        res.writeBytes(new byte[]{(byte) 0x99, (byte) 0xfd});
+        res.writeBytes(new byte[]{(byte) 0x99, (byte) 0xfb});
         ctx.writeAndFlush(new DatagramPacket(res,dataPack.getAddr()));
     }
 }

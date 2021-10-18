@@ -38,9 +38,11 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
         recBuf.readBytes(bytes);
         String node = HexUtil.encodeHexStr(bytes);
         if (type == (byte) 0x83) {
-            byte sensorName = recBuf.readByte();
             //舍弃一字节
             recBuf.readByte();
+
+            byte sensorName = recBuf.readByte();
+
             double sensorValue = Byte.toUnsignedInt(recBuf.readByte());
             Double switchValuetemp = sensorValue;
             sensorValue=sensorValue>99?sensorValue/10:sensorValue;
@@ -106,9 +108,10 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
             deviceRes.setWsName(hostAddress);
             deviceRes.setNode(node);
             deviceRes.setCodeType(HexUtil.encodeHexStr(new byte[]{type}));
-            deviceRes.setCode(HexUtil.encodeHexStr(new byte[]{recBuf.readByte()}));
             //舍弃一字节
             recBuf.readByte();
+            deviceRes.setCode(HexUtil.encodeHexStr(new byte[]{recBuf.readByte()}));
+
             String codeValueStr = HexUtil.encodeHexStr(new byte[]{recBuf.readByte()});
             int codeValueTemp = HexUtil.hexToInt(codeValueStr);
             double codeValue = codeValueTemp > 99 ? (double) codeValueTemp / 10 : (double) codeValueTemp;

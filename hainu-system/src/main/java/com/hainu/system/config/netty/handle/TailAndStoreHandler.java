@@ -50,7 +50,7 @@ public class TailAndStoreHandler extends ChannelInboundHandlerAdapter {
                     StaticObject.getMessageQueue().put(deviceRes);
             }
 
-            ctx.writeAndFlush(new DataAddrDto((byte) 0x00, rec.sender()));
+            ctx.writeAndFlush(new DataAddrDto((byte) 0x11, rec.sender()));
 
         }else {
             ctx.writeAndFlush(new DataAddrDto((byte) 0xff, rec.sender()));

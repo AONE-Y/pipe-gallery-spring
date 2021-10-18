@@ -306,9 +306,8 @@ public class DeviceController {
 
             ByteArrayOutputStream options = new ByteArrayOutputStream();
 
-
-            buffer.writeByte(StaticObject.getOptions().get(option));
             buffer.writeByte((byte) 0x11);
+            buffer.writeByte(StaticObject.getOptions().get(option));
             buffer.writeByte((byte) 0x11);
             buffer.writeByte((byte) 0x11);
             int sum = 0;
@@ -553,8 +552,9 @@ public class DeviceController {
             ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
             buffer.writeBytes(new byte[]{(byte) 0xfe, 0x12, 0x04, 0x01});
             buffer.writeByte((byte) HexUtil.hexToInt(deviceCurrentSw.getNode().substring(2, 4)));
-            buffer.writeByte(StaticObject.getOptions().get(s));
             buffer.writeByte((byte) 0x12);
+            buffer.writeByte(StaticObject.getOptions().get(s));
+
             buffer.writeByte(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
             buffer.writeByte(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
             int sum = 0;
