@@ -121,7 +121,7 @@ public class DeviceController {
                 "SUM(device_llv) as device_llv",  "SUM(device_smoke) as device_smoke","SUM(device_infra) as device_infra",
                 "SUM(device_lighting) as device_lighting", "SUM(device_waterpump) as device_waterpump",
                 "SUM(device_fan) as device_fan", "SUM(device_manhole) as device_manhole",
-                "update_time");
+                "MAX(update_time) as update_time");
         deviceCurrentQueryWrapper.groupBy("ws_name");
 
 

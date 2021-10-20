@@ -74,7 +74,7 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
             if (sensorName == (byte) 0x06) {
                 deviceCurrent.setDeviceSmoke(sensorValue);
             }
-            if (sensorName == (byte) 0x85) {
+            if (sensorName == (byte) 0xa6) {
                 deviceCurrent.setDeviceInfra(sensorValue>0?1:0);
             }
             objectMap.put("dc", deviceCurrent);
@@ -83,16 +83,16 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
 
             int switchValue = sensorValue > 0 ? 1 : 0;
 
-            if (sensorName == (byte) 0x81) {
+            if (sensorName == (byte) 0xa1) {
                 deviceCurrent.setDeviceManhole(switchValue);
             }
-            if (sensorName == (byte) 0x82) {
+            if (sensorName == (byte) 0xa2) {
                 deviceCurrent.setDeviceLighting(switchValue);
             }
-            if (sensorName == (byte) 0x83) {
+            if (sensorName == (byte) 0xa4) {
                 deviceCurrent.setDeviceWaterpump(switchValue);
             }
-            if (sensorName == (byte) 0x84) {
+            if (sensorName == (byte) 0xa3) {
                 deviceCurrent.setDeviceFan(switchValue);
             }
             objectMap.put("dc", deviceCurrent);
