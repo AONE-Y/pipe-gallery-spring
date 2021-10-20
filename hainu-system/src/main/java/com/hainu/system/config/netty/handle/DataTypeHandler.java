@@ -102,14 +102,10 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
             deviceRes.setWsName(hostAddress);
             deviceRes.setNode(node);
             deviceRes.setCodeType(HexUtil.encodeHexStr(new byte[]{type}));
-            //舍弃一字节
-            recBuf.readByte();
-            deviceRes.setCode(HexUtil.encodeHexStr(new byte[]{recBuf.readByte()}));
 
-            String codeValueStr = HexUtil.encodeHexStr(new byte[]{recBuf.readByte()});
-            int codeValueTemp = HexUtil.hexToInt(codeValueStr);
-            double codeValue = codeValueTemp > 99 ? (double) codeValueTemp / 10 : (double) codeValueTemp;
-            deviceRes.setCodeValue(codeValue);
+            deviceRes.setCode(HexUtil.encodeHexStr(new byte[]{sensorName}));
+
+            deviceRes.setCodeValue(sensorValue);
             objectMap.put("dr", deviceRes);
             super.channelRead(ctx, objectMap);
         } else {

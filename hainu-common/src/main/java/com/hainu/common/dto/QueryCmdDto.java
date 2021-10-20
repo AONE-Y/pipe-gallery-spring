@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.common.dto
@@ -24,5 +22,5 @@ public class QueryCmdDto {
 
     private String node;
 
-    private List<String> options;
+    private String option;
 }

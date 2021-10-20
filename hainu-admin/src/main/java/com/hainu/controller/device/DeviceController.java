@@ -267,7 +267,7 @@ public class DeviceController {
         if (queryCmdDto.getNode() == null || queryCmdDto.getNode().equals("")) {
             return new Result<>().error().put("节点名不能为空");
         }
-        if (queryCmdDto.getOptions() == null || queryCmdDto.getOptions().isEmpty()) {
+        if (queryCmdDto.getOption() == null || queryCmdDto.getOption().equals("")) {
             return new Result<>().error().put("选项不能为空");
         }
 
@@ -296,7 +296,7 @@ public class DeviceController {
         }
 
 
-        for (String option : queryCmdDto.getOptions()) {
+
             ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
             buffer.writeBytes(new byte[]{(byte) 0xfe, 0x11, 0x04, 0x01});
 
@@ -305,7 +305,7 @@ public class DeviceController {
 
 
             buffer.writeByte((byte) 0x11);
-            buffer.writeByte(StaticObject.getOptions().get(option));
+            buffer.writeByte(StaticObject.getOptions().get(queryCmdDto.getOption()));
             buffer.writeByte((byte) 0x11);
             buffer.writeByte((byte) 0x11);
             int sum = 0;
@@ -319,7 +319,7 @@ public class DeviceController {
 
             ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
             StaticLog.info("发送成功");
-        }
+
 
 
         //tcp发送
@@ -476,9 +476,9 @@ public class DeviceController {
         int switchValue = switchValuetemp.intValue();
 
         if (switchValue == 1 || switchValue == 0) {
-            if (deviceCurrentSwTemp.getChangeValue() != switchValue) {
-                throw new RuntimeException("设备已打开或关闭");
-            }
+            // if (deviceCurrentSwTemp.getChangeValue() != switchValue) {
+            //     throw new RuntimeException("设备已打开或关闭");
+            // }
             if (code.equals("deviceManhole")) {
                 deviceCurrent.setDeviceManhole(switchValue);
             }
@@ -547,12 +547,12 @@ public class DeviceController {
             return new Result<>().error().put("设备未连接");
         }
 
-        for (String s : deviceCurrentSw.getChangeSw()) {
+
             ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
             buffer.writeBytes(new byte[]{(byte) 0xfe, 0x12, 0x04, 0x01});
             buffer.writeByte((byte) HexUtil.hexToInt(deviceCurrentSw.getNode().substring(2, 4)));
             buffer.writeByte((byte) 0x12);
-            buffer.writeByte(StaticObject.getOptions().get(s));
+            buffer.writeByte(StaticObject.getOptions().get(deviceCurrentSw.getChangeSw()));
 
             buffer.writeByte(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
             buffer.writeByte(StaticObject.getSwChangeValue().get(deviceCurrentSw.getChangeValue()));
@@ -567,7 +567,7 @@ public class DeviceController {
 
             ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
             StaticLog.info("发送成功");
-        }
+
 
 
         // //tcp发送

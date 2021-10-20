@@ -3,8 +3,6 @@ package com.hainu.common.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.common.dto
@@ -31,7 +29,7 @@ public class DeviceCurrentSw {
     private String node;
 
 
-    private List<String> changeSw;
+    private String changeSw;
 
     private int changeValue;
 }
