@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -165,10 +164,10 @@ public class DeviceController {
 
 
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
-        deviceCurrentsInfo.forEach((deviceCurrentInfo) -> {
-            long interval = Duration.between(deviceCurrentInfo.getUpdateTime(), LocalDateTime.now()).toSeconds();
-            deviceCurrentInfo.setStatus(interval < 65 ? 1 : 0);
-        });
+        // deviceCurrentsInfo.forEach((deviceCurrentInfo) -> {
+        //     long interval = Duration.between(deviceCurrentInfo.getUpdateTime(), LocalDateTime.now()).toSeconds();
+        //     deviceCurrentInfo.setStatus(interval < 65 ? 1 : 0);
+        // });
         return new Result<>().success().put(deviceCurrentsInfo);
     }
 
