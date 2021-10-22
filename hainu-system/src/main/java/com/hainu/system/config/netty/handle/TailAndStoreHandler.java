@@ -39,6 +39,7 @@ public class TailAndStoreHandler extends ChannelInboundHandlerAdapter {
         ByteBuf recBuf = rec.content();
         if (recBuf.readByte()==(byte) 0xfd) {
             if (deviceCurrent != null) {
+                deviceCurrent.setStatus(1);
                 UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
                 deviceUpdate.eq("ws_name", deviceCurrent.getWsName());
                 deviceUpdate.eq("node", deviceCurrent.getNode()).or().eq("node", "");

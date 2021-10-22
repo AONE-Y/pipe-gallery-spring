@@ -415,6 +415,7 @@ public class DeviceController {
         deviceCurrent.setWsName(wsName);
         deviceCurrent.setNode(node);
         deviceCurrent.setUpdateTime(LocalDateTime.now());
+        deviceCurrent.setStatus(1);
         // deviceResService.remove(deviceResQueryWrapper);
         try {
             deviceCurrent = setSensor(deviceCurrent, code, deviceRes.getCodeValue());
