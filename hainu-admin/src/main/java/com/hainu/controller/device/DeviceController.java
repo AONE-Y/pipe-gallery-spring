@@ -200,31 +200,7 @@ public class DeviceController {
         return new Result<>().success().put(deviceLogs);
     }
 
-    /**
-     * @param topic 主题
-     * @return
-     * @description: 保存主题
-     * @author： ANONE
-     * @date： 2021/09/05
-     */
-    public void saveTopic(String topic) {
-        DeviceList deviceList = new DeviceList();
-        deviceList.setWsTopic(topic);
-        String[] topicSplit = topic.split("/");
-        String wsName = topicSplit[topicSplit.length - 1];
 
-        DeviceCurrent deviceCurrent = new DeviceCurrent();
-
-        if (topicSplit.length > 1) {
-            deviceCurrent.setWsName(wsName);
-            deviceCurrentService.save(deviceCurrent);
-        }
-
-        deviceList.setWsName(wsName);
-
-        deviceListService.save(deviceList);
-
-    }
 
     // @GetMapping("getDeviceCurrent")
     // public Result<?> getDeviceCurrent(String wsName, String node) {
