@@ -115,7 +115,7 @@ public class DeviceController {
     @PostMapping("getDeviceCurrent")
     public Result<?> getDeviceCurrent(@RequestBody QueryDeviceDto queryDevice) {
         QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
-        deviceCurrentQueryWrapper.select("ws_id", "ws_name", "node", "SUM(device_temp) as device_temp",
+        deviceCurrentQueryWrapper.select("ws_id", "ws_name","status", "node", "SUM(device_temp) as device_temp",
                 "SUM(device_humi) as device_humi", "SUM(device_O2) as device_O2","SUM(device_gas) as device_gas",
                 "SUM(device_llv) as device_llv",  "SUM(device_smoke) as device_smoke","SUM(device_infra) as device_infra",
                 "SUM(device_lighting) as device_lighting", "SUM(device_waterpump) as device_waterpump",
