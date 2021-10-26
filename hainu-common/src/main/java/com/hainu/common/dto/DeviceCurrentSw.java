@@ -31,5 +31,6 @@ public class DeviceCurrentSw {
 
     private String changeSw;
 
-    private int changeValue;
+
+    private int changeValue=-1;
 }

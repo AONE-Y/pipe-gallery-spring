@@ -14,7 +14,10 @@ import com.hainu.common.queue.MessageQueue;
 import com.hainu.system.config.netty.handle.ResponseHandler;
 import com.hainu.system.config.nioudp.NioUDP;
 import com.hainu.system.config.tcp.TcpConnect;
-import com.hainu.system.entity.*;
+import com.hainu.system.entity.DeviceCurrent;
+import com.hainu.system.entity.DeviceLog;
+import com.hainu.system.entity.DeviceRes;
+import com.hainu.system.entity.NodeSensor;
 import com.hainu.system.service.DeviceCurrentService;
 import com.hainu.system.service.DeviceListService;
 import com.hainu.system.service.DeviceLogService;
@@ -115,7 +118,7 @@ public class DeviceController {
     @PostMapping("getDeviceCurrent")
     public Result<?> getDeviceCurrent(@RequestBody QueryDeviceDto queryDevice) {
         QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
-        deviceCurrentQueryWrapper.select("ws_id", "ws_name","status", "node", "SUM(device_temp) as device_temp",
+        deviceCurrentQueryWrapper.select("ws_id", "ws_name","SUM(status) as status", "node", "SUM(device_temp) as device_temp",
                 "SUM(device_humi) as device_humi", "SUM(device_O2) as device_O2","SUM(device_gas) as device_gas",
                 "SUM(device_llv) as device_llv",  "SUM(device_smoke) as device_smoke","SUM(device_infra) as device_infra",
                 "SUM(device_lighting) as device_lighting", "SUM(device_waterpump) as device_waterpump",
@@ -291,7 +294,9 @@ public class DeviceController {
             buffer.resetReaderIndex();
             buffer.writeByte((byte) result);
             buffer.writeByte((byte) 0xFD);
-
+            buffer.retain(2);
+            ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
+            ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
             ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
             StaticLog.info("发送成功");
 
@@ -499,7 +504,6 @@ public class DeviceController {
             return new Result<>().error().put("开关命令不能为空");
         }
 
-
         //netty udp
         ChannelHandlerContext ctx = null;
         InetSocketAddress inetSocketAddress = null;
@@ -541,6 +545,9 @@ public class DeviceController {
             buffer.writeByte((byte) result);
             buffer.writeByte((byte) 0xfd);
 
+            buffer.retain(2);
+            ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
+            ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
             ctx.writeAndFlush(new DatagramPacket(buffer, inetSocketAddress));
             StaticLog.info("发送成功");
 

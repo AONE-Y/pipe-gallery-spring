@@ -1,8 +1,7 @@
 package com.hainu.test;
 
+import cn.hutool.core.util.HexUtil;
 import com.hainu.system.config.netty.UdpNetty;
-
-import java.util.ArrayList;
 
 /**
  * @author frank
@@ -68,11 +67,15 @@ public class Test {
 
     @org.junit.jupiter.api.Test
     void test(){
-        ArrayList<String> list = new ArrayList<>();
-        list.add("1");
-        list.add("2");
-        list.add("3");
-        System.out.println(list.toString());
+       byte i=0x01;
+       byte b = (byte)0xfe;
+        String s = HexUtil.encodeHexStr(new byte[]{i, b});
+        System.out.println(s);
+        int i1 = HexUtil.hexToInt(s);
+        System.out.println(i1);
+
+
+
     }
 
 

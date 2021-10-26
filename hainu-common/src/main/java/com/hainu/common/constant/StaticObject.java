@@ -61,13 +61,13 @@ public class StaticObject {
          options.put("deviceGas", (byte) 0x04);
          options.put("deviceLlv", (byte) 0x05);
          options.put("deviceSmoke", (byte) 0x06);
-        options.put("deviceInfra", (byte) 0xa6);
+        options.put("deviceInfra", (byte) 0xa5);
         options.put("deviceManhole", (byte) 0xa1);
         options.put("deviceLighting", (byte) 0xa2);
         options.put("deviceWaterpump", (byte) 0xa4);
         options.put("deviceFan", (byte) 0xa3);
 
         swChangeValue.put(1,(byte)0xff);
-        swChangeValue.put(0,(byte)0x00);
+        swChangeValue.put(0,(byte)0x11);
     }
 }

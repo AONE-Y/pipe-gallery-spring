@@ -37,6 +37,7 @@ public class SaticScheduleTask {
                 .deviceLlv(0.0).deviceO2(0.0).deviceSmoke(0.0)
                 .deviceFan(0).deviceInfra(0).deviceLighting(0)
                 .deviceManhole(0).deviceWaterpump(0).build();
+        // DeviceCurrent deviceCurrent = DeviceCurrent.builder().status(0).build();
         deviceCurrentService.update(deviceCurrent,wrapper);
     }
 }
