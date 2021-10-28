@@ -9,5 +9,4 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @MapperScan("com.hainu.system.dao")
 public class MybatisPlusConfig {
-
 }

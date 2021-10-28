@@ -382,7 +382,6 @@ public class DeviceController {
         StaticLog.info("发送成功");
 
         deviceCurrentSwTemp = deviceCurrentSw;
-        // mqttPushClient.publish(1, true, "/dev/" + deviceCurrent.getWsName(), JSONUtil.toJsonStr(deviceSwitchDto));
 
         return new Result<>().success().put("操作成功");
     }
