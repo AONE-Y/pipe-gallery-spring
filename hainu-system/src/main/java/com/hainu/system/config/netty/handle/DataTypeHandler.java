@@ -51,6 +51,13 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
         double  sensorValue2 = Byte.toUnsignedInt(valueByte2);
         sensorValue2 = sensorValue2 > 99 ? sensorValue2 / 10 : sensorValue2;
 
+        String tempStrV = HexUtil.encodeHexStr(new byte[]{valueByte1, valueByte2});
+        String tempStrV1 = HexUtil.encodeHexStr(new byte[]{valueByte1});
+        if (tempStrV1.equals("ff")){
+            tempStrV=HexUtil.encodeHexStr(new byte[]{valueByte2});;
+        }
+        double tempV = HexUtil.hexToInt(tempStrV);
+
         DeviceCurrent deviceCurrent = new DeviceCurrent();
         deviceCurrent.setWsName(hostAddress);
         deviceCurrent.setNode(node);
@@ -59,30 +66,25 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
         if (type == (byte) 0x83) {
 
             if (sensorName == (byte) 0x01) {
-                String tempStr = HexUtil.encodeHexStr(new byte[]{valueByte1, valueByte2});
-                int temp = HexUtil.hexToInt(tempStr);
-                double value = temp/10.0;
-                deviceCurrent.setDeviceTemp(value);
+                deviceCurrent.setDeviceTemp(tempV/100);
             }
             if (sensorName == (byte) 0x02) {
-                String tempStr = HexUtil.encodeHexStr(new byte[]{valueByte1, valueByte2});
-                int temp = HexUtil.hexToInt(tempStr);
-                double value = temp / 10.0;
-                deviceCurrent.setDeviceHumi(value);
+                deviceCurrent.setDeviceHumi(tempV / 100);
             }
-
 
             if (sensorName == (byte) 0x03) {
-                deviceCurrent.setDeviceO2(sensorValue2);
+                deviceCurrent.setDeviceO2(tempV/10);
             }
             if (sensorName == (byte) 0x04) {
-                deviceCurrent.setDeviceGas(sensorValue2);
+                deviceCurrent.setDeviceGas(tempV/10);
             }
             if (sensorName == (byte) 0x05) {
-                deviceCurrent.setDeviceLlv(sensorValue2);
+                double temp = Byte.toUnsignedInt(valueByte2);
+                temp=temp/100;
+                deviceCurrent.setDeviceLlv(tempV/100);
             }
             if (sensorName == (byte) 0x06) {
-                deviceCurrent.setDeviceSmoke(sensorValue2);
+                deviceCurrent.setDeviceSmoke(tempV/10);
             }
             if (sensorName == (byte) 0xa5) {
                 deviceCurrent.setDeviceInfra(sensorValue2==25.5?1:0);
@@ -119,13 +121,10 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
             deviceRes.setCodeType(HexUtil.encodeHexStr(new byte[]{type}));
 
             deviceRes.setCode(HexUtil.encodeHexStr(new byte[]{sensorName}));
-            if (sensorName == (byte) 0x01||sensorName == (byte)0x02) {
-                String tempStr = HexUtil.encodeHexStr(new byte[]{valueByte1, valueByte2});
-                int temp = HexUtil.hexToInt(tempStr);
-                double value = temp/10.0;
-                deviceRes.setCodeValue(value);
-            }else {
-                deviceRes.setCodeValue(sensorValue2);
+            if (sensorName == (byte) 0x01||sensorName == (byte)0x02||sensorName == (byte) 0x05) {
+                deviceRes.setCodeValue(tempV/100);
+            } else {
+                deviceRes.setCodeValue(tempV/10);
             }
 
             objectMap.put("dr", deviceRes);

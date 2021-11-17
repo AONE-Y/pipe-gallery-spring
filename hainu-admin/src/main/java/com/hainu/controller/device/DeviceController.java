@@ -13,7 +13,6 @@ import com.hainu.common.lang.Result;
 import com.hainu.common.queue.MessageQueue;
 import com.hainu.system.config.netty.handle.ResponseHandler;
 import com.hainu.system.entity.DeviceCurrent;
-import com.hainu.system.entity.DeviceLog;
 import com.hainu.system.entity.DeviceRes;
 import com.hainu.system.entity.NodeSensor;
 import com.hainu.system.service.DeviceCurrentService;
@@ -29,9 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.InetSocketAddress;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
@@ -73,13 +70,13 @@ public class DeviceController {
     @PostMapping("getDeviceCurrent")
     public Result<?> getDeviceCurrent(@RequestBody QueryDeviceDto queryDevice) {
         QueryWrapper<DeviceCurrent> deviceCurrentQueryWrapper = new QueryWrapper<>();
-        deviceCurrentQueryWrapper.select("ws_id", "ws_name", "SUM(status) as status", "node", "SUM(device_temp) as device_temp",
-                "SUM(device_humi) as device_humi", "SUM(device_O2) as device_O2", "SUM(device_gas) as device_gas",
-                "SUM(device_llv) as device_llv", "SUM(device_smoke) as device_smoke", "SUM(device_infra) as device_infra",
-                "SUM(device_lighting) as device_lighting", "SUM(device_waterpump) as device_waterpump",
-                "SUM(device_fan) as device_fan", "SUM(device_manhole) as device_manhole",
+        deviceCurrentQueryWrapper.select("ws_id", "ws_name", "MAX(status) as status", "node", "MAX(device_temp) as device_temp",
+                "MAX(device_humi) as device_humi", "MAX(device_O2) as device_O2", "MAX(device_gas) as device_gas",
+                "MAX(device_llv) as device_llv", "MAX(device_smoke) as device_smoke", "MAX(device_infra) as device_infra",
+                "MAX(device_lighting) as device_lighting", "MAX(device_waterpump) as device_waterpump",
+                "MAX(device_fan) as device_fan", "MAX(device_manhole) as device_manhole",
                 "MAX(update_time) as update_time");
-        deviceCurrentQueryWrapper.groupBy("ws_name");
+        deviceCurrentQueryWrapper.groupBy(DeviceCurrent.COL_WS_NAME);
 
 
         if (queryDevice.getWsName() != null && !queryDevice.getWsName().equals("")) {
@@ -89,11 +86,11 @@ public class DeviceController {
                     queryDevice.setWsName(ipAddrs.next());
                 }
             }
-            deviceCurrentQueryWrapper.eq("ws_name", queryDevice.getWsName());
+            deviceCurrentQueryWrapper.eq(DeviceCurrent.COL_WS_NAME, queryDevice.getWsName());
 
         }
         if (queryDevice.getNode() != null && !queryDevice.getNode().equals("")) {
-            deviceCurrentQueryWrapper.eq("node", queryDevice.getNode());
+            deviceCurrentQueryWrapper.eq(DeviceCurrent.COL_NODE, queryDevice.getNode());
 
         }
         if (queryDevice.getSw() != null && !queryDevice.getSw().equals("all")) {
@@ -107,41 +104,41 @@ public class DeviceController {
         }
 
 
-        deviceCurrentQueryWrapper.orderByAsc("ws_name");
+        deviceCurrentQueryWrapper.orderByAsc(DeviceCurrent.COL_WS_NAME);
 
 
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
         return new Result<>().success().put(deviceCurrentsInfo);
     }
 
-    @RequestMapping("getDeviceLog")
-    public Result<?> getDeviceLog(Integer day, String wsName, String node) {
-        QueryWrapper<DeviceLog> deviceLogWrapper = new QueryWrapper<DeviceLog>();
-        if (wsName != null) {
-            deviceLogWrapper.eq("ws_name", wsName);
-        }
-        if (node != null) {
-            deviceLogWrapper.eq("node", node);
-        }
-        if (wsName == null && node == null) {
-            deviceLogWrapper = null;
-        }
-
-        LocalDate date = LocalDate.now();
-        LocalDate firstDay = date.with(TemporalAdjusters.firstDayOfMonth());
-
-        LocalDate lastDay = Optional.ofNullable(day)
-                .map(e -> {
-                    if (e < 30) {
-                        return date.plusDays(e);
-                    }
-                    return date.with(TemporalAdjusters.lastDayOfMonth());
-                })
-                .orElseGet(() -> date.with(TemporalAdjusters.lastDayOfMonth()));
-
-        List<DeviceLog> deviceLogs = deviceLogService.selectByAvg(firstDay, lastDay, wsName, node);
-        return new Result<>().success().put(deviceLogs);
-    }
+    // @RequestMapping("getDeviceLog")
+    // public Result<?> getDeviceLog(Integer day, String wsName, String node) {
+    //     QueryWrapper<DeviceLog> deviceLogWrapper = new QueryWrapper<>();
+    //     if (wsName != null) {
+    //         deviceLogWrapper.eq(DeviceLog.COL_WS_NAME, wsName);
+    //     }
+    //     if (node != null) {
+    //         deviceLogWrapper.eq(DeviceLog.COL_NODE, node);
+    //     }
+    //     if (wsName == null && node == null) {
+    //         deviceLogWrapper = null;
+    //     }
+    //
+    //     LocalDate date = LocalDate.now();
+    //     LocalDate firstDay = date.with(TemporalAdjusters.firstDayOfMonth());
+    //
+    //     LocalDate lastDay = Optional.ofNullable(day)
+    //             .map(e -> {
+    //                 if (e < 30) {
+    //                     return date.plusDays(e);
+    //                 }
+    //                 return date.with(TemporalAdjusters.lastDayOfMonth());
+    //             })
+    //             .orElseGet(() -> date.with(TemporalAdjusters.lastDayOfMonth()));
+    //
+    //     List<DeviceLog> deviceLogs = deviceLogService.selectByAvg(firstDay, lastDay, wsName, node);
+    //     return new Result<>().success().put(deviceLogs);
+    // }
 
 
     @PostMapping("queryDevice")
@@ -187,7 +184,6 @@ public class DeviceController {
         byte nodeByte = (byte) HexUtil.hexToInt(queryCmdDto.getNode().substring(2, 4));
         buffer.writeByte(nodeByte);
 
-
         buffer.writeByte((byte) 0x11);
         buffer.writeByte(StaticObject.getOptions().get(queryCmdDto.getOption()));
         buffer.writeByte((byte) 0x11);
@@ -224,12 +220,16 @@ public class DeviceController {
         }
 
 
-
         UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
         DeviceCurrent deviceCurrent = new DeviceCurrent();
-
-        deviceUpdate.eq("ws_name", wsName);
-        deviceUpdate.eq("node", node).or().eq("node", "");
+        if (wsName.equals("2AC1")) {
+            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
+            if (inetIterator.hasNext()) {
+                wsName = inetIterator.next().getAddress().getHostAddress();
+            }
+        }
+        deviceUpdate.eq(DeviceCurrent.COL_WS_NAME, wsName);
+        deviceUpdate.eq(DeviceCurrent.COL_NODE, node).or().eq(DeviceCurrent.COL_NODE, "");
         deviceCurrent.setWsName(wsName);
         deviceCurrent.setNode(node);
         deviceCurrent.setUpdateTime(LocalDateTime.now());
@@ -285,11 +285,10 @@ public class DeviceController {
 
 
         Double switchValuetemp = codeValue;
-        if (switchValuetemp == 1) {
-            switchValuetemp = (double) -1;
-        }
         if (switchValuetemp == 25.5 || switchValuetemp == 255) {
             switchValuetemp = 1.0;
+        }else if (switchValuetemp ==17||switchValuetemp==1.7){
+            switchValuetemp = 0.0;
         }
         int switchValue = switchValuetemp.intValue();
 
@@ -317,7 +316,6 @@ public class DeviceController {
     }
 
 
-
     @PostMapping("stateSwitch")
     public Result<?> stateSwitch(@RequestBody DeviceCurrentSw deviceCurrentSw) {
 
@@ -338,6 +336,7 @@ public class DeviceController {
         ChannelHandlerContext ctx = null;
         InetSocketAddress inetSocketAddress = null;
         String wsName = deviceCurrentSw.getWsName();
+
         if (!wsName.equals("2AC1")) {
             ctx = ResponseHandler.udpClientHost.get(wsName);
             inetSocketAddress = ResponseHandler.udpClientInet.get(wsName);
@@ -421,6 +420,5 @@ public class DeviceController {
         }
         return new Result<>().success().put("操作失败！");
     }
-
 
 }

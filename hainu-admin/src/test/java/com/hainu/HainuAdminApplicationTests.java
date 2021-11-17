@@ -1,19 +1,21 @@
 package com.hainu;
 
 
+import com.hainu.system.config.netty.handle.ResponseHandler;
 import com.hainu.system.dao.DeviceListMapper;
 import com.hainu.system.dao.DeviceLogMapper;
-import com.hainu.system.entity.DeviceList;
-import com.hainu.system.entity.DeviceLog;
-import com.hainu.system.entity.NodeSensor;
 import com.hainu.system.service.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
+import java.net.InetSocketAddress;
 
 @SpringBootTest
 class HainuAdminApplicationTests {
@@ -45,65 +47,18 @@ class HainuAdminApplicationTests {
 
     @Test
     void contextLoads() {
-
-        List<NodeSensor> list1 = nss.list();
-
-
-
     }
 
     @Test
-    void testList() {
+    void testList() throws Exception{
 
-        // List<OSFileStore> fileSystemInfo = SysInfoUtil.getFileSystemInfo();
-        // for (OSFileStore osFileStore : fileSystemInfo) {
-        //     System.out.println(osFileStore.getDescription());
-        // }
-        // System.out.println(ls.list());
+        ChannelHandlerContext ctx = ResponseHandler.udpClientHost.get("127.0.0.1");
+        InetSocketAddress in = ResponseHandler.udpClientInet.get("127.0.0.1");
+        ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
+        buffer.writeBytes(new byte[]{(byte) 0xfe, 0x12, 0x04, 0x01});
+        ChannelFuture channelFuture = ctx.writeAndFlush(new DatagramPacket(buffer, in));
+        Channel channel = channelFuture.sync().channel();
 
-        // InfoController infoController = new InfoController();
-        // Result<?> sysInfo = infoController.getSysInfo();
-        // System.out.println(sysInfo.toString());
-
-
-        DeviceList dl = new DeviceList();
-        // dl.setDeviceTopic("/gad/sda");
-        // dl.setDeviceName("gad");
-
-        dls.save(dl);
-        // // dlm.deleteData();
-        //
-        // DeviceController deviceController = new DeviceController();
-        // deviceController.saveTopic("/dev/dae");
-
-        //
-        // DeviceCurrent deviceCurrent = new DeviceCurrent();
-        // String name="12345";
-        // deviceCurrent.setDeviceName(name);
-        // deviceCurrent.setDeviceHumi(1);
-        //
-        // UpdateWrapper<DeviceCurrent> updateWrapper = new UpdateWrapper<>();
-        // updateWrapper.eq("device_name", name);
-        // if(!dcs.update(deviceCurrent,updateWrapper)){
-        //     dcs.save(deviceCurrent);
-        // }
-
-        // LocalDateTime now = LocalDateTime.now().minusMonths(1);
-        // DeviceLog deviceLog = new DeviceLog();
-        // LocalDateTimeUtil.format(now, "yyyy-MM-dd HH:MM:ss");
-        // deviceLog.setDeviceName("12375765");
-        // deviceLog.setCreateTime(LocalDateTime.now());
-        // dlogs.save(deviceLog);
-
-    }
-
-    @Test
-    void testSql(){
-        LocalDate date = LocalDate.now();
-        LocalDate firstday = date.with(TemporalAdjusters.firstDayOfMonth());
-        LocalDate lastDay = date.with(TemporalAdjusters.lastDayOfMonth());
-        List<DeviceLog> deviceLogs = dlogm.selectByAvg(firstday, lastDay,null,null);
-        deviceLogs.forEach(System.out::println);
     }
 
 

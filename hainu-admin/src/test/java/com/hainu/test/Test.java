@@ -67,15 +67,10 @@ public class Test {
 
     @org.junit.jupiter.api.Test
     void test(){
-       byte i=0x01;
-       byte b = (byte)0xfe;
-        String s = HexUtil.encodeHexStr(new byte[]{i, b});
+        String s = HexUtil.encodeHexStr(new byte[]{
+                (byte) 0xff
+        });
         System.out.println(s);
-        int i1 = HexUtil.hexToInt(s);
-        System.out.println(i1);
-
-
-
     }
 
 

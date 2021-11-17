@@ -23,12 +23,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ResponseHandler extends ChannelOutboundHandlerAdapter {
     public static Map<String, ChannelHandlerContext> udpClientHost = new ConcurrentHashMap<>();
     public static Map<String, InetSocketAddress> udpClientInet = new ConcurrentHashMap<>();
+    public static String firstIp;
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         DataAddrDto dataPack = (DataAddrDto) msg;
-
-        udpClientHost.put(dataPack.getAddr().getAddress().getHostAddress(),ctx);
-        udpClientInet.put(dataPack.getAddr().getAddress().getHostAddress(),dataPack.getAddr());
+        String sourceIp=dataPack.getAddr().getAddress().getHostAddress();
+        if (udpClientInet.size() == 0){
+            firstIp=sourceIp;
+        }
+        udpClientHost.put(sourceIp,ctx);
+        udpClientInet.put(sourceIp,dataPack.getAddr());
 
         ByteBuf res = ctx.alloc().buffer();
         res.writeBytes(new byte[]{(byte) 0xfa, (byte) 0x88, 0x01});
