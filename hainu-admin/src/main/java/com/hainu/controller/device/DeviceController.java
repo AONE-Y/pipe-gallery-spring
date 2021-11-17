@@ -81,10 +81,7 @@ public class DeviceController {
 
         if (queryDevice.getWsName() != null && !queryDevice.getWsName().equals("")) {
             if (queryDevice.getWsName().equals("2AC1")) {
-                Iterator<String> ipAddrs = ResponseHandler.udpClientHost.keySet().iterator();
-                if (ipAddrs.hasNext()) {
-                    queryDevice.setWsName(ipAddrs.next());
-                }
+                    queryDevice.setWsName(ResponseHandler.firstIp);
             }
             deviceCurrentQueryWrapper.eq(DeviceCurrent.COL_WS_NAME, queryDevice.getWsName());
 
@@ -158,20 +155,12 @@ public class DeviceController {
         ChannelHandlerContext ctx = null;
         InetSocketAddress inetSocketAddress = null;
         String wsName = queryCmdDto.getWsName();
-        if (!wsName.equals("2AC1")) {
-            ctx = ResponseHandler.udpClientHost.get(wsName);
-            inetSocketAddress = ResponseHandler.udpClientInet.get(wsName);
-        } else {
-            Collection<ChannelHandlerContext> ctxs = ResponseHandler.udpClientHost.values();
-            Iterator<ChannelHandlerContext> iterator = ctxs.iterator();
-            if (iterator.hasNext()) {
-                ctx = iterator.next();
-            }
-            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
-            if (inetIterator.hasNext()) {
-                inetSocketAddress = inetIterator.next();
-            }
+        if (wsName.equals("2AC1")) {
+            wsName = ResponseHandler.firstIp;
         }
+
+        ctx = ResponseHandler.udpClientHost.get(wsName);
+        inetSocketAddress = ResponseHandler.udpClientInet.get(wsName);
 //#############################################
         if (ctx == null) {
             return new Result<>().error().put("设备未连接");
@@ -223,10 +212,7 @@ public class DeviceController {
         UpdateWrapper<DeviceCurrent> deviceUpdate = new UpdateWrapper<>();
         DeviceCurrent deviceCurrent = new DeviceCurrent();
         if (wsName.equals("2AC1")) {
-            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
-            if (inetIterator.hasNext()) {
-                wsName = inetIterator.next().getAddress().getHostAddress();
-            }
+            wsName = ResponseHandler.firstIp;
         }
         deviceUpdate.eq(DeviceCurrent.COL_WS_NAME, wsName);
         deviceUpdate.eq(DeviceCurrent.COL_NODE, node).or().eq(DeviceCurrent.COL_NODE, "");
@@ -285,9 +271,9 @@ public class DeviceController {
 
 
         Double switchValuetemp = codeValue;
-        if (switchValuetemp == 25.5 || switchValuetemp == 255) {
+        if (switchValuetemp == 460.7 || switchValuetemp == 4607) {
             switchValuetemp = 1.0;
-        }else if (switchValuetemp ==17||switchValuetemp==1.7){
+        } else if (switchValuetemp == 17 || switchValuetemp == 1.7) {
             switchValuetemp = 0.0;
         }
         int switchValue = switchValuetemp.intValue();
@@ -336,21 +322,13 @@ public class DeviceController {
         ChannelHandlerContext ctx = null;
         InetSocketAddress inetSocketAddress = null;
         String wsName = deviceCurrentSw.getWsName();
-
-        if (!wsName.equals("2AC1")) {
-            ctx = ResponseHandler.udpClientHost.get(wsName);
-            inetSocketAddress = ResponseHandler.udpClientInet.get(wsName);
-        } else {
-            Collection<ChannelHandlerContext> ctxs = ResponseHandler.udpClientHost.values();
-            Iterator<ChannelHandlerContext> iterator = ctxs.iterator();
-            if (iterator.hasNext()) {
-                ctx = iterator.next();
-            }
-            Iterator<InetSocketAddress> inetIterator = ResponseHandler.udpClientInet.values().iterator();
-            if (inetIterator.hasNext()) {
-                inetSocketAddress = inetIterator.next();
-            }
+        if (wsName.equals("2AC1")) {
+            wsName = ResponseHandler.firstIp;
         }
+
+        ctx = ResponseHandler.udpClientHost.get(wsName);
+        inetSocketAddress = ResponseHandler.udpClientInet.get(wsName);
+
 //#############################################
         if (ctx == null) {
             return new Result<>().error().put("设备未连接");

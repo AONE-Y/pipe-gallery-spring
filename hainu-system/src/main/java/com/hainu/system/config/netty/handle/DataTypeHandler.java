@@ -66,10 +66,10 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
         if (type == (byte) 0x83) {
 
             if (sensorName == (byte) 0x01) {
-                deviceCurrent.setDeviceTemp(tempV/100);
+                deviceCurrent.setDeviceTemp(tempV/10);
             }
             if (sensorName == (byte) 0x02) {
-                deviceCurrent.setDeviceHumi(tempV / 100);
+                deviceCurrent.setDeviceHumi(tempV / 10);
             }
 
             if (sensorName == (byte) 0x03) {
@@ -121,7 +121,7 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
             deviceRes.setCodeType(HexUtil.encodeHexStr(new byte[]{type}));
 
             deviceRes.setCode(HexUtil.encodeHexStr(new byte[]{sensorName}));
-            if (sensorName == (byte) 0x01||sensorName == (byte)0x02||sensorName == (byte) 0x05) {
+            if (sensorName == (byte) 0x05){
                 deviceRes.setCodeValue(tempV/100);
             } else {
                 deviceRes.setCodeValue(tempV/10);
