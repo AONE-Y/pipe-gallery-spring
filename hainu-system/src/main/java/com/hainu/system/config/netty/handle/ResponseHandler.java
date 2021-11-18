@@ -28,9 +28,9 @@ public class ResponseHandler extends ChannelOutboundHandlerAdapter {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         DataAddrDto dataPack = (DataAddrDto) msg;
         String sourceIp=dataPack.getAddr().getAddress().getHostAddress();
-        if (udpClientInet.size() == 0){
+        // if (udpClientInet.size() == 0){
             firstIp=sourceIp;
-        }
+        // }
         udpClientHost.put(sourceIp,ctx);
         udpClientInet.put(sourceIp,dataPack.getAddr());
 

@@ -105,6 +105,15 @@ public class DeviceController {
 
 
         List<DeviceCurrent> deviceCurrentsInfo = deviceCurrentService.list(deviceCurrentQueryWrapper);
+        deviceCurrentsInfo.forEach((deviceinfo)->{
+            String name=deviceinfo.getWsName();
+            if (name.equals(ResponseHandler.firstIp)) {
+                deviceinfo.setWsName("2AC1");
+            }else {
+                deviceinfo.setWsName("2AB"+name.substring(name.length()-1));
+            }
+        });
+
         return new Result<>().success().put(deviceCurrentsInfo);
     }
 
@@ -296,8 +305,6 @@ public class DeviceController {
             }
 
         }
-
-
         return deviceCurrent;
     }
 

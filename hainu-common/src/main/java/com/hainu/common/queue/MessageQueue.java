@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 public class MessageQueue {
     private LinkedList<Object> list=new LinkedList<>();
 
+
     private int capacity;
 
     public MessageQueue(int capacity) {
