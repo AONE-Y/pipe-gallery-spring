@@ -10,7 +10,6 @@ import com.hainu.common.dto.QueryCmdDto;
 import com.hainu.common.dto.QueryDeviceDto;
 import com.hainu.common.dto.SensorNodeRes;
 import com.hainu.common.lang.Result;
-import com.hainu.common.queue.MessageQueue;
 import com.hainu.system.config.netty.handle.ResponseHandler;
 import com.hainu.system.entity.DeviceCurrent;
 import com.hainu.system.entity.DeviceRes;
@@ -29,7 +28,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 
@@ -208,12 +209,14 @@ public class DeviceController {
     public Result<?> getResData(String wsName, String node, String code) {
         // StaticObject.guardObject=new GuardObject();
         DeviceRes deviceRes = null;
-        StaticObject.setMessageQueue(new MessageQueue(1));
+
         try {
-            // deviceRes = (DeviceRes) StaticObject.guardObject.get(3000);
-            deviceRes = (DeviceRes) StaticObject.getMessageQueue().take(10000);
+            String flag = HexUtil.encodeHexStr(new byte[]{StaticObject.getOptions().get(code)});
+            deviceRes = (DeviceRes)StaticObject.getMessageQueue().take(10000, flag);
+            if (deviceRes == null) {
+                return new Result<>().success("请稍后....");
+            }
         } catch (TimeoutException e) {
-            StaticObject.setMessageQueue(null);
             return new Result<>().error().put(e.getMessage());
         }
 
@@ -241,7 +244,6 @@ public class DeviceController {
         }
 
         deviceCurrentSwTemp = null;
-        StaticObject.setMessageQueue(null);
         // StaticObject.guardObject=null;
         return new Result<>().success().put(deviceRes);
     }

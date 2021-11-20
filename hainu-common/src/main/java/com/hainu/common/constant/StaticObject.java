@@ -20,7 +20,7 @@ public class StaticObject {
     private static  Map<String, Byte> options =new HashMap<>();
     private static  Map<Integer, Byte> swChangeValue=new HashMap<>();
     private static GuardObject guardObject;
-    private static MessageQueue messageQueue;
+    private static MessageQueue messageQueue=new MessageQueue(6);
 
     public static Map<String, Byte> getOptions() {
         return options;
@@ -50,9 +50,6 @@ public class StaticObject {
         return messageQueue;
     }
 
-    public static void setMessageQueue(MessageQueue messageQueue) {
-        StaticObject.messageQueue = messageQueue;
-    }
 
     static {
          options.put("deviceTemp", (byte) 0x01);

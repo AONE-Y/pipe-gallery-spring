@@ -48,7 +48,7 @@ public class TailAndStoreHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             if (deviceRes!=null){
-                    StaticObject.getMessageQueue().put(deviceRes);
+                StaticObject.getMessageQueue().put(deviceRes, deviceRes.getCode());
             }
 
             ctx.writeAndFlush(new DataAddrDto((byte) 0x11, rec.sender()));
