@@ -2,8 +2,12 @@ package com.hainu;
 
 
 import com.hainu.system.config.netty.handle.ResponseHandler;
+import com.hainu.system.dao.DeviceCmdMapper;
 import com.hainu.system.dao.DeviceListMapper;
 import com.hainu.system.dao.DeviceLogMapper;
+import com.hainu.system.dao.DeviceQueryMapper;
+import com.hainu.system.entity.DeviceCmd;
+import com.hainu.system.entity.DeviceQuery;
 import com.hainu.system.service.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -16,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 @SpringBootTest
 class HainuAdminApplicationTests {
@@ -42,7 +47,11 @@ class HainuAdminApplicationTests {
     @Autowired
     NodeSensorService nss;
 
+    @Autowired
+    DeviceQueryMapper deviceQueryMapper;
 
+    @Autowired
+    DeviceCmdMapper deviceCmdMapper;
 
 
     @Test
@@ -50,7 +59,7 @@ class HainuAdminApplicationTests {
     }
 
     @Test
-    void testList() throws Exception{
+    void testList() throws Exception {
 
         ChannelHandlerContext ctx = ResponseHandler.udpClientHost.get("127.0.0.1");
         InetSocketAddress in = ResponseHandler.udpClientInet.get("127.0.0.1");
@@ -59,6 +68,15 @@ class HainuAdminApplicationTests {
         ChannelFuture channelFuture = ctx.writeAndFlush(new DatagramPacket(buffer, in));
         Channel channel = channelFuture.sync().channel();
 
+    }
+
+    @Test
+    void testDevice() {
+        List<DeviceQuery> deviceQueryInfo = deviceQueryMapper.getDeviceQueryInfo(null);
+        List<DeviceCmd> deviceCmdInfo = deviceCmdMapper.getDeviceCmdInfo(null);
+        deviceQueryInfo.forEach(System.out::println);
+        System.out.println("======================================");
+        deviceCmdInfo.forEach(System.out::println);
     }
 
 

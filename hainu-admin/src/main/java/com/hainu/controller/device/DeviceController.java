@@ -44,7 +44,6 @@ import java.util.concurrent.TimeoutException;
  * @Modified By: ANONE
  */
 @RestController
-
 @RequestMapping("/device")
 public class DeviceController {
 
