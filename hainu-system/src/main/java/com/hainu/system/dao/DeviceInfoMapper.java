@@ -7,10 +7,10 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.dao
- * @Date：2021/11/20 20:47
+ * @Date：2021/11/21 11:50
  * @Author：ANONE
  * @Address： HaiKou·China
- * @Description: 
+ * @Description:
  * @Modified By: ANONE
  */
 @Mapper

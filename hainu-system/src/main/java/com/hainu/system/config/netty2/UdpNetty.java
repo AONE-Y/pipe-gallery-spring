@@ -1,7 +1,8 @@
-package com.hainu.system.config.netty;
+package com.hainu.system.config.netty2;
 
-import com.hainu.system.config.netty.handle.*;
-import com.hainu.system.service.DeviceCurrentService;
+import com.hainu.system.config.netty2.handler.*;
+import com.hainu.system.service.DeviceDataService;
+import com.hainu.system.service.DeviceInfoService;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -9,6 +10,8 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.logging.LoggingHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 /**
  * @Project：pipe-gallery
@@ -19,11 +22,13 @@ import org.springframework.boot.CommandLineRunner;
  * @Description:
  * @Modified By: ANONE
  */
-// @Component
-// @Order(1)
+@Component
+@Order(1)
 public class UdpNetty implements CommandLineRunner {
     @Autowired
-    private DeviceCurrentService deviceCurrentService;
+    private DeviceDataService deviceDataService;
+    @Autowired
+    private DeviceInfoService deviceInfoService;
     @Override
     public void run(String... args) throws Exception {
         new Bootstrap()
@@ -39,11 +44,11 @@ public class UdpNetty implements CommandLineRunner {
                         //校验发送过来的数据帧是否以0xfe开头
                         ch.pipeline().addLast("header", new HeaderHandler());
                         //校验数据上传类型
-                        ch.pipeline().addLast("dataType",new DataTypeHandler());
+                        ch.pipeline().addLast("dataType",new DataTypeHandler(deviceInfoService));
                         //校验帧
                         ch.pipeline().addLast("checkoutNum",new CheckoutNumHandler());
                         //数据帧尾，并且保存数据
-                        ch.pipeline().addLast("lastAndStore",new TailAndStoreHandler(deviceCurrentService));
+                        ch.pipeline().addLast("lastAndStore",new TailAndStoreHandler(deviceDataService));
                     }
                 }).bind(9999);
     }

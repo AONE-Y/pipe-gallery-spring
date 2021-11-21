@@ -17,77 +17,96 @@ import java.time.LocalDateTime;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/11/20 20:47
+ * @Date：2021/11/21 11:50
  * @Author：ANONE
  * @Address： HaiKou·China
- * @Description: 
+ * @Description:
  * @Modified By: ANONE
  */
-@ApiModel(value="testshardingjdbc.device_query")
+@ApiModel(value = "testshardingjdbc.device_data")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName(value = "testshardingjdbc.device_query")
-public class DeviceQuery implements Serializable {
+@TableName(value = "testshardingjdbc.device_data")
+public class DeviceData implements Serializable {
+    public static final String COL_TYPE = "type";
     /**
      * 查询id
      */
-    @TableId(value = "query_id", type = IdType.AUTO)
-    @ApiModelProperty(value="查询id")
-    private Long queryId;
+    @TableId(value = "id", type = IdType.AUTO)
+    @ApiModelProperty(value = "查询id")
+    private Long id;
 
     /**
      * 仓端名
      */
     @TableField(value = "ws_name")
-    @ApiModelProperty(value="仓端名")
+    @ApiModelProperty(value = "仓端名")
     private String wsName;
 
     /**
      * 节点名
      */
     @TableField(value = "node")
-    @ApiModelProperty(value="节点名")
+    @ApiModelProperty(value = "节点名")
     private String node;
+
+    /**
+     * 设备状态
+     */
+    @TableField(value = "`status`")
+    @ApiModelProperty(value = "设备状态")
+    private Integer status;
 
     /**
      * 查询代码
      */
     @TableField(value = "code")
-    @ApiModelProperty(value="查询代码")
+    @ApiModelProperty(value = "查询代码")
     private String code;
+    /**
+     * 设备名称
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "设备名称")
+    private String codeStr;
+
+    /**
+     * 设备类型
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "设备类型")
+    private int type;
 
     /**
      * 查询数值
      */
     @TableField(value = "code_value")
-    @ApiModelProperty(value="查询数值")
+    @ApiModelProperty(value = "查询数值")
     private Double codeValue;
-    /**
-     * 传感器名称
-     */
-    @TableField(exist = false)
-    @ApiModelProperty(value="传感器名称")
-    private String codeStr;
+
     /**
      * 连接时间
      */
     @TableField(value = "connect_time")
-    @ApiModelProperty(value="连接时间")
+    @ApiModelProperty(value = "连接时间")
     private LocalDateTime connectTime;
 
     private static final long serialVersionUID = 1L;
 
-    public static final String COL_QUERY_ID = "query_id";
+    public static final String COL_ID = "id";
 
     public static final String COL_WS_NAME = "ws_name";
 
     public static final String COL_NODE = "node";
+
+    public static final String COL_STATUS = "status";
 
     public static final String COL_CODE = "code";
 
     public static final String COL_CODE_VALUE = "code_value";
 
     public static final String COL_CONNECT_TIME = "connect_time";
+
 }

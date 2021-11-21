@@ -8,12 +8,13 @@
     <result column="node" jdbcType="VARCHAR" property="node" />
     <result column="code_str" jdbcType="VARCHAR" property="codeStr" />
     <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="type" jdbcType="INTEGER" property="type" />
     <result column="calculate" jdbcType="INTEGER" property="calculate" />
     <result column="weight" jdbcType="INTEGER" property="weight" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    node_id, node, code_str, code, calculate, weight, create_time
+    node_id, node, code_str, code, `type`, calculate, weight, create_time
   </sql>
 </mapper>

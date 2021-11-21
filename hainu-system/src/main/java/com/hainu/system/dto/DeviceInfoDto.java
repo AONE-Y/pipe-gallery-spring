@@ -1,7 +1,6 @@
 package com.hainu.system.dto;
 
-import com.hainu.system.entity.DeviceCmd;
-import com.hainu.system.entity.DeviceQuery;
+import com.hainu.system.entity.DeviceData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +23,6 @@ import java.util.List;
 @Builder
 public class DeviceInfoDto {
     private String wsName;
-    private List<DeviceQuery> queries;
-    private List<DeviceCmd> cmds;
+    private List<DeviceData> queries;
+    private List<DeviceData> cmds;
 }

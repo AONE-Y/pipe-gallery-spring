@@ -2,12 +2,9 @@ package com.hainu;
 
 
 import com.hainu.system.config.netty.handle.ResponseHandler;
-import com.hainu.system.dao.DeviceCmdMapper;
 import com.hainu.system.dao.DeviceListMapper;
 import com.hainu.system.dao.DeviceLogMapper;
-import com.hainu.system.dao.DeviceQueryMapper;
-import com.hainu.system.entity.DeviceCmd;
-import com.hainu.system.entity.DeviceQuery;
+import com.hainu.system.entity.DeviceData;
 import com.hainu.system.service.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -47,11 +44,7 @@ class HainuAdminApplicationTests {
     @Autowired
     NodeSensorService nss;
 
-    @Autowired
-    DeviceQueryMapper deviceQueryMapper;
 
-    @Autowired
-    DeviceCmdMapper deviceCmdMapper;
 
 
     @Test
@@ -70,13 +63,12 @@ class HainuAdminApplicationTests {
 
     }
 
+    @Autowired
+    DeviceDataService deviceDataService;
     @Test
     void testDevice() {
-        List<DeviceQuery> deviceQueryInfo = deviceQueryMapper.getDeviceQueryInfo(null);
-        List<DeviceCmd> deviceCmdInfo = deviceCmdMapper.getDeviceCmdInfo(null);
-        deviceQueryInfo.forEach(System.out::println);
-        System.out.println("======================================");
-        deviceCmdInfo.forEach(System.out::println);
+        List<DeviceData> deviceData = deviceDataService.getDeviceData(null);
+        deviceData.forEach(System.out::println);
     }
 
 
