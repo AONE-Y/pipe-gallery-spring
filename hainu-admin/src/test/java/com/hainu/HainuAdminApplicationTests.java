@@ -67,7 +67,7 @@ class HainuAdminApplicationTests {
     DeviceDataService deviceDataService;
     @Test
     void testDevice() {
-        List<DeviceData> deviceData = deviceDataService.getDeviceData(null);
+        List<DeviceData> deviceData = deviceDataService.getDeviceData();
         deviceData.forEach(System.out::println);
     }
 

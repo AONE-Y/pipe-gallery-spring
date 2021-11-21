@@ -24,8 +24,8 @@ public class DeviceDataServiceImpl extends ServiceImpl<DeviceDataMapper, DeviceD
     private DeviceDataMapper deviceDataMapper;
 
     @Override
-    public List<DeviceData> getDeviceData(String wsName) {
-        return deviceDataMapper.getDeviceData(wsName);
+    public List<DeviceData> getDeviceData() {
+        return deviceDataMapper.getDeviceData();
     }
 }
 

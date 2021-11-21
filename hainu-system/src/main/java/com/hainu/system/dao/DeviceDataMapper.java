@@ -2,7 +2,9 @@ package com.hainu.system.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.hainu.system.entity.DeviceData;
-import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations.Param;import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @Project：pipe-gallery
@@ -15,5 +17,5 @@ import org.apache.ibatis.annotations.Mapper;import org.apache.ibatis.annotations
  */
 @Mapper
 public interface DeviceDataMapper extends BaseMapper<DeviceData> {
-    List<DeviceData> getDeviceData(@Param("wsName") String wsName);
+    List<DeviceData> getDeviceData();
 }

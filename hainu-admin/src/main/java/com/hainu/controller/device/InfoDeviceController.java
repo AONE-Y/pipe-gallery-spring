@@ -1,5 +1,6 @@
 package com.hainu.controller.device;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hainu.common.constant.DeviceConst;
 import com.hainu.common.lang.Result;
@@ -47,8 +48,11 @@ public class InfoDeviceController {
             wsName= ResponseHandler.firstIp;
         }
 
-        List<DeviceData> deviceData = deviceDataService.getDeviceData(wsName);
-        Map<Integer, List<DeviceData>> groupData = deviceData.stream().collect(Collectors.groupingBy(DeviceData::getType));
+        List<DeviceData> deviceData = deviceDataService.getDeviceData();
+        String finalWsName = wsName;
+        Map<Integer, List<DeviceData>> groupData = deviceData.stream().filter((e)->
+                        finalWsName.equals(e.getWsName())|| ObjectUtil.isNull(e.getWsName()))
+                .collect(Collectors.groupingBy(DeviceData::getType));
         DeviceInfoDto deviceInfoDto = DeviceInfoDto.builder()
                 .wsName(wsName).queries(groupData.get(0))
                 .cmds(groupData.get(1)).build();

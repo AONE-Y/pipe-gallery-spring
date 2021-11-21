@@ -31,7 +31,7 @@ public class SaticScheduleTask {
     @Scheduled(fixedRate=10000)
     private void configureTasks() {
         QueryWrapper<DeviceCurrent> wrapper = new QueryWrapper<>();
-        wrapper.le(DeviceCurrent.COL_UPDATE_TIME,LocalDateTime.now().plusSeconds(-60));
+        wrapper.le(DeviceCurrent.COL_UPDATE_TIME,LocalDateTime.now().plusSeconds(-20));
         DeviceCurrent deviceCurrent = DeviceCurrent.builder().status(0)
                 .deviceTemp(0.0).deviceHumi(0.0).deviceGas(0.0)
                 .deviceLlv(0.0).deviceO2(0.0).deviceSmoke(0.0)
