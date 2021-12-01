@@ -45,7 +45,9 @@ public class TailAndStoreHandler extends ChannelInboundHandlerAdapter {
                 deviceData.setConnectTime(LocalDateTime.now());
                 UpdateWrapper<DeviceData> deviceUpdate = new UpdateWrapper<>();
                 deviceUpdate.eq(DeviceData.COL_WS_NAME, deviceData.getWsName());
+                deviceUpdate.eq(DeviceData.COL_CODE,deviceData.getCode());
                 deviceUpdate.eq(DeviceData.COL_NODE, deviceData.getNode()).or().eq(DeviceData.COL_NODE, StringUtil.EMPTY_STRING);
+
                 if (!deviceDataService.update(deviceData, deviceUpdate)) {
                     deviceDataService.save(deviceData);
                 }

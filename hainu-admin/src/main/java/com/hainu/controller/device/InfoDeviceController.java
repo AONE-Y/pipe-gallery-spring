@@ -54,15 +54,17 @@ public class InfoDeviceController {
         if (wsName == null){
             return new Result<>().success().put(null);
         }
+        String tempWsName=wsName;
         if (wsName.equals(DeviceConst.DEFAULT_WS_NAME)) {
             wsName= ResponseHandler.firstIp;
         }
+
 
         List<DeviceData> deviceData = deviceDataService.getDeviceData(wsName);
         Map<Integer, List<DeviceData>> groupData = deviceData.stream()
                 .collect(Collectors.groupingBy(DeviceData::getType));
         DeviceInfoDto deviceInfoDto = DeviceInfoDto.builder()
-                .wsName(wsName).queries(groupData.get(DeviceInfo.querySensor))
+                .wsName(tempWsName).queries(groupData.get(DeviceInfo.querySensor))
                 .cmds(groupData.get(DeviceInfo.cmdSensor)).build();
         return new Result<>().success().put(deviceInfoDto);
     }
