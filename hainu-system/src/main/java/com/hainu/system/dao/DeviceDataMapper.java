@@ -17,5 +17,9 @@ import java.util.List;
  */
 @Mapper
 public interface DeviceDataMapper extends BaseMapper<DeviceData> {
-    List<DeviceData> getDeviceData();
+    List<DeviceData> getDeviceData(String wsName);
+
+
+
 }
+

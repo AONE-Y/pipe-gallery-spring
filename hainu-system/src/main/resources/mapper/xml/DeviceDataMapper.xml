@@ -18,10 +18,13 @@
   </sql>
 
   <select id="getDeviceData" resultMap="BaseResultMap">
-    SELECT  d2.ws_name,d2.status,d1.node, d1.`code`,d1.code_str, d2.code_value,d1.type,d2.connect_time
+    SELECT d1.node_id as id, d2.ws_name,d2.status,d1.node, d1.`code`,d1.code_str,d1.unit, d2.code_value,d1.type,d2.connect_time
     FROM device_info as d1
-    LEFT JOIN device_data as d2
+    left JOIN device_data as d2
     on d1.node = d2.node and d1.code = d2.code
-
+    <where>
+      d2.ws_name is null or d2.ws_name=#{wsName}
+    </where>
+    ORDER BY d1.weight DESC
     </select>
 </mapper>

@@ -6,8 +6,9 @@
     <!--@Table testshardingjdbc.device_info-->
     <id column="node_id" jdbcType="BIGINT" property="nodeId" />
     <result column="node" jdbcType="VARCHAR" property="node" />
-    <result column="code_str" jdbcType="VARCHAR" property="codeStr" />
     <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="unit" jdbcType="VARCHAR" property="unit" />
+    <result column="code_str" jdbcType="VARCHAR" property="codeStr" />
     <result column="type" jdbcType="INTEGER" property="type" />
     <result column="calculate" jdbcType="INTEGER" property="calculate" />
     <result column="weight" jdbcType="INTEGER" property="weight" />
@@ -15,6 +16,6 @@
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    node_id, node, code_str, code, `type`, calculate, weight, create_time
+    node_id, node, code, unit, code_str, `type`, calculate, weight, create_time
   </sql>
 </mapper>

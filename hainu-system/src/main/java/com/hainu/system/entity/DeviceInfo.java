@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 /**
  * @Project：pipe-gallery
  * @Package：com.hainu.system.entity
- * @Date：2021/11/21 11:50
+ * @Date：2021/11/30 16:04
  * @Author：ANONE
  * @Address： HaiKou·China
  * @Description:
@@ -30,6 +30,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @TableName(value = "testshardingjdbc.device_info")
 public class DeviceInfo implements Serializable {
+    public static final int querySensor = 0;
+    public static final int cmdSensor = 1;
     /**
      * 节点信息id
      */
@@ -45,18 +47,25 @@ public class DeviceInfo implements Serializable {
     private String node;
 
     /**
-     * 设备名
-     */
-    @TableField(value = "code_str")
-    @ApiModelProperty(value = "设备名")
-    private String codeStr;
-
-    /**
      * 设备代码
      */
     @TableField(value = "code")
     @ApiModelProperty(value = "设备代码")
     private String code;
+
+    /**
+     * 单位
+     */
+    @TableField(value = "unit")
+    @ApiModelProperty(value = "单位")
+    private String unit;
+
+    /**
+     * 设备名
+     */
+    @TableField(value = "code_str")
+    @ApiModelProperty(value = "设备名")
+    private String codeStr;
 
     /**
      * 0表示传感器，1表示控制设备
@@ -92,9 +101,11 @@ public class DeviceInfo implements Serializable {
 
     public static final String COL_NODE = "node";
 
-    public static final String COL_CODE_STR = "code_str";
-
     public static final String COL_CODE = "code";
+
+    public static final String COL_UNIT = "unit";
+
+    public static final String COL_CODE_STR = "code_str";
 
     public static final String COL_TYPE = "type";
 

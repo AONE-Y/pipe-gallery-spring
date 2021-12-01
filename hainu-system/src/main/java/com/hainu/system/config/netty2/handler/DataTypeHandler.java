@@ -98,7 +98,7 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
         }
         if (type == (byte) 0x82) {
             deviceRes.setCodeType("82");
-            double switchStatus = value > DeviceConst.resOn ? 1.0 : 0;
+            double switchStatus = value == DeviceConst.RES_ON ? 1 : 0;
             deviceRes.setCodeValue(switchStatus);
         }
     }
@@ -110,7 +110,7 @@ public class DataTypeHandler extends ChannelInboundHandlerAdapter {
         }
         if (type == (byte) 0x84) {
             deviceData.setType(1);
-            double switchStatus = value > DeviceConst.dateOn ? 1.0 : 0.0;
+            double switchStatus = value == DeviceConst.DATE_ON ? 1 : 0;
             deviceData.setCodeValue(switchStatus);
         }
     }

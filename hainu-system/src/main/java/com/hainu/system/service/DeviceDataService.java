@@ -14,7 +14,7 @@ import java.util.List;
  * @Modified By: ANONE
  */
 public interface DeviceDataService extends IService<DeviceData> {
-    List<DeviceData> getDeviceData();
+    List<DeviceData> getDeviceData(String wsName);
 
 }
 

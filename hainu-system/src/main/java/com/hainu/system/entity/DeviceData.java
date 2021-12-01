@@ -65,6 +65,13 @@ public class DeviceData implements Serializable {
     @TableField(value = "code")
     @ApiModelProperty(value = "查询代码")
     private String code;
+
+    /**
+     * 单位
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "单位")
+    private String unit;
     /**
      * 设备名称
      */
@@ -108,5 +115,6 @@ public class DeviceData implements Serializable {
     public static final String COL_CODE_VALUE = "code_value";
 
     public static final String COL_CONNECT_TIME = "connect_time";
+
 
 }

@@ -1,10 +1,12 @@
 package com.hainu;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hainu.system.config.netty.handle.ResponseHandler;
 import com.hainu.system.dao.DeviceListMapper;
 import com.hainu.system.dao.DeviceLogMapper;
 import com.hainu.system.entity.DeviceData;
+import com.hainu.system.entity.DeviceInfo;
 import com.hainu.system.service.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -67,9 +69,20 @@ class HainuAdminApplicationTests {
     DeviceDataService deviceDataService;
     @Test
     void testDevice() {
-        List<DeviceData> deviceData = deviceDataService.getDeviceData();
+        List<DeviceData> deviceData = deviceDataService.getDeviceData("123");
         deviceData.forEach(System.out::println);
     }
 
+    @Autowired
+    private DeviceInfoService deviceInfoService;
+    @Test
+    void testQuerySensor(){
+        QueryWrapper<DeviceInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(DeviceInfo.COL_TYPE,DeviceInfo.querySensor);
+        queryWrapper.orderByDesc(DeviceInfo.COL_WEIGHT);
+        List<DeviceInfo> deviceInfos = deviceInfoService.list(queryWrapper);
+        deviceInfos.forEach(System.out::println);
+
+    }
 
 }

@@ -12,6 +12,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.internal.StringUtil;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -41,6 +42,7 @@ public class TailAndStoreHandler extends ChannelInboundHandlerAdapter {
         if (recBuf.readByte() == (byte) 0xfd) {
             if (deviceData != null) {
                 deviceData.setStatus(1);
+                deviceData.setConnectTime(LocalDateTime.now());
                 UpdateWrapper<DeviceData> deviceUpdate = new UpdateWrapper<>();
                 deviceUpdate.eq(DeviceData.COL_WS_NAME, deviceData.getWsName());
                 deviceUpdate.eq(DeviceData.COL_NODE, deviceData.getNode()).or().eq(DeviceData.COL_NODE, StringUtil.EMPTY_STRING);
