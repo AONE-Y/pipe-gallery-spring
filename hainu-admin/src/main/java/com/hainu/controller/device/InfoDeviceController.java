@@ -4,6 +4,7 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.hainu.common.constant.DeviceConst;
 import com.hainu.common.constant.StaticObject;
 import com.hainu.common.lang.Result;
@@ -51,7 +52,7 @@ public class InfoDeviceController {
 
     @GetMapping("/get")
     public Result<?> getDeviceData(@RequestParam(value = "wsName",required = false) String wsName) {
-        if (wsName == null){
+        if (wsName == null||wsName.equals(StringUtils.EMPTY)){
             return new Result<>().success().put(null);
         }
         String tempWsName=wsName;
@@ -96,7 +97,7 @@ public class InfoDeviceController {
         return new Result<>().success();
     }
 
-    @PostMapping("/deleteSensor")
+    @GetMapping("/deleteSensor")
     public Result<?>  deleteSensor(String node,String code){
 
         UpdateWrapper<DeviceInfo> deleteWrapper = new UpdateWrapper<>();
@@ -202,7 +203,7 @@ public class InfoDeviceController {
         String wsName=deviceBaseDto.getWsName();
         String node=deviceBaseDto.getNode();
         try {
-            String flag = HexUtil.encodeHexStr(deviceBaseDto.getCode());
+            String flag = deviceBaseDto.getCode();
             deviceRes = (DeviceRes)StaticObject.getMessageQueue().take(10000, flag);
         } catch (TimeoutException e) {
             throw new TimeoutException(e.getMessage());
