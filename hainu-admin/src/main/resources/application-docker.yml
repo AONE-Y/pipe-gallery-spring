@@ -1,4 +1,4 @@
-ip: 192.168.2.219
+ip: 172.17.0.1
 
 server:
   port: 9998
@@ -43,7 +43,7 @@ spring:
 
   redis:
     port: 6379
-    host: 192.168.2.219
+    host: ${ip}
     database: 3
 
 
@@ -115,7 +115,7 @@ mqtt:
 
 
 info:
-  baseBtUrl: http://192.168.2.219:8888/system?action=
+  baseBtUrl: http://${ip}:8888/system?action=
   baseEmqUrl: http://${ip}:8081/api/v4
 
 
